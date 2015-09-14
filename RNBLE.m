@@ -35,7 +35,7 @@ RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(startScanning:(CBUUIDArray *)uuids allowDuplicates:(BOOL)allowDuplicates)
 {
-	RCTLogInfo(@"startScanning %@ %d", uuids, allowDuplicates);
+//	RCTLogInfo(@"startScanning %@ %d", uuids, allowDuplicates);
 
 	NSMutableDictionary *scanOptions = [NSMutableDictionary dictionaryWithObject:@NO
 	                                                      forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
@@ -44,7 +44,7 @@ RCT_EXPORT_METHOD(startScanning:(CBUUIDArray *)uuids allowDuplicates:(BOOL)allow
 		[scanOptions setObject:@YES forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
 	}
 
-    RCTLogInfo(@"startScanning %@ %@", uuids, scanOptions);
+//    RCTLogInfo(@"startScanning %@ %@", uuids, scanOptions);
 
     [centralManager scanForPeripheralsWithServices:uuids options:scanOptions];
 }
@@ -121,6 +121,7 @@ RCT_EXPORT_METHOD(getState)
     }
     
     NSDictionary *advertisementDataDictionary = @{ @"identifier" : @"",
+                            @"kCBAdvDataIsConnectable" : [advertisementData objectForKey:@"kCBAdvDataIsConnectable"],
                             @"kCBAdvDataLocalName" : localNameString,
                             @"kCBAdvDataManufacturerData" : manufacturerDataString,
                             @"kCBAdvDataServiceData" : stringServiceDataDictionary,

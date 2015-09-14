@@ -10,6 +10,7 @@ var NativeRNBLE = require('NativeModules').RNBLE;
 var EventEmitter = require('events').EventEmitter;
 var React = require('react-native');
 var Buffer = require('buffer').Buffer;
+var Peripheral = require('./peripheral');
 
 var {
   DeviceEventEmitter
@@ -27,79 +28,125 @@ class RNBLE extends EventEmitter {
 		super();
 		this.state = 'unknown';
 
-		var self = this;
+	  this._peripherals = {};
+	  this._services = {};
+	  this._characteristics = {};
+	  this._descriptors = {};
 
-		DeviceEventEmitter.addListener(
-		  'discover', function(args,advertisementData,rssi){
-
-				var serviceDataBuffer = new Buffer(args.kCBMsgArgAdvertisementData.kCBAdvDataServiceData, 'base64');
-				var manufacturerDataBuffer = new Buffer(args.kCBMsgArgAdvertisementData.kCBAdvDataManufacturerData, 'base64');
-
-			  var advertisement = {
-			    localName: args.kCBMsgArgAdvertisementData.kCBAdvDataLocalName || args.kCBMsgArgName,
-			    txPowerLevel: args.kCBMsgArgAdvertisementData.kCBAdvDataTxPowerLevel,
-			    manufacturerData: manufacturerDataBuffer,
-			    serviceData: [],
-			    serviceUuids: args.kCBMsgArgAdvertisementData.kCBAdvDataServiceUUIDs
-			  };
-
-			  var rssi = args.kCBMsgArgRssi;
-
-			  var serviceData = args.kCBMsgArgAdvertisementData.kCBAdvDataServiceData;
-				for (var prop in serviceData) {
-					var propData = new Buffer(serviceData[prop], 'base64');
-				  advertisement.serviceData.push({
-				  	uuid: prop.toLowerCase(),
-				  	data: propData
-				  });
-				}
-
-			  var uuid = new Buffer(args.kCBMsgArgDeviceUUID, 'hex');
-			  uuid.isUuid = true;
-
-			  var peripheral = {};
-			  peripheral.advertisement = advertisement;
-			  peripheral.rssi = rssi;
-
-			  peripheral.id = uuid;
-			  peripheral.address = 'unknown'; //is there a way to know this?
-			  peripheral.addressType = 'unknown'; //is there a way to know this?
-
-
-		  	self.emit('discover', peripheral);
-		  }
-		);
-
-		DeviceEventEmitter.addListener(
-		  'stateChange', function(state){
-		  	self.state = state;
-		  	self.emit('stateChange', state);
-		  }
-		);
-
+		DeviceEventEmitter.addListener('discover', this.onDiscover.bind(this));
+		DeviceEventEmitter.addListener('stateChange', this.onStateChange.bind(this));
 	}
 
-	startScanning(serviceUUIDs, allowDuplicates) {
-		var scanids = [];
-		var duplicates = allowDuplicates || false;
+	onStateChange (state) {
+  	this.state = state;
+  	this.emit('stateChange', state);
+	}
 
-		if(typeof serviceUUIDs === 'string'){
-			scanids[0] = serviceUUIDs;
-		}else if (Array.isArray(serviceUUIDs)){
-			scanids = serviceUUIDs;
+	onDiscover (args, advertisementData, rssi) {
+
+		var serviceDataBuffer = new Buffer(args.kCBMsgArgAdvertisementData.kCBAdvDataServiceData, 'base64');
+
+		var manufacturerDataBuffer = new Buffer(args.kCBMsgArgAdvertisementData.kCBAdvDataManufacturerData, 'base64');
+		if(manufacturerDataBuffer.length===0){
+			manufacturerDataBuffer = undefined;
 		}
 
-		console.log(duplicates);
-		NativeRNBLE.startScanning(scanids, duplicates);
+		var txPowerLevel = args.kCBMsgArgAdvertisementData.kCBAdvDataTxPowerLevel;
+		if(txPowerLevel===''){
+			txPowerLevel = undefined;
+		}
+
+		// todo need to lower case and remove dashes
+		var serviceUuids = args.kCBMsgArgAdvertisementData.kCBAdvDataServiceUUIDs;
+
+	  var advertisement = {
+	    localName: args.kCBMsgArgAdvertisementData.kCBAdvDataLocalName || args.kCBMsgArgName,
+	    txPowerLevel: txPowerLevel,
+	    manufacturerData: manufacturerDataBuffer,
+	    serviceData: [],
+	    serviceUuids: serviceUuids
+	  };
+
+	  var rssi = args.kCBMsgArgRssi;
+
+	  var serviceData = args.kCBMsgArgAdvertisementData.kCBAdvDataServiceData;
+		for (var prop in serviceData) {
+			var propData = new Buffer(serviceData[prop], 'base64');
+		  advertisement.serviceData.push({
+		  	uuid: prop.toLowerCase(),
+		  	data: propData
+		  });
+		}
+
+		// todo need to remove dashes and lowercase
+		var uuid = args.kCBMsgArgDeviceUUID;
+
+		var connectable = args.kCBMsgArgAdvertisementData.kCBAdvDataIsConnectable ? true : false;
+
+
+		var peripheral = this._peripherals[uuid];
+
+	  if (!peripheral) {
+	    peripheral = new Peripheral(this, uuid, 'unknown', 'unknown', connectable, advertisement, rssi)
+
+	    this._peripherals[uuid] = peripheral;
+	    this._services[uuid] = {};
+	    this._characteristics[uuid] = {};
+	    this._descriptors[uuid] = {};
+	  } else {
+	    // "or" the advertisment data with existing
+	    for (var i in advertisement) {
+	      if (advertisement[i] !== undefined) {
+	        peripheral.advertisement[i] = advertisement[i];
+	      }
+	    }
+
+	    peripheral.rssi = rssi;
+	  }
+
+	  var previouslyDiscoverd = (this._discoveredPeripheralUUids.indexOf(uuid) !== -1);
+
+	  if (!previouslyDiscoverd) {
+	    this._discoveredPeripheralUUids.push(uuid);
+	  }
+
+	  if (this._allowDuplicates || !previouslyDiscoverd) {
+	    this.emit('discover', peripheral);
+	  }
+
+  }
+
+	startScanning(serviceUUIDs, allowDuplicates, callback) {
+		if (this.state !== 'poweredOn') {
+		  var error = new Error('Could not start scanning, state is ' + this.state + ' (not poweredOn)');
+
+		  if (typeof callback === 'function') {
+		    callback(error);
+		  } else {
+		    throw error;
+		  }
+		} else {
+		  if (callback) {
+		    this.once('scanStart', callback);
+		  }
+
+		  this._discoveredPeripheralUUids = [];
+		  this._allowDuplicates = allowDuplicates || false;
+
+			var scanids = [];
+
+			if(typeof serviceUUIDs === 'string'){
+				scanids[0] = serviceUUIDs;
+			}else if (Array.isArray(serviceUUIDs)){
+				scanids = serviceUUIDs;
+			}
+
+			NativeRNBLE.startScanning(scanids, this._allowDuplicates);
+		}	
 	}
 
 	stopScanning() {
 		NativeRNBLE.stopScanning();
-	}
-
-	//havent figured out a way to trigger this as part of an init yet
-	getState() {
-		NativeRNBLE.getState();
 	}
 
 }
