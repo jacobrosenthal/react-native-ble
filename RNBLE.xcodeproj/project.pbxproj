@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		13BE3DEE1AC21097009241FE /* RNBLE.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BE3DED1AC21097009241FE /* RNBLE.m */; };
+		5BA59D041B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BA59D031B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,6 +27,8 @@
 		134814201AA4EA6300B7C361 /* libRNBLE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNBLE.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		13BE3DEC1AC21097009241FE /* RNBLE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNBLE.h; sourceTree = "<group>"; };
 		13BE3DED1AC21097009241FE /* RNBLE.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNBLE.m; sourceTree = "<group>"; };
+		5BA59D031B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCTCONVERT+CBUUID.m"; sourceTree = "<group>"; };
+		5BA59D051B9DBE4D00FE95E2 /* RCTCONVERT+CBUUID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTCONVERT+CBUUID.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +55,8 @@
 			children = (
 				13BE3DEC1AC21097009241FE /* RNBLE.h */,
 				13BE3DED1AC21097009241FE /* RNBLE.m */,
+				5BA59D031B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m */,
+				5BA59D051B9DBE4D00FE95E2 /* RCTCONVERT+CBUUID.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -113,6 +118,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13BE3DEE1AC21097009241FE /* RNBLE.m in Sources */,
+				5BA59D041B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

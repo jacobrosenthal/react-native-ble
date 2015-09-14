@@ -4,9 +4,13 @@
     "type": "git",
     "url": "https://github.com/jacobrosenthal/react-native-ble.git"
   },
+  "browser": {
+    "events": "events",
+    "util": "util"
+  },
   "version": "0.0.0",
   "description": "React Native BLE using noble api surface",
-  "main": "index.ios.js",
+  "main": "index.js",
   "author": {
     "name": "Jacob Rosenthal",
     "email": "jakerosenthal@gmail.com"
@@ -28,5 +32,10 @@
     "url": "https://github.com/jacobrosenthal/react-native-ble/issues"
   },
   "homepage": "https://github.com/jacobrosenthal/react-native-ble",
-  "scripts": {}
+  "scripts": {},
+  "dependencies": {
+    "debug": "^2.2.0",
+    "events": "^1.0.2",
+    "util": "^0.10.3"
+  }
 }
