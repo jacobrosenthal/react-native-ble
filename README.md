@@ -15,3 +15,5 @@ Then click the + button at the bottom to add the CoreBluetooth Framework.
 Just use instead of noble
 ```
 var noble = require('react-native-ble');
+
+See this example [index.ios.js](https://gist.github.com/jacobrosenthal/85bb514ade5b62d4b02a)
