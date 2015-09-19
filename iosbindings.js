@@ -3,11 +3,10 @@ var debug = require('debug')('ios-bindings');
 var events        = require('events');
 var util          = require('util');
 
-var NativeRNBLE = require('NativeModules').RNBLE;
-var React = require('react-native');
 var {
-  DeviceEventEmitter
-} = React;
+  DeviceEventEmitter,
+  NativeModules: { RNBLE }
+} = require('react-native');
 
 var Buffer = require('buffer').Buffer;
 
@@ -120,7 +119,7 @@ nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
 
   var duplicates = allowDuplicates || false;
 
-  NativeRNBLE.startScanning(serviceUuids, duplicates);
+  RNBLE.startScanning(serviceUuids, duplicates);
   this.emit('scanStart');
 };
 
@@ -131,7 +130,7 @@ nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
  * @discussion tested
  */
 nobleBindings.stopScanning = function() {
-  NativeRNBLE.stopScanning();
+  RNBLE.stopScanning();
   this.emit('scanStop');
 };
 
