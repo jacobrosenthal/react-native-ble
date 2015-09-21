@@ -8,7 +8,7 @@
     "events": "events",
     "util": "util"
   },
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "React Native BLE using noble api surface",
   "main": "index.js",
   "author": {
