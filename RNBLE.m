@@ -196,6 +196,9 @@ RCT_EXPORT_METHOD(getState)
 
         case CBCentralManagerStatePoweredOn:
             return @"CBCentralManagerStatePoweredOn";
+
+        case CBPeripheralStateDisconnecting:
+            return @"CBPeripheralStateDisconnecting";
     }
 }
 
