@@ -11,6 +11,7 @@ var bindings = require('./iosbindings.js');
 function Noble() {
   this.state = 'unknown';
 
+  this._discoveredPeripheralUUids = [];
   this._bindings = bindings;
   this._peripherals = {};
   this._services = {};
