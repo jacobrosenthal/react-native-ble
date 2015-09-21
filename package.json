@@ -8,7 +8,7 @@
     "events": "events",
     "util": "util"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "React Native BLE using noble api surface",
   "main": "index.js",
   "author": {
@@ -18,7 +18,7 @@
   "nativePackage": true,
   "peerDependencies": {
     "react-native": "^0.11.0"
-    },
+  },
   "keywords": [
     "react-native",
     "react",
