@@ -9,7 +9,7 @@
     "util": "util"
   },
   "version": "0.0.4",
-  "description": "React Native BLE using noble api surface",
+  "description": "Central role BLE for react native noble api surface",
   "main": "index.js",
   "author": {
     "name": "Jacob Rosenthal",
@@ -38,5 +38,6 @@
     "debug": "^2.2.0",
     "events": "^1.0.2",
     "util": "^0.10.3"
-  }
+  },
+  "license" : "MIT"
 }
