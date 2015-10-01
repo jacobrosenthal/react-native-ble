@@ -17,11 +17,9 @@ var {
 var noble = require('noble');
 
 var bleqr = React.createClass({
-  getInitialState: function() {
-    return {
-      };
-  },
   componentWillMount: function(){
+    // The startup 'onstatechange' is not currently caught sadly, see
+    // https://github.com/jacobrosenthal/react-native-ble/issues/1
     noble.startScanning();
     noble.on('stateChange', this._onStateChange);
     noble.on('discover', this._onPeripheralFound);
@@ -38,14 +36,13 @@ var bleqr = React.createClass({
     );
   },
 
-  // haven't got the timing right on this yet.
   _onStateChange: function(state) {
     console.log('_onStateChange', state);
-    // if (state === 'poweredOn') {
-    //   noble.startScanning();
-    // } else {
-    //   noble.stopScanning();
-    // }
+    if (state === 'poweredOn') {
+      noble.startScanning();
+    } else {
+      noble.stopScanning();
+    }
   },
 
   _onPeripheralFound: function(peripheral) {
