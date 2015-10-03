@@ -134,7 +134,9 @@ nobleBindings.stopScanning = function() {
   this.emit('scanStop');
 };
 
-
+nobleBindings.init = function() {
+  RNBLE.setup();
+};
 
 nobleBindings.connect = function(deviceUuid) {
   throw new Error('connect not yet implemented');
