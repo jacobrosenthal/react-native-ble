@@ -21,7 +21,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		37D766DE1B169C2300A0934A /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37D766DC1B169BD700A0934A /* libRCTWebSocket.a */; };
-		5BD1C3E01BBD357300F4669B /* libRNBLE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BD1C3DF1BBD356300F4669B /* libRNBLE.a */; };
+		5B8A93601BC0640B002844DE /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B8A934C1BC061EF002844DE /* CoreBluetooth.framework */; };
+		5B8A936C1BC0641D002844DE /* libRNBLE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B8A93531BC06210002844DE /* libRNBLE.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 /* End PBXBuildFile section */
 
@@ -89,9 +90,9 @@
 			remoteGlobalIDString = 3C86DF461ADF2C930047B81A;
 			remoteInfo = RCTWebSocket;
 		};
-		5BD1C3DE1BBD356300F4669B /* PBXContainerItemProxy */ = {
+		5B8A93521BC06210002844DE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 5BD1C3D01BBD356300F4669B /* RNBLE.xcodeproj */;
+			containerPortal = 5B8A934E1BC06210002844DE /* RNBLE.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 134814201AA4EA6300B7C361;
 			remoteInfo = RNBLE;
@@ -130,7 +131,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = iOS/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		37D766CF1B169BD700A0934A /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
-		5BD1C3D01BBD356300F4669B /* RNBLE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNBLE.xcodeproj; path = "../../../../Desktop/bleqr/node_modules/react-native-ble/RNBLE.xcodeproj"; sourceTree = "<group>"; };
+		5B8A934C1BC061EF002844DE /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		5B8A934E1BC06210002844DE /* RNBLE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNBLE.xcodeproj; path = "node_modules/react-native-ble/RNBLE.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -140,7 +142,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5BD1C3E01BBD357300F4669B /* libRNBLE.a in Frameworks */,
+				5B8A93601BC0640B002844DE /* CoreBluetooth.framework in Frameworks */,
+				5B8A936C1BC0641D002844DE /* libRNBLE.a in Frameworks */,
 				37D766DE1B169C2300A0934A /* libRCTWebSocket.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
 				00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */,
@@ -243,10 +246,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		5BD1C3D11BBD356300F4669B /* Products */ = {
+		5B8A934F1BC06210002844DE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5BD1C3DF1BBD356300F4669B /* libRNBLE.a */,
+				5B8A93531BC06210002844DE /* libRNBLE.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -262,7 +265,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				5BD1C3D01BBD356300F4669B /* RNBLE.xcodeproj */,
+				5B8A934E1BC06210002844DE /* RNBLE.xcodeproj */,
 				78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
 				832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */,
@@ -288,6 +291,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				5B8A934C1BC061EF002844DE /* CoreBluetooth.framework */,
 				37D766CF1B169BD700A0934A /* RCTWebSocket.xcodeproj */,
 				13B07FAE1A68108700A75B9A /* BabelES6 */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -391,8 +395,8 @@
 					ProjectRef = 146833FF1AC3E56700842450 /* React.xcodeproj */;
 				},
 				{
-					ProductGroup = 5BD1C3D11BBD356300F4669B /* Products */;
-					ProjectRef = 5BD1C3D01BBD356300F4669B /* RNBLE.xcodeproj */;
+					ProductGroup = 5B8A934F1BC06210002844DE /* Products */;
+					ProjectRef = 5B8A934E1BC06210002844DE /* RNBLE.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -466,11 +470,11 @@
 			remoteRef = 37D766DB1B169BD700A0934A /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		5BD1C3DF1BBD356300F4669B /* libRNBLE.a */ = {
+		5B8A93531BC06210002844DE /* libRNBLE.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libRNBLE.a;
-			remoteRef = 5BD1C3DE1BBD356300F4669B /* PBXContainerItemProxy */;
+			remoteRef = 5B8A93521BC06210002844DE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		78C398B91ACF4ADC00677621 /* libRCTLinking.a */ = {
