@@ -265,6 +265,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				37D766CF1B169BD700A0934A /* RCTWebSocket.xcodeproj */,
 				5B8A934E1BC06210002844DE /* RNBLE.xcodeproj */,
 				78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
@@ -292,7 +293,6 @@
 			isa = PBXGroup;
 			children = (
 				5B8A934C1BC061EF002844DE /* CoreBluetooth.framework */,
-				37D766CF1B169BD700A0934A /* RCTWebSocket.xcodeproj */,
 				13B07FAE1A68108700A75B9A /* BabelES6 */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
