@@ -176,6 +176,11 @@ RCT_EXPORT_METHOD(getState)
 
         case CBPeripheralStateConnected:
             return @"CBPeripheralStateConnected";
+            
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000
+        case CBPeripheralStateDisconnecting:
+            return @"CBPeripheralStateDisconnecting";
+#endif
     }
 }
 
@@ -198,11 +203,6 @@ RCT_EXPORT_METHOD(getState)
 
         case CBCentralManagerStatePoweredOn:
             return @"CBCentralManagerStatePoweredOn";
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000
-        case CBPeripheralStateDisconnecting:
-            return @"CBPeripheralStateDisconnecting";
-#endif
     }
 }
 
