@@ -14,6 +14,3 @@ See the [noble](https://github.com/sandeepmistry/noble/) api for usage
 ```
 var noble = ('react-native-ble');
 ```
-
-#example
-See the example which utilizes the preferred method of using this module, aliased via webpack, allowing you to utilize the existing ecosystem that already exists.

@@ -3,21 +3,20 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-
-var React = require('react-native');
-
-var {
+import React, {
   AppRegistry,
+  Component,
+  StyleSheet,
   Text,
   View
-} = React;
+} from 'react-native';
 
-// react native ble is brought in via webpack as noble so it can be used
-// with the community of node ble packages that already exist
-var noble = require('noble');
+var noble;
 
 var bleqr = React.createClass({
   componentWillMount: function(){
+    //terrible pattern, but we're losing the initial state change emit
+    noble = require('react-native-ble');
     noble.on('stateChange', this._onStateChange);
     noble.on('discover', this._onPeripheralFound);
   },
@@ -29,6 +28,7 @@ var bleqr = React.createClass({
   render: function() {
     return (
       <View>
+        <Text>Check the xcode console</Text>
       </View>
     );
   },

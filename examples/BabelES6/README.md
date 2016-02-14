@@ -1,18 +1,7 @@
 ## Running the example app
 
-Install the example app dependencies and start the server:
+Install the example app dependencies with `npm install`.
 
-```
-npm install
-npm start
-```
+Bluetooth doesnt work in the simulator sadly, and with all the new security on ios on loading non secure content, this example is setup to load via bundle. 
 
-Bluetooth doesnt work in the simulator sadly, so get on the same network as your idevice, set the ip address in AppDelegate.m to your machine and finally run on your device. If/when another packager window opens, control c it to stop it so it doesn't affect the webpack packager.
-
-To build for release:
-
-```
-npm run bundle
-```
-
-Then uncomment the line in AppDelegate.m that loads the local `main.jsbundle`.
+To run your app on iOS `react-native run-ios` or `open BabelES6.xcodeproj` and hit run.

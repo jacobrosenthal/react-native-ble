@@ -17,7 +17,7 @@
   },
   "nativePackage": true,
   "peerDependencies": {
-    "react-native": "^0.11.0"
+    "react-native": "^0.19.0"
   },
   "keywords": [
     "react-native",
