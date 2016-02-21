@@ -17,7 +17,7 @@ var Buffer = require('buffer').Buffer;
 var NobleBindings = function() {
   DeviceEventEmitter.addListener('discover', this.onDiscover.bind(this));
   DeviceEventEmitter.addListener('stateChange', this.onStateChange.bind(this));
-  DeviceEventEmitter.addListener('connect', this.onStateChange.bind(this));
+  DeviceEventEmitter.addListener('connect', this.onConnect.bind(this));
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -108,7 +108,7 @@ NobleBindings.prototype.onConnect = function(peripheralUuid, error) {
 
   if (peripheral) {
     peripheral.state = error ? 'error' : 'connected';
-    peripheral.emit('connect', error);
+    this.emit('connect', error);
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' connected!');
   }
@@ -150,8 +150,10 @@ nobleBindings.init = function() {
   RNBLE.setup();
 };
 
-nobleBindings.connect = function(deviceUuid) {
-  RNBLE.connect(deviceUuid);
+nobleBindings.connect = function(peripheralUuid) {
+  // delete peripheral['_events'];
+  // delete peripheral['_noble'];
+  RNBLE.connect(peripheralUuid);
 };
 
 nobleBindings.disconnect = function(deviceUuid) {

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		13BE3DEE1AC21097009241FE /* RNBLE.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BE3DED1AC21097009241FE /* RNBLE.m */; };
 		5BA59D041B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BA59D031B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m */; };
-		EE7FCE741C78D6CB004F27A4 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EE7FCE731C78D6CB004F27A4 /* libReact.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,7 +29,6 @@
 		13BE3DED1AC21097009241FE /* RNBLE.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNBLE.m; sourceTree = "<group>"; };
 		5BA59D031B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCTCONVERT+CBUUID.m"; sourceTree = "<group>"; };
 		5BA59D051B9DBE4D00FE95E2 /* RCTCONVERT+CBUUID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTCONVERT+CBUUID.h"; sourceTree = "<group>"; };
-		EE7FCE731C78D6CB004F27A4 /* libReact.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReact.a; path = "../../../../../Library/Developer/Xcode/DerivedData/Rapitag-hatbdhxhouuafzercgslexfsdyow/Build/Products/Debug-iphoneos/libReact.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,7 +36,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE7FCE741C78D6CB004F27A4 /* libReact.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,7 +53,6 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				EE7FCE731C78D6CB004F27A4 /* libReact.a */,
 				13BE3DEC1AC21097009241FE /* RNBLE.h */,
 				13BE3DED1AC21097009241FE /* RNBLE.m */,
 				5BA59D031B9DBCE700FE95E2 /* RCTCONVERT+CBUUID.m */,
