@@ -58,6 +58,14 @@ RCT_EXPORT_METHOD(stopScanning)
 	[centralManager stopScan];
 }
 
+RCT_EXPORT_METHOD(connect:(CBUUID *)uuid)
+{
+	RCTLogInfo(@"connecting");
+    
+    //    [centralManager connectPeripheral:(CBPeripheral *)peripheral
+//                              options:(NSDictionary<NSString *, id> *)options];
+}
+
 RCT_EXPORT_METHOD(getState)
 {
    // RCTLogInfo(@"getState");

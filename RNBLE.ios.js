@@ -22,6 +22,7 @@ function Noble() {
   this._bindings.on('scanStart', this.onScanStart.bind(this));
   this._bindings.on('scanStop', this.onScanStop.bind(this));
   this._bindings.on('discover', this.onDiscover.bind(this));
+  this._bindings.on('connect', this.onConnect.bind(this));
 
   this._bindings.init();
 }
