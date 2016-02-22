@@ -1,85 +1,43 @@
 {
-  "_args": [
-    [
-      "github:balomueller/react-native-ble",
-      "/Users/smueller/ownCloud/Coding/rapitag/reactapp"
-    ]
-  ],
-  "_from": "balomueller/react-native-ble",
-  "_id": "react-native-ble@0.0.7",
-  "_inCache": true,
-  "_installable": true,
-  "_location": "/react-native-ble",
-  "_phantomChildren": {},
-  "_requested": {
-    "hosted": {
-      "directUrl": "https://raw.githubusercontent.com/balomueller/react-native-ble/master/package.json",
-      "gitUrl": "git://github.com/balomueller/react-native-ble.git",
-      "httpsUrl": "git+https://github.com/balomueller/react-native-ble.git",
-      "shortcut": "github:balomueller/react-native-ble",
-      "ssh": "git@github.com:balomueller/react-native-ble.git",
-      "sshUrl": "git+ssh://git@github.com/balomueller/react-native-ble.git",
-      "type": "github"
-    },
-    "name": null,
-    "raw": "github:balomueller/react-native-ble",
-    "rawSpec": "github:balomueller/react-native-ble",
-    "scope": null,
-    "spec": "github:balomueller/react-native-ble",
-    "type": "hosted"
-  },
-  "_requiredBy": [
-    "/"
-  ],
-  "_resolved": "git://github.com/balomueller/react-native-ble.git#511a89c1fd17cd138bc80b35624feef780b3dd9c",
-  "_shasum": "2019279a74d8e165b4473d51d90b8c1f269c5af3",
-  "_shrinkwrap": null,
-  "_spec": "github:balomueller/react-native-ble",
-  "_where": "/Users/smueller/ownCloud/Coding/rapitag/reactapp",
-  "author": {
-    "email": "jakerosenthal@gmail.com",
-    "name": "Jacob Rosenthal"
+  "name": "react-native-ble",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jacobrosenthal/react-native-ble.git"
   },
   "browser": {
     "events": "events",
     "util": "util"
   },
+  "version": "0.0.7",
+  "description": "Central role BLE for react native noble api surface",
+  "main": "index.js",
+  "author": {
+    "name": "Jacob Rosenthal",
+    "email": "jakerosenthal@gmail.com"
+  },
+  "nativePackage": true,
+  "peerDependencies": {
+    "react-native": "^0.19.0"
+  },
+  "keywords": [
+    "react-native",
+    "react",
+    "native",
+    "ble",
+    "bluetooth",
+    "corebluetooth",
+    "noble"
+  ],
   "bugs": {
     "url": "https://github.com/jacobrosenthal/react-native-ble/issues"
   },
+  "homepage": "https://github.com/jacobrosenthal/react-native-ble",
+  "scripts": {},
   "dependencies": {
     "buffer": "^3.4.3",
     "debug": "^2.2.0",
     "events": "^1.0.2",
     "util": "^0.10.3"
   },
-  "description": "Central role BLE for react native noble api surface",
-  "devDependencies": {},
-  "gitHead": "511a89c1fd17cd138bc80b35624feef780b3dd9c",
-  "homepage": "https://github.com/jacobrosenthal/react-native-ble",
-  "keywords": [
-    "ble",
-    "bluetooth",
-    "corebluetooth",
-    "native",
-    "noble",
-    "react",
-    "react-native"
-  ],
-  "license": "MIT",
-  "main": "index.js",
-  "name": "react-native-ble",
-  "nativePackage": true,
-  "optionalDependencies": {},
-  "peerDependencies": {
-    "react-native": "^0.19.0"
-  },
-  "readme": "# react-native-ble\n\nCentral role ble for react native. Technically a shim for the excellent [noble](https://github.com/sandeepmistry/noble/) Only supports scanning advertisements currently. Ive successfully tested [wimoto](https://github.com/sandeepmistry/node-wimoto) and [eddystone-beacon-scanner](https://github.com/sandeepmistry/node-eddystone-beacon-scanner/) on top of of this require.\n\n#install\nThe depenency story on react native is still very incomplete so bear with me. From your existing react native project:\n```\nnpm i --save react-native-ble\n```\nNext see the [react native linking guide](https://facebook.github.io/react-native/docs/linking-libraries.html) for visual instructions, but you need to open your project and from node_modules/react-native-estimote drag RNBLE.xcodeproj into your project file browser under Libraries. Then, navigate to your top level project and for your main target, click Build Phases and drag the RNBLE.a Product into the Link Binary With Libraries section. Finally, click the plus button and add CoreBluetooth.framework as well.\n\n#use\nSee the [noble](https://github.com/sandeepmistry/noble/) api for usage\n```\nvar noble = ('react-native-ble');\n```\n",
-  "readmeFilename": "README.md",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jacobrosenthal/react-native-ble.git"
-  },
-  "scripts": {},
-  "version": "0.0.7"
+  "license": "MIT"
 }
