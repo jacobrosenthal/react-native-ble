@@ -1,2 +1,2 @@
-var RNBLE = require('./RNBLE.ios.js');
+var RNBLE = require('./RNBLE');
 module.exports = new RNBLE();

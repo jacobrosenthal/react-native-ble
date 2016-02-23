@@ -4,8 +4,11 @@ var events = require('events');
 var util = require('util');
 
 var Peripheral = require('./peripheral');
+var Service = require('./service');
+var Characteristic = require('./characteristic');
+var Descriptor = require('./descriptor');
 
-var bindings = require('./iosbindings.js');
+var bindings = require('./bindings');
 
 
 function Noble() {
@@ -22,6 +25,23 @@ function Noble() {
   this._bindings.on('scanStart', this.onScanStart.bind(this));
   this._bindings.on('scanStop', this.onScanStop.bind(this));
   this._bindings.on('discover', this.onDiscover.bind(this));
+  this._bindings.on('connect', this.onConnect.bind(this));
+  this._bindings.on('disconnect', this.onDisconnect.bind(this));
+  this._bindings.on('rssiUpdate', this.onRssiUpdate.bind(this));
+  this._bindings.on('servicesDiscover', this.onServicesDiscover.bind(this));
+  this._bindings.on('includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
+  this._bindings.on('characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
+  this._bindings.on('read', this.onRead.bind(this));
+  this._bindings.on('data', this.onRead.bind(this));
+  this._bindings.on('write', this.onWrite.bind(this));
+  this._bindings.on('broadcast', this.onBroadcast.bind(this));
+  this._bindings.on('notify', this.onNotify.bind(this));
+  this._bindings.on('descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
+  this._bindings.on('valueRead', this.onValueRead.bind(this));
+  this._bindings.on('valueWrite', this.onValueWrite.bind(this));
+  this._bindings.on('handleRead', this.onHandleRead.bind(this));
+  this._bindings.on('handleWrite', this.onHandleWrite.bind(this));
+  this._bindings.on('handleNotify', this.onHandleNotify.bind(this));
 
   this._bindings.init();
 }
@@ -32,6 +52,12 @@ Noble.prototype.onStateChange = function(state) {
   debug('stateChange ' + state);
 
   this.state = state;
+  
+  if (state !== 'poweredOn') {
+    Object.keys(this._peripherals).forEach((uuid) => {
+      this._peripherals[uuid].state = 'disconnected';
+    });
+  }
 
   this.emit('stateChange', state);
 };
@@ -112,7 +138,6 @@ Noble.prototype.connect = function(peripheralUuid) {
 
 Noble.prototype.onConnect = function(peripheralUuid, error) {
   var peripheral = this._peripherals[peripheralUuid];
-
   if (peripheral) {
     peripheral.state = error ? 'error' : 'connected';
     peripheral.emit('connect', error);
@@ -125,12 +150,12 @@ Noble.prototype.disconnect = function(peripheralUuid) {
   this._bindings.disconnect(peripheralUuid);
 };
 
-Noble.prototype.onDisconnect = function(peripheralUuid) {
+Noble.prototype.onDisconnect = function(peripheralUuid, error) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
     peripheral.state = 'disconnected';
-    peripheral.emit('disconnect');
+    peripheral.emit('disconnect', error);
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' disconnected!');
   }
