@@ -7,6 +7,7 @@
 @interface RNBLE () <CBCentralManagerDelegate, CBPeripheralDelegate> {
 	CBCentralManager    *centralManager;
 	dispatch_queue_t eventQueue;
+    NSMutableDictionary *_peripherals;
 }
 @end
 
@@ -31,7 +32,9 @@ RCT_EXPORT_METHOD(setup)
     eventQueue = dispatch_queue_create("com.openble.mycentral", DISPATCH_QUEUE_SERIAL);
 
     dispatch_set_target_queue(eventQueue, dispatch_get_main_queue());
-
+    
+    _peripherals = [NSMutableDictionary dictionary];
+    
     centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:eventQueue options:@{}];
 }
 
@@ -58,6 +61,32 @@ RCT_EXPORT_METHOD(stopScanning)
 	[centralManager stopScan];
 }
 
+RCT_EXPORT_METHOD(connect:(NSString *)peripheralUuid)
+{
+    CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
+    
+    if (peripheral) {
+        RCTLogInfo(@"connecting");
+        [centralManager connectPeripheral:peripheral options:nil];
+    }
+}
+
+- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
+{
+    RCTLogInfo(@"Connected");
+    peripheral.delegate = self;
+    
+    [self.bridge.eventDispatcher sendDeviceEventWithName:@"connect" body:peripheral.identifier.UUIDString];
+}
+
+- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    RCTLogInfo(@"didDisconnectPeripheral");
+}
+
+- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    RCTLogInfo(@"failed to connect");
+}
+
 RCT_EXPORT_METHOD(getState)
 {
    // RCTLogInfo(@"getState");
@@ -68,11 +97,7 @@ RCT_EXPORT_METHOD(getState)
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral
 			advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
-    
-//    RCTLogInfo(@"didDiscoverPeripheral");
-
-    
-//, @"state" : [self nameForCBPeripheralState:peripheral.state] 
+    [_peripherals setObject: peripheral forKey: peripheral.identifier.UUIDString];
 
     NSDictionary *advertisementDictionary = [self dictionaryForAdvertisementData:advertisementData fromPeripheral:peripheral];
     
