@@ -16,7 +16,7 @@ var noble;
 var bleqr = React.createClass({
   componentWillMount: function(){
     //terrible pattern, but we're losing the initial state change emit
-    noble = require('react-native-ble');
+    noble = require('noble');
     noble.on('stateChange', this._onStateChange);
     noble.on('discover', this._onPeripheralFound);
   },

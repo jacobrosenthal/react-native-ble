@@ -14,3 +14,15 @@ See the [noble](https://github.com/sandeepmistry/noble/) api for usage
 ```
 var noble = ('react-native-ble');
 ```
+
+Better yet, as in the example, include as noble 
+```
+var noble = ('noble');
+```
+And in your package json resolve noble to react native
+```
+  "browser": {
+    "noble": "react-native-ble"
+  },
+```
+This way you can shim all dependencies that might have been looking for noble too.
