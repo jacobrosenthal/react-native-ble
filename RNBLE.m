@@ -8,6 +8,7 @@
 	CBCentralManager    *centralManager;
 	dispatch_queue_t eventQueue;
     NSMutableDictionary *_peripherals;
+	CBPeripheral *_connectedPeripheral;
 }
 @end
 
@@ -24,6 +25,7 @@ RCT_EXPORT_MODULE()
     if (self = [super init]) {
 
 	}
+	_connectedPeripheral = nil;
 	return self;
 }
 
@@ -75,16 +77,19 @@ RCT_EXPORT_METHOD(connect:(NSString *)peripheralUuid)
 {
     RCTLogInfo(@"Connected");
     peripheral.delegate = self;
-    
-    [self.bridge.eventDispatcher sendDeviceEventWithName:@"connect" body:peripheral.identifier.UUIDString];
+	_connectedPeripheral = peripheral;
+	_connectedPeripheral.delegate = self;
+	[self.bridge.eventDispatcher sendDeviceEventWithName:@"connect" body:peripheral.identifier.UUIDString];
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     RCTLogInfo(@"didDisconnectPeripheral");
+	_connectedPeripheral = nil;
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     RCTLogInfo(@"failed to connect");
+	_connectedPeripheral = nil;
 }
 
 RCT_EXPORT_METHOD(getState)
@@ -229,6 +234,54 @@ RCT_EXPORT_METHOD(getState)
         case CBCentralManagerStatePoweredOn:
             return @"CBCentralManagerStatePoweredOn";
     }
+}
+
+RCT_EXPORT_METHOD(discoverServices:(NSString *)peripheralUuid)
+{
+	CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
+	
+	if (peripheral) {
+		RCTLogInfo(@"Discovering services");
+		[peripheral discoverServices:nil];
+	}
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+	
+	if (error) {
+		NSLog(@"Error discovering services: %@", [error localizedDescription]);
+		return;
+	}
+	NSLog(@"%@", peripheral.services);
+	NSMutableArray *servicesUUID = [NSMutableArray new];
+	
+	
+	// Loop through the newly filled peripheral.services array, just in case there's more than one.
+	for (CBService *service in peripheral.services) {
+//		[peripheral discoverCharacteristics:nil forService:service];
+		[servicesUUID addObject:service.UUID.UUIDString];
+	//	NSLog(service);
+		NSLog(@"---%@--", service.UUID.UUIDString);
+	}
+	[self.bridge.eventDispatcher sendDeviceEventWithName:@"services" body:servicesUUID];
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error{
+	
+	if (error) {
+		NSLog(@"Error discovering characteristics: %@", [error localizedDescription]);
+		return;
+	}
+	//[self.bridge.eventDispatcher sendDeviceEventWithName:@"connect" body:peripheral.identifier.UUIDString];
+	
+	// Again, we loop through the array, just in case.
+//	for (CBCharacteristic *characteristic in service.characteristics) {
+//		NSLog(characteristic.UUID.UUIDString);
+//		if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"2A5B"]]) {
+//			// If it is, subscribe to it
+//			//[peripheral setNotifyValue:YES forCharacteristic:characteristic];
+//		}
+//	}
 }
 
 @end

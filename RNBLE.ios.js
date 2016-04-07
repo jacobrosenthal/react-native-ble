@@ -1,3 +1,11 @@
+/**
+* @Author: Maxime JUNGER <junger_m>
+* @Date:   07-04-2016
+* @Email:  maximejunger@gmail.com
+* @Last modified by:   junger_m
+* @Last modified time: 07-04-2016
+*/
+
 var debug = require('debug')('react-native-ble');
 
 var events = require('events');
@@ -6,7 +14,6 @@ var util = require('util');
 var Peripheral = require('./peripheral');
 
 var bindings = require('./iosbindings.js');
-
 
 function Noble() {
   this.state = 'unknown';
@@ -28,7 +35,7 @@ function Noble() {
 
 util.inherits(Noble, events.EventEmitter);
 
-Noble.prototype.onStateChange = function(state) {
+Noble.prototype.onStateChange = function (state) {
   debug('stateChange ' + state);
 
   this.state = state;
@@ -36,7 +43,7 @@ Noble.prototype.onStateChange = function(state) {
   this.emit('stateChange', state);
 };
 
-Noble.prototype.startScanning = function(serviceUuids, allowDuplicates, callback) {
+Noble.prototype.startScanning = function (serviceUuids, allowDuplicates, callback) {
   if (this.state !== 'poweredOn') {
     var error = new Error('Could not start scanning, state is ' + this.state + ' (not poweredOn)');
 
@@ -57,24 +64,25 @@ Noble.prototype.startScanning = function(serviceUuids, allowDuplicates, callback
   }
 };
 
-Noble.prototype.onScanStart = function() {
+Noble.prototype.onScanStart = function () {
   debug('scanStart');
   this.emit('scanStart');
 };
 
-Noble.prototype.stopScanning = function(callback) {
+Noble.prototype.stopScanning = function (callback) {
   if (callback) {
     this.once('scanStop', callback);
   }
+
   this._bindings.stopScanning();
 };
 
-Noble.prototype.onScanStop = function() {
+Noble.prototype.onScanStop = function () {
   debug('scanStop');
   this.emit('scanStop');
 };
 
-Noble.prototype.onDiscover = function(uuid, address, addressType, connectable, advertisement, rssi) {
+Noble.prototype.onDiscover = function (uuid, address, addressType, connectable, advertisement, rssi) {
   var peripheral = this._peripherals[uuid];
 
   if (!peripheral) {
@@ -106,11 +114,20 @@ Noble.prototype.onDiscover = function(uuid, address, addressType, connectable, a
   }
 };
 
-Noble.prototype.connect = function(peripheralUuid) {
-  this._bindings.connect(peripheralUuid);
+Noble.prototype.connect = function (peripheralUuid, callback) {
+  console.log('Je vais me connecter');
+  this._bindings.connect(peripheralUuid, function (error, data) {
+    if (error) {
+      callback(error);
+    } else {
+      console.log('Heoh je me suis connecté ' + data);
+      callback(null, data);
+    }
+  });
 };
 
-Noble.prototype.onConnect = function(peripheralUuid, error) {
+// Ne passe pas ici
+Noble.prototype.onConnect = function (peripheralUuid, error) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
@@ -121,11 +138,11 @@ Noble.prototype.onConnect = function(peripheralUuid, error) {
   }
 };
 
-Noble.prototype.disconnect = function(peripheralUuid) {
+Noble.prototype.disconnect = function (peripheralUuid) {
   this._bindings.disconnect(peripheralUuid);
 };
 
-Noble.prototype.onDisconnect = function(peripheralUuid) {
+Noble.prototype.onDisconnect = function (peripheralUuid) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
@@ -136,11 +153,11 @@ Noble.prototype.onDisconnect = function(peripheralUuid) {
   }
 };
 
-Noble.prototype.updateRssi = function(peripheralUuid) {
+Noble.prototype.updateRssi = function (peripheralUuid) {
   this._bindings.updateRssi(peripheralUuid);
 };
 
-Noble.prototype.onRssiUpdate = function(peripheralUuid, rssi) {
+Noble.prototype.onRssiUpdate = function (peripheralUuid, rssi) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
@@ -152,11 +169,18 @@ Noble.prototype.onRssiUpdate = function(peripheralUuid, rssi) {
   }
 };
 
-Noble.prototype.discoverServices = function(peripheralUuid, uuids) {
-  this._bindings.discoverServices(peripheralUuid, uuids);
+Noble.prototype.discoverServices = function (peripheralUuid, uuids, callback) {
+  this._bindings.discoverServices(peripheralUuid, uuids, function (error, data) {
+    console.log("Eh j'ai trouvé des services");
+    if (error) {
+      callback(error);
+    } else {
+      callback(null, data);
+    }
+  });
 };
 
-Noble.prototype.onServicesDiscover = function(peripheralUuid, serviceUuids) {
+Noble.prototype.onServicesDiscover = function (peripheralUuid, serviceUuids) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
@@ -181,11 +205,11 @@ Noble.prototype.onServicesDiscover = function(peripheralUuid, serviceUuids) {
   }
 };
 
-Noble.prototype.discoverIncludedServices = function(peripheralUuid, serviceUuid, serviceUuids) {
+Noble.prototype.discoverIncludedServices = function (peripheralUuid, serviceUuid, serviceUuids) {
   this._bindings.discoverIncludedServices(peripheralUuid, serviceUuid, serviceUuids);
 };
 
-Noble.prototype.onIncludedServicesDiscover = function(peripheralUuid, serviceUuid, includedServiceUuids) {
+Noble.prototype.onIncludedServicesDiscover = function (peripheralUuid, serviceUuid, includedServiceUuids) {
   var service = this._services[peripheralUuid][serviceUuid];
 
   if (service) {
@@ -197,11 +221,11 @@ Noble.prototype.onIncludedServicesDiscover = function(peripheralUuid, serviceUui
   }
 };
 
-Noble.prototype.discoverCharacteristics = function(peripheralUuid, serviceUuid, characteristicUuids) {
+Noble.prototype.discoverCharacteristics = function (peripheralUuid, serviceUuid, characteristicUuids) {
   this._bindings.discoverCharacteristics(peripheralUuid, serviceUuid, characteristicUuids);
 };
 
-Noble.prototype.onCharacteristicsDiscover = function(peripheralUuid, serviceUuid, characteristics) {
+Noble.prototype.onCharacteristicsDiscover = function (peripheralUuid, serviceUuid, characteristics) {
   var service = this._services[peripheralUuid][serviceUuid];
 
   if (service) {
@@ -232,11 +256,11 @@ Noble.prototype.onCharacteristicsDiscover = function(peripheralUuid, serviceUuid
   }
 };
 
-Noble.prototype.read = function(peripheralUuid, serviceUuid, characteristicUuid) {
-   this._bindings.read(peripheralUuid, serviceUuid, characteristicUuid);
+Noble.prototype.read = function (peripheralUuid, serviceUuid, characteristicUuid) {
+  this._bindings.read(peripheralUuid, serviceUuid, characteristicUuid);
 };
 
-Noble.prototype.onRead = function(peripheralUuid, serviceUuid, characteristicUuid, data, isNotification) {
+Noble.prototype.onRead = function (peripheralUuid, serviceUuid, characteristicUuid, data, isNotification) {
   var characteristic = this._characteristics[peripheralUuid][serviceUuid][characteristicUuid];
 
   if (characteristic) {
@@ -248,11 +272,11 @@ Noble.prototype.onRead = function(peripheralUuid, serviceUuid, characteristicUui
   }
 };
 
-Noble.prototype.write = function(peripheralUuid, serviceUuid, characteristicUuid, data, withoutResponse) {
-   this._bindings.write(peripheralUuid, serviceUuid, characteristicUuid, data, withoutResponse);
+Noble.prototype.write = function (peripheralUuid, serviceUuid, characteristicUuid, data, withoutResponse) {
+  this._bindings.write(peripheralUuid, serviceUuid, characteristicUuid, data, withoutResponse);
 };
 
-Noble.prototype.onWrite = function(peripheralUuid, serviceUuid, characteristicUuid) {
+Noble.prototype.onWrite = function (peripheralUuid, serviceUuid, characteristicUuid) {
   var characteristic = this._characteristics[peripheralUuid][serviceUuid][characteristicUuid];
 
   if (characteristic) {
@@ -262,11 +286,11 @@ Noble.prototype.onWrite = function(peripheralUuid, serviceUuid, characteristicUu
   }
 };
 
-Noble.prototype.broadcast = function(peripheralUuid, serviceUuid, characteristicUuid, broadcast) {
-   this._bindings.broadcast(peripheralUuid, serviceUuid, characteristicUuid, broadcast);
+Noble.prototype.broadcast = function (peripheralUuid, serviceUuid, characteristicUuid, broadcast) {
+  this._bindings.broadcast(peripheralUuid, serviceUuid, characteristicUuid, broadcast);
 };
 
-Noble.prototype.onBroadcast = function(peripheralUuid, serviceUuid, characteristicUuid, state) {
+Noble.prototype.onBroadcast = function (peripheralUuid, serviceUuid, characteristicUuid, state) {
   var characteristic = this._characteristics[peripheralUuid][serviceUuid][characteristicUuid];
 
   if (characteristic) {
@@ -276,11 +300,11 @@ Noble.prototype.onBroadcast = function(peripheralUuid, serviceUuid, characterist
   }
 };
 
-Noble.prototype.notify = function(peripheralUuid, serviceUuid, characteristicUuid, notify) {
-   this._bindings.notify(peripheralUuid, serviceUuid, characteristicUuid, notify);
+Noble.prototype.notify = function (peripheralUuid, serviceUuid, characteristicUuid, notify) {
+  this._bindings.notify(peripheralUuid, serviceUuid, characteristicUuid, notify);
 };
 
-Noble.prototype.onNotify = function(peripheralUuid, serviceUuid, characteristicUuid, state) {
+Noble.prototype.onNotify = function (peripheralUuid, serviceUuid, characteristicUuid, state) {
   var characteristic = this._characteristics[peripheralUuid][serviceUuid][characteristicUuid];
 
   if (characteristic) {
@@ -290,11 +314,11 @@ Noble.prototype.onNotify = function(peripheralUuid, serviceUuid, characteristicU
   }
 };
 
-Noble.prototype.discoverDescriptors = function(peripheralUuid, serviceUuid, characteristicUuid) {
+Noble.prototype.discoverDescriptors = function (peripheralUuid, serviceUuid, characteristicUuid) {
   this._bindings.discoverDescriptors(peripheralUuid, serviceUuid, characteristicUuid);
 };
 
-Noble.prototype.onDescriptorsDiscover = function(peripheralUuid, serviceUuid, characteristicUuid, descriptors) {
+Noble.prototype.onDescriptorsDiscover = function (peripheralUuid, serviceUuid, characteristicUuid, descriptors) {
   var characteristic = this._characteristics[peripheralUuid][serviceUuid][characteristicUuid];
 
   if (characteristic) {
@@ -324,11 +348,11 @@ Noble.prototype.onDescriptorsDiscover = function(peripheralUuid, serviceUuid, ch
   }
 };
 
-Noble.prototype.readValue = function(peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid) {
+Noble.prototype.readValue = function (peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid) {
   this._bindings.readValue(peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid);
 };
 
-Noble.prototype.onValueRead = function(peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid, data) {
+Noble.prototype.onValueRead = function (peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid, data) {
   var descriptor = this._descriptors[peripheralUuid][serviceUuid][characteristicUuid][descriptorUuid];
 
   if (descriptor) {
@@ -338,11 +362,11 @@ Noble.prototype.onValueRead = function(peripheralUuid, serviceUuid, characterist
   }
 };
 
-Noble.prototype.writeValue = function(peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid, data) {
+Noble.prototype.writeValue = function (peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid, data) {
   this._bindings.writeValue(peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid, data);
 };
 
-Noble.prototype.onValueWrite = function(peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid) {
+Noble.prototype.onValueWrite = function (peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid) {
   var descriptor = this._descriptors[peripheralUuid][serviceUuid][characteristicUuid][descriptorUuid];
 
   if (descriptor) {
@@ -352,11 +376,11 @@ Noble.prototype.onValueWrite = function(peripheralUuid, serviceUuid, characteris
   }
 };
 
-Noble.prototype.readHandle = function(peripheralUuid, handle) {
+Noble.prototype.readHandle = function (peripheralUuid, handle) {
   this._bindings.readHandle(peripheralUuid, handle);
 };
 
-Noble.prototype.onHandleRead = function(peripheralUuid, handle, data) {
+Noble.prototype.onHandleRead = function (peripheralUuid, handle, data) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
@@ -366,11 +390,11 @@ Noble.prototype.onHandleRead = function(peripheralUuid, handle, data) {
   }
 };
 
-Noble.prototype.writeHandle = function(peripheralUuid, handle, data, withoutResponse) {
+Noble.prototype.writeHandle = function (peripheralUuid, handle, data, withoutResponse) {
   this._bindings.writeHandle(peripheralUuid, handle, data, withoutResponse);
 };
 
-Noble.prototype.onHandleWrite = function(peripheralUuid, handle) {
+Noble.prototype.onHandleWrite = function (peripheralUuid, handle) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
@@ -380,7 +404,7 @@ Noble.prototype.onHandleWrite = function(peripheralUuid, handle) {
   }
 };
 
-Noble.prototype.onHandleNotify = function(peripheralUuid, handle, data) {
+Noble.prototype.onHandleNotify = function (peripheralUuid, handle, data) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
