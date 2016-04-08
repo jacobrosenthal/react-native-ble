@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 07-04-2016
+* @Last modified time: 08-04-2016
 */
 
 var debug = require('debug')('react-native-ble');
@@ -115,7 +115,7 @@ Noble.prototype.onDiscover = function (uuid, address, addressType, connectable, 
 };
 
 Noble.prototype.connect = function (peripheralUuid, callback) {
-  console.log('Je vais me connecter');
+
   this._bindings.connect(peripheralUuid, function (error, data) {
     if (error) {
       callback(error);
@@ -171,10 +171,22 @@ Noble.prototype.onRssiUpdate = function (peripheralUuid, rssi) {
 
 Noble.prototype.discoverServices = function (peripheralUuid, uuids, callback) {
   this._bindings.discoverServices(peripheralUuid, uuids, function (error, data) {
-    console.log("Eh j'ai trouvé des services");
     if (error) {
       callback(error);
     } else {
+      console.log('Eheheh le callback');
+      callback(null, data);
+    }
+  });
+};
+
+Noble.prototype.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids, callback) {
+  this._bindings.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids, function (error, data) {
+    console.log('Hello ahahhaha');
+    if (error) {
+      callback(error);
+    } else {
+      console.log('Eheheh le callback');
       callback(null, data);
     }
   });
@@ -221,9 +233,10 @@ Noble.prototype.onIncludedServicesDiscover = function (peripheralUuid, serviceUu
   }
 };
 
-Noble.prototype.discoverCharacteristics = function (peripheralUuid, serviceUuid, characteristicUuids) {
-  this._bindings.discoverCharacteristics(peripheralUuid, serviceUuid, characteristicUuids);
-};
+//
+// Noble.prototype.discoverCharacteristics = function (peripheralUuid, serviceUuid, characteristicUuids) {
+//   this._bindings.discoverCharacteristics(peripheralUuid, serviceUuid, characteristicUuids);
+// };
 
 Noble.prototype.onCharacteristicsDiscover = function (peripheralUuid, serviceUuid, characteristics) {
   var service = this._services[peripheralUuid][serviceUuid];
@@ -256,8 +269,11 @@ Noble.prototype.onCharacteristicsDiscover = function (peripheralUuid, serviceUui
   }
 };
 
-Noble.prototype.read = function (peripheralUuid, serviceUuid, characteristicUuid) {
-  this._bindings.read(peripheralUuid, serviceUuid, characteristicUuid);
+Noble.prototype.read = function (peripheralUuid, serviceUuid, characteristicUuid, callback) {
+  console.log('RNBLE IOS READ FUNC');
+  this._bindings.read(peripheralUuid, serviceUuid, characteristicUuid, function (error, data) {
+    callback(error, data);
+  });
 };
 
 Noble.prototype.onRead = function (peripheralUuid, serviceUuid, characteristicUuid, data, isNotification) {
