@@ -260,7 +260,13 @@ RCT_EXPORT_METHOD(discoverServices:(NSString *)peripheralUuid)
 		[servicesUUID addObject:service.UUID.UUIDString];
 		//[_peripheralServices setObject:service forKey:service.UUID.UUIDString];
 	}
-	[self.bridge.eventDispatcher sendDeviceEventWithName:@"services" body:servicesUUID];
+	
+	NSDictionary *dict = @{
+						   @"peripheralUuid": peripheral.identifier.UUIDString,
+						   @"servicesUuid": servicesUUID
+						   };
+	
+	[self.bridge.eventDispatcher sendDeviceEventWithName:@"services" body:dict];
 }
 
 RCT_EXPORT_METHOD(discoverCharacteristics:(NSString *)peripheralUuid forService:(NSArray *)servicesUUID andCharacteristics:(NSArray *)characteristics)
@@ -318,6 +324,7 @@ RCT_EXPORT_METHOD(readCharacteristic:(NSString *)peripheralUuid forService:(NSSt
 		}
 		if (service) {
 			CBCharacteristic *characteristic = nil;
+			NSLog(@"LEs char : ", service.characteristics);
 			for (CBCharacteristic *characteri in service.characteristics ) {
 				if ([characteri.UUID.UUIDString isEqualToString:characteristicUUID]) {
 					characteristic = characteri;
@@ -337,28 +344,88 @@ RCT_EXPORT_METHOD(readCharacteristic:(NSString *)peripheralUuid forService:(NSSt
 	}
 }
 
+RCT_EXPORT_METHOD(subscribeCharacteristic:(NSString *)peripheralUuid forService:(NSString *)serviceUUID andCharacteristic:(NSString *)characteristicUUID)
+{
+	CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
+	
+	if (peripheral) {
+		RCTLogInfo(@"Reading characteristics");
+		CBService *service = nil;
+		for (CBService *serv in peripheral.services) {
+			if ([serv.UUID.UUIDString isEqualToString:serviceUUID]) {
+				service = serv;
+				break;
+			}
+		}
+		if (service) {
+			CBCharacteristic *characteristic = nil;
+			NSLog(@"LEs char : ", service.characteristics);
+			for (CBCharacteristic *characteri in service.characteristics ) {
+				if ([characteri.UUID.UUIDString isEqualToString:characteristicUUID]) {
+					characteristic = characteri;
+					break;
+				}
+			}
+			if (characteristic) {
+				[peripheral setNotifyValue:YES forCharacteristic:characteristic];
+			}
+			else {
+				// Send that asked characteristic not available
+			}
+		}
+		else {
+			// Send that asked service not available
+		}
+	}
+}
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-	NSLog(@"updated value for characteristic");
 	
 	NSString *str = [[NSString alloc] initWithData:characteristic.value encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF8)];
-	NSLog(@"--%@--", characteristic.value);
+	NSLog(@"--%@--", [self NSDataToHex:characteristic.value]);
 	
-	NSUInteger capacity = characteristic.value.length * 2;
-	NSMutableString *sbuf = [NSMutableString stringWithCapacity:capacity];
-	const unsigned char *buf = characteristic.value.bytes;
-	NSInteger i;
-	for (i = 0; i < characteristic.value.length; ++i) {
-		[sbuf appendFormat:@"%02X", (NSUInteger)buf[i]];
+	if ([characteristic isNotifying] == true) {
+		[self.bridge.eventDispatcher sendDeviceEventWithName:@"notify" body:[self NSDataToHex:characteristic.value]];
 	}
-	NSLog(@"SBUF : %@", sbuf);
+	else {
+		[self.bridge.eventDispatcher sendDeviceEventWithName:@"read" body:[self NSDataToHex:characteristic.value]];
+	}
 	
-	NSMutableArray *arr = [NSMutableArray new];
-	[arr addObject:characteristic.value];
-	[self.bridge.eventDispatcher sendDeviceEventWithName:@"read" body:sbuf];
+	
 	//	if ([characteristic.UUID isEqual:_photoUUID]) {
 	//		NSArray * photos = [NSKeyedUnarchiver unarchiveObjectWithData:characteristic.value];
 	//	}
+}
+
+static inline char itoh(int i) {
+	if (i > 9) return 'A' + (i - 10);
+	return '0' + i;
+}
+
+-(NSString *)NSDataToHex:(NSData *)data {
+	NSUInteger i, len;
+	unsigned char *buf, *bytes;
+	
+	len = data.length;
+	bytes = (unsigned char*)data.bytes;
+	buf = malloc(len*2);
+	
+	for (i=0; i<len; i++) {
+		buf[i*2] = itoh((bytes[i] >> 4) & 0xF);
+		buf[i*2+1] = itoh(bytes[i] & 0xF);
+	}
+	
+	return [[NSString alloc] initWithBytesNoCopy:buf
+										  length:len*2
+										encoding:NSASCIIStringEncoding
+									freeWhenDone:YES];
+}
+
+- (NSDictionary *)errorHandler:(NSString *)message {
+	NSDictionary *dict = @{
+		@"error": message
+	};
+	return dict;
 }
 
 @end

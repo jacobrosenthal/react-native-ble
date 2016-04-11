@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 08-04-2016
+* @Last modified time: 11-04-2016
 */
 
 var debug = require('debug')('react-native-ble');
@@ -29,6 +29,8 @@ function Noble() {
   this._bindings.on('scanStart', this.onScanStart.bind(this));
   this._bindings.on('scanStop', this.onScanStop.bind(this));
   this._bindings.on('discover', this.onDiscover.bind(this));
+  this._bindings.on('connect', this.onConnect.bind(this));
+  this._bindings.on('servicesDiscover', this.onServicesDiscover.bind(this));
 
   this._bindings.init();
 }
@@ -115,24 +117,15 @@ Noble.prototype.onDiscover = function (uuid, address, addressType, connectable, 
 };
 
 Noble.prototype.connect = function (peripheralUuid, callback) {
-
-  this._bindings.connect(peripheralUuid, function (error, data) {
-    if (error) {
-      callback(error);
-    } else {
-      console.log('Heoh je me suis connecté ' + data);
-      callback(null, data);
-    }
-  });
+  this._bindings.connect(peripheralUuid);
 };
 
-// Ne passe pas ici
 Noble.prototype.onConnect = function (peripheralUuid, error) {
   var peripheral = this._peripherals[peripheralUuid];
 
   if (peripheral) {
     peripheral.state = error ? 'error' : 'connected';
-    peripheral.emit('connect', error);
+    this.emit('connect', peripheral);
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' connected!');
   }
@@ -170,14 +163,14 @@ Noble.prototype.onRssiUpdate = function (peripheralUuid, rssi) {
 };
 
 Noble.prototype.discoverServices = function (peripheralUuid, uuids, callback) {
-  this._bindings.discoverServices(peripheralUuid, uuids, function (error, data) {
-    if (error) {
-      callback(error);
-    } else {
-      console.log('Eheheh le callback');
-      callback(null, data);
-    }
-  });
+  this._bindings.discoverServices(peripheralUuid, uuids);//, function (error, data) {
+  //   if (error) {
+  //     callback(error);
+  //   } else {
+  //     console.log('Eheheh le callback');
+  //     callback(null, data);
+  //   }
+  // });
 };
 
 Noble.prototype.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids, callback) {
@@ -194,7 +187,7 @@ Noble.prototype.discoverCharacteristics = function (deviceUuid, serviceUuid, cha
 
 Noble.prototype.onServicesDiscover = function (peripheralUuid, serviceUuids) {
   var peripheral = this._peripherals[peripheralUuid];
-
+  console.log('FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK');
   if (peripheral) {
     var services = [];
 
@@ -317,7 +310,10 @@ Noble.prototype.onBroadcast = function (peripheralUuid, serviceUuid, characteris
 };
 
 Noble.prototype.notify = function (peripheralUuid, serviceUuid, characteristicUuid, notify) {
-  this._bindings.notify(peripheralUuid, serviceUuid, characteristicUuid, notify);
+  //this._bindings.notify(peripheralUuid, serviceUuid, characteristicUuid, notify);
+  this._bindings.notify(peripheralUuid, serviceUuid, characteristicUuid, function (error, data) {
+    notify(error, data);
+  });
 };
 
 Noble.prototype.onNotify = function (peripheralUuid, serviceUuid, characteristicUuid, state) {

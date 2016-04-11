@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 08-04-2016
+* @Last modified time: 11-04-2016
 */
 
 var debug = require('debug')('ios-bindings');
@@ -20,10 +20,8 @@ var {
 
 var Buffer = require('buffer').Buffer;
 
-var _connectionCallback;
-var _serviceDiscoveringCallback;
-var _characteristicsDiscoveringCallback;
-var _readValueCallback;
+// Callbacks of Bluetooth functions
+var _callbacks = {};
 
 /**
  *  NobleBindings for react native
@@ -35,6 +33,7 @@ var NobleBindings = function () {
   DeviceEventEmitter.addListener('services', this.onServicesDiscovered.bind(this));
   DeviceEventEmitter.addListener('characteristics', this.onCharacteristicsDiscovered.bind(this));
   DeviceEventEmitter.addListener('read', this.onRead.bind(this));
+  DeviceEventEmitter.addListener('notify', this.onNotify.bind(this));
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -123,30 +122,36 @@ NobleBindings.prototype.onConnect = function (peripheralUuid, error) {
 
   if (peripheral) {
     peripheral.state = error ? 'error' : 'connected';
+    console.log('je suis là salop');
+    this.emit('connect', peripheralUuid);
 
-    //this.emit('connect', error);
-    _connectionCallback(null, 'Connected');
+    //_callbacks['connect'](null, 'connected');
   } else {
-    //this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' connected!');
-    _connectionCallback('unknown peripheral', 'COnnected yalaaaaas');
+    //_callbacks['connect']('unknown peripheral ' + peripheralUuid);
   }
 };
 
-NobleBindings.prototype.onServicesDiscovered = function (services, error) {
+NobleBindings.prototype.onServicesDiscovered = function (data) {
 
-  if (services) {
-    _serviceDiscoveringCallback(null, services);
+  if (data.servicesUuid && !data.error) {
+    this.emit('servicesDiscover', data.peripheralUuid, data.servicesUuid);
+
   } else {
-    _serviceDiscoveringCallback(error, null);
+    this.emit('servicesDiscover', { error: data.error });
+
   }
 };
 
 NobleBindings.prototype.onCharacteristicsDiscovered = function (data, error) {
 
   if (data) {
-    _characteristicsDiscoveringCallback(null, data);
+    _callbacks['discoverCharacteristics'](null, data);
+
+    //_characteristicsDiscoveringCallback(null, data);
   } else {
-    _characteristicsDiscoveringCallback(error, null);
+    _callbacks['discoverCharacteristics']('no characteristics', null);
+
+    //_characteristicsDiscoveringCallback(error, null);
   }
 };
 
@@ -156,9 +161,28 @@ NobleBindings.prototype.onRead = function (data, error) {
 
   console.log('Hello ahahah : ' + buf2);
   if (data) {
-    _readValueCallback(null, data);
+    _callbacks['readValue'](null, data);
+
+    //_readValueCallback(null, data);
   } else {
-    _readValueCallback(error, null);
+    _callbacks['readValue']('no value to read');
+
+    //_readValueCallback(error, null);
+  }
+};
+
+NobleBindings.prototype.onNotify = function (data, error) {
+
+  const buf = new Buffer(data, 'hex');
+
+  if (data) {
+    _callbacks['notify'](null, buf);
+
+    //_readValueCallback(null, data);
+  } else {
+    _callbacks['notify']('no value to read');
+
+    //_readValueCallback(error, null);
   }
 };
 
@@ -194,10 +218,9 @@ nobleBindings.init = function () {
   RNBLE.setup();
 };
 
-nobleBindings.connect = function (peripheralUuid, callback) {
+nobleBindings.connect = function (peripheralUuid) {
   // delete peripheral['_events'];
   // delete peripheral['_noble'];
-  _connectionCallback = callback;
   RNBLE.connect(peripheralUuid);
 };
 
@@ -211,7 +234,8 @@ nobleBindings.updateRssi = function (deviceUuid) {
 
 nobleBindings.discoverServices = function (deviceUuid, uuids, callback) {
   //throw new Error('discoverServices not yet implemented');
-  _serviceDiscoveringCallback = callback;
+  //_serviceDiscoveringCallback = callback;
+  //  _callbacks['discoverService'] = callback;
   RNBLE.discoverServices(deviceUuid);
 };
 
@@ -220,12 +244,12 @@ nobleBindings.discoverIncludedServices = function (deviceUuid, serviceUuid, serv
 };
 
 nobleBindings.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids, callback) {
-  _characteristicsDiscoveringCallback = callback;
+  _callbacks['discoverCharacteristics'] = callback;
   RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
 };
 
 nobleBindings.read = function (deviceUuid, serviceUuid, characteristicUuid, callback) {
-  _readValueCallback = callback;
+  _callbacks['readValue'] = callback;
   RNBLE.readCharacteristic(deviceUuid, serviceUuid, characteristicUuid);
 };
 
@@ -238,7 +262,8 @@ nobleBindings.broadcast = function (deviceUuid, serviceUuid, characteristicUuid,
 };
 
 nobleBindings.notify = function (deviceUuid, serviceUuid, characteristicUuid, notify) {
-  throw new Error('notify not yet implemented');
+  _callbacks['notify'] = notify;
+  RNBLE.subscribeCharacteristic(deviceUuid, serviceUuid, characteristicUuid);
 };
 
 nobleBindings.discoverDescriptors = function (deviceUuid, serviceUuid, characteristicUuid) {
