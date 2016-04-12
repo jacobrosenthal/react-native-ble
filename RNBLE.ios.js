@@ -32,6 +32,7 @@ function Noble() {
   this._bindings.on('scanStop', this.onScanStop.bind(this));
   this._bindings.on('discover', this.onDiscover.bind(this));
   this._bindings.on('connect', this.onConnect.bind(this));
+  this._bindings.on('disconnect', this.onDisconnect.bind(this));
   this._bindings.on('servicesDiscover', this.onServicesDiscover.bind(this));
   this._bindings.on('characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
   this._bindings.on('read', this.onRead.bind(this));
@@ -127,7 +128,7 @@ Noble.prototype.connect = function (peripheralUuid, callback) {
 
 Noble.prototype.onConnect = function (peripheralUuid, error) {
   var peripheral = this._peripherals[peripheralUuid];
-  console.log('Je susi ici hihihi');
+
   if (peripheral) {
     peripheral.state = error ? 'error' : 'connected';
     peripheral.emit('connect', peripheral);

@@ -73,6 +73,16 @@ RCT_EXPORT_METHOD(connect:(NSString *)peripheralUuid)
 	}
 }
 
+RCT_EXPORT_METHOD(disconnect:(NSString *)peripheralUuid)
+{
+	CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
+	
+	if (peripheral) {
+		RCTLogInfo(@"disconnecting");
+		[centralManager cancelPeripheralConnection:peripheral];
+	}
+}
+
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
 	RCTLogInfo(@"Connected");
@@ -84,7 +94,7 @@ RCT_EXPORT_METHOD(connect:(NSString *)peripheralUuid)
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
 	RCTLogInfo(@"didDisconnectPeripheral");
-	//_connectedPeripheral = nil;
+	[self.bridge.eventDispatcher sendDeviceEventWithName:@"disconnect" body:peripheral.identifier.UUIDString];
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
@@ -310,11 +320,10 @@ RCT_EXPORT_METHOD(discoverCharacteristics:(NSString *)peripheralUuid forService:
 	}
 	NSMutableArray *characteristicsUUID = [NSMutableArray new];
 	for (CBCharacteristic *characteristic in service.characteristics) {
-		NSLog(characteristic.UUID.UUIDString);
 		[characteristicsUUID addObject:characteristic.UUID.UUIDString];
 		//[peripheral readValueForCharacteristic:characteristic];
 	}
-	NSLog(@"-%@-", peripheral.services[0].characteristics);
+
 	
 	NSDictionary *dict = @{
 						   @"peripheralUuid": peripheral.identifier.UUIDString,
@@ -340,7 +349,6 @@ RCT_EXPORT_METHOD(readCharacteristic:(NSString *)peripheralUuid forService:(NSSt
 		}
 		if (service) {
 			CBCharacteristic *characteristic = nil;
-			NSLog(@"LEs char : ", service.characteristics);
 			for (CBCharacteristic *characteri in service.characteristics ) {
 				if ([characteri.UUID.UUIDString isEqualToString:characteristicUUID]) {
 					characteristic = characteri;
@@ -375,7 +383,6 @@ RCT_EXPORT_METHOD(subscribeCharacteristic:(NSString *)peripheralUuid forService:
 		}
 		if (service) {
 			CBCharacteristic *characteristic = nil;
-			NSLog(@"LEs char : ", service.characteristics);
 			for (CBCharacteristic *characteri in service.characteristics ) {
 				if ([characteri.UUID.UUIDString isEqualToString:characteristicUUID]) {
 					characteristic = characteri;
@@ -398,7 +405,6 @@ RCT_EXPORT_METHOD(subscribeCharacteristic:(NSString *)peripheralUuid forService:
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
 	
 	NSString *str = [[NSString alloc] initWithData:characteristic.value encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF8)];
-	NSLog(@"--%@--", [self NSDataToHex:characteristic.value]);
 	
 	NSDictionary *dict = @{
 						   @"peripheralUuid": peripheral.identifier.UUIDString,

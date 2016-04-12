@@ -43,7 +43,7 @@ Peripheral.prototype.toString = function () {
 Peripheral.prototype.connect = function (callback) {
   if (callback) {
     this.once('connect', function (data) {
-
+      this.once('disconnect', this.onDisconnect);
       if (data instanceof Peripheral) {
         callback(data);
       } else {
@@ -64,12 +64,18 @@ Peripheral.prototype.connect = function (callback) {
 Peripheral.prototype.disconnect = function (callback) {
   if (callback) {
     this.once('disconnect', function () {
+      this.state = 'disconnected';
       callback(null);
     });
   }
 
   this.state = 'disconnecting';
   this._noble.disconnect(this.id);
+};
+
+// Called when device disconnected without user wants
+Peripheral.prototype.onDisconnect = function () {
+  this.emit('disconnect');
 };
 
 Peripheral.prototype.updateRssi = function (callback) {

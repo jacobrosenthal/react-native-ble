@@ -27,10 +27,12 @@ var NobleBindings = function () {
   DeviceEventEmitter.addListener('discover', this.onDiscover.bind(this));
   DeviceEventEmitter.addListener('stateChange', this.onStateChange.bind(this));
   DeviceEventEmitter.addListener('connect', this.onConnect.bind(this));
+  DeviceEventEmitter.addListener('disconnect', this.onDisconnect.bind(this));
   DeviceEventEmitter.addListener('services', this.onServicesDiscovered.bind(this));
   DeviceEventEmitter.addListener('characteristics', this.onCharacteristicsDiscovered.bind(this));
   DeviceEventEmitter.addListener('read', this.onRead.bind(this));
   DeviceEventEmitter.addListener('notify', this.onNotify.bind(this));
+
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -125,6 +127,13 @@ NobleBindings.prototype.onConnect = function (peripheralUuid, error) {
   }
 };
 
+NobleBindings.prototype.onDisconnect = function (peripheralUuid) {
+  var peripheral = this._peripherals[peripheralUuid];
+  if (peripheral) {
+    this.emit('disconnect', peripheralUuid);
+  }
+};
+
 NobleBindings.prototype.onServicesDiscovered = function (data) {
 
   if (data.servicesUuid && !data.error) {
@@ -200,7 +209,7 @@ nobleBindings.connect = function (peripheralUuid) {
 };
 
 nobleBindings.disconnect = function (deviceUuid) {
-  throw new Error('disconnect not yet implemented');
+  RNBLE.disconnect(peripheralUuid);
 };
 
 nobleBindings.updateRssi = function (deviceUuid) {
