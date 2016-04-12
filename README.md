@@ -64,7 +64,7 @@ peripheral.connect(function (error) {
 });
 ```
 
-#### disconnect
+#### Disconnect
 
 When you're connected to a peripheral, you can handle the automatic disconnection by doing :
 ```javascript
