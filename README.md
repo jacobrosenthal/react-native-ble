@@ -6,8 +6,6 @@
 @Last modified time: 12-04-2016
 -->
 
-
-
 # react-native-ble
 
 ## Author
@@ -30,13 +28,13 @@ Only support of following usages on iOS !
 
 #### Require the module
 
-```
+```javascript
 var noble = ('react-native-ble');
 ```
 
 #### Handle Bluetooth State
 
-```
+```javascript
 noble.on('stateChange', function (state) {
   if (state === 'poweredOn') {
     console.log('Start Scanning');
@@ -46,13 +44,11 @@ noble.on('stateChange', function (state) {
     console.log('Stop Scanning');
   }
 });
-
-
 ```
 
 #### Start Scanning
 
-```
+```javascript
 noble.on('discover', function (peripheral) {
   // Peripheral is an object that was found
 });
@@ -62,14 +58,14 @@ noble.on('discover', function (peripheral) {
 ### Peripheral
 
 #### Connect
-```
+```javascript
 peripheral.connect(function (error) {
 
 });
 ```
 
 #### Discover Services
-```
+```javascript
 var serviceUUIDs = ["<service UUID 1>", ...];
 peripheral.discoverServices(serviceUUIDs, function (error, services) {
 
@@ -78,7 +74,7 @@ peripheral.discoverServices(serviceUUIDs, function (error, services) {
 
 ### Service
 #### Discover characteristics
-```
+```javascript
 var service = services[0];
 var characteristicsUUIDs = ["<service UUID 1>", ...];
 service.discoverCharacteristics(characteristicsUUIDs, function (characteristics) {
@@ -88,7 +84,7 @@ service.discoverCharacteristics(characteristicsUUIDs, function (characteristics)
 ### Characteristic
 
 #### Read
-```
+```javascript
 var characteristic = characteristics[0];
 characteristic.read(function (data) {
   // Data is a buffer
@@ -96,7 +92,7 @@ characteristic.read(function (data) {
 ```
 
 #### Notify
-```
+```javascript
 var characteristic = characteristics[0];
 characteristic.notify(function (data) {
   // Data is a buffer
