@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 11-04-2016
+* @Last modified time: 12-04-2016
 */
 
 var debug = require('debug')('ios-bindings');
@@ -122,12 +122,9 @@ NobleBindings.prototype.onConnect = function (peripheralUuid, error) {
 
   if (peripheral) {
     peripheral.state = error ? 'error' : 'connected';
-    console.log('je suis là salop');
     this.emit('connect', peripheralUuid);
-
-    //_callbacks['connect'](null, 'connected');
   } else {
-    //_callbacks['connect']('unknown peripheral ' + peripheralUuid);
+    this.emit('connect', null);
   }
 };
 
@@ -138,40 +135,28 @@ NobleBindings.prototype.onServicesDiscovered = function (data) {
 
   } else {
     this.emit('servicesDiscover', { error: data.error });
-
   }
 };
 
-NobleBindings.prototype.onCharacteristicsDiscovered = function (data, error) {
+NobleBindings.prototype.onCharacteristicsDiscovered = function (data) {
 
-  if (data) {
-    _callbacks['discoverCharacteristics'](null, data);
-
-    //_characteristicsDiscoveringCallback(null, data);
+  if (data && data.peripheralUuid && data.serviceUuid && data.characteristics) {
+    this.emit('characteristicsDiscover', data.peripheralUuid, data.serviceUuid, data.characteristics);
   } else {
-    _callbacks['discoverCharacteristics']('no characteristics', null);
-
-    //_characteristicsDiscoveringCallback(error, null);
+    this.emit('characteristicsDiscover', { error: data.error });
   }
 };
 
-NobleBindings.prototype.onRead = function (data, error) {
+NobleBindings.prototype.onRead = function (data) {
 
-  const buf2 = new Buffer(data, 'hex');
-
-  console.log('Hello ahahah : ' + buf2);
+  const buf = new Buffer(data.data, 'hex');
+  console.log('Buffer :' + buf);
   if (data) {
-    _callbacks['readValue'](null, data);
-
-    //_readValueCallback(null, data);
-  } else {
-    _callbacks['readValue']('no value to read');
-
-    //_readValueCallback(error, null);
+    this.emit('read', data.peripheralUuid, data.serviceUuid, data.characteristicUuid, buf, false);
   }
 };
 
-NobleBindings.prototype.onNotify = function (data, error) {
+NobleBindings.prototype.onNotify = function (data) {
 
   const buf = new Buffer(data, 'hex');
 
@@ -232,24 +217,19 @@ nobleBindings.updateRssi = function (deviceUuid) {
   throw new Error('updateRssi not yet implemented');
 };
 
-nobleBindings.discoverServices = function (deviceUuid, uuids, callback) {
-  //throw new Error('discoverServices not yet implemented');
-  //_serviceDiscoveringCallback = callback;
-  //  _callbacks['discoverService'] = callback;
-  RNBLE.discoverServices(deviceUuid);
+nobleBindings.discoverServices = function (deviceUuid, uuids) {
+  RNBLE.discoverServices(deviceUuid, uuids);
 };
 
 nobleBindings.discoverIncludedServices = function (deviceUuid, serviceUuid, serviceUuids) {
   throw new Error('discoverIncludedServices not yet implemented');
 };
 
-nobleBindings.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids, callback) {
-  _callbacks['discoverCharacteristics'] = callback;
+nobleBindings.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids) {
   RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
 };
 
 nobleBindings.read = function (deviceUuid, serviceUuid, characteristicUuid, callback) {
-  _callbacks['readValue'] = callback;
   RNBLE.readCharacteristic(deviceUuid, serviceUuid, characteristicUuid);
 };
 

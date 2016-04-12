@@ -1,3 +1,11 @@
+/**
+* @Author: Maxime JUNGER <junger_m>
+* @Date:   07-04-2016
+* @Email:  maximejunger@gmail.com
+* @Last modified by:   junger_m
+* @Last modified time: 12-04-2016
+*/
+
 /*jshint loopfunc: true */
 var debug = require('debug')('peripheral');
 
@@ -20,7 +28,7 @@ function Peripheral(noble, id, address, addressType, connectable, advertisement,
 
 util.inherits(Peripheral, events.EventEmitter);
 
-Peripheral.prototype.toString = function() {
+Peripheral.prototype.toString = function () {
   return JSON.stringify({
     id: this.id,
     address: this.address,
@@ -28,14 +36,20 @@ Peripheral.prototype.toString = function() {
     connectable: this.connectable,
     advertisement: this.advertisement,
     rssi: this.rssi,
-    state: this.state
+    state: this.state,
   });
 };
 
-Peripheral.prototype.connect = function(callback) {
+Peripheral.prototype.connect = function (callback) {
   if (callback) {
-    this.once('connect', function(error) {
-      callback(error);
+    this.once('connect', function (data) {
+
+      if (data instanceof Peripheral) {
+        callback(data);
+      } else {
+        callback(new Error('Error on connection'));
+      }
+
     });
   }
 
@@ -47,19 +61,20 @@ Peripheral.prototype.connect = function(callback) {
   }
 };
 
-Peripheral.prototype.disconnect = function(callback) {
+Peripheral.prototype.disconnect = function (callback) {
   if (callback) {
-    this.once('disconnect', function() {
+    this.once('disconnect', function () {
       callback(null);
     });
   }
+
   this.state = 'disconnecting';
   this._noble.disconnect(this.id);
 };
 
-Peripheral.prototype.updateRssi = function(callback) {
+Peripheral.prototype.updateRssi = function (callback) {
   if (callback) {
-    this.once('rssiUpdate', function(rssi) {
+    this.once('rssiUpdate', function (rssi) {
       callback(null, rssi);
     });
   }
@@ -67,9 +82,9 @@ Peripheral.prototype.updateRssi = function(callback) {
   this._noble.updateRssi(this.id);
 };
 
-Peripheral.prototype.discoverServices = function(uuids, callback) {
+Peripheral.prototype.discoverServices = function (uuids, callback) {
   if (callback) {
-    this.once('servicesDiscover', function(services) {
+    this.once('servicesDiscover', function (services) {
       callback(null, services);
     });
   }
@@ -77,15 +92,15 @@ Peripheral.prototype.discoverServices = function(uuids, callback) {
   this._noble.discoverServices(this.id, uuids);
 };
 
-Peripheral.prototype.discoverSomeServicesAndCharacteristics = function(serviceUuids, characteristicsUuids, callback) {
-  this.discoverServices(serviceUuids, function(err, services) {
+Peripheral.prototype.discoverSomeServicesAndCharacteristics = function (serviceUuids, characteristicsUuids, callback) {
+  this.discoverServices(serviceUuids, function (err, services) {
     var numDiscovered = 0;
     var allCharacteristics = [];
 
     for (var i in services) {
       var service = services[i];
 
-      service.discoverCharacteristics(characteristicsUuids, function(error, characteristics) {
+      service.discoverCharacteristics(characteristicsUuids, function (error, characteristics) {
         numDiscovered++;
 
         if (error === null) {
@@ -106,13 +121,13 @@ Peripheral.prototype.discoverSomeServicesAndCharacteristics = function(serviceUu
   }.bind(this));
 };
 
-Peripheral.prototype.discoverAllServicesAndCharacteristics = function(callback) {
+Peripheral.prototype.discoverAllServicesAndCharacteristics = function (callback) {
   this.discoverSomeServicesAndCharacteristics([], [], callback);
 };
 
-Peripheral.prototype.readHandle = function(handle, callback) {
+Peripheral.prototype.readHandle = function (handle, callback) {
   if (callback) {
-    this.once('handleRead' + handle, function(data) {
+    this.once('handleRead' + handle, function (data) {
       callback(null, data);
     });
   }
@@ -120,13 +135,13 @@ Peripheral.prototype.readHandle = function(handle, callback) {
   this._noble.readHandle(this.id, handle);
 };
 
-Peripheral.prototype.writeHandle = function(handle, data, withoutResponse, callback) {
+Peripheral.prototype.writeHandle = function (handle, data, withoutResponse, callback) {
   if (!(data instanceof Buffer)) {
     throw new Error('data must be a Buffer');
   }
 
   if (callback) {
-    this.once('handleWrite' + handle, function() {
+    this.once('handleWrite' + handle, function () {
       callback(null);
     });
   }

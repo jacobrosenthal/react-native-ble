@@ -236,13 +236,19 @@ RCT_EXPORT_METHOD(getState)
 	}
 }
 
-RCT_EXPORT_METHOD(discoverServices:(NSString *)peripheralUuid)
+RCT_EXPORT_METHOD(discoverServices:(NSString *)peripheralUuid withUuids:(NSArray *)uuids)
 {
 	CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
 	
+	NSMutableArray *uuidsArray = [NSMutableArray new];
+	
+	for (NSString *uuid in uuids) {
+		[uuidsArray addObject:[CBUUID UUIDWithString:uuid]];
+	}
+	
 	if (peripheral) {
 		RCTLogInfo(@"Discovering services");
-		[peripheral discoverServices:nil];
+		[peripheral discoverServices:uuidsArray];
 	}
 }
 
@@ -296,7 +302,9 @@ RCT_EXPORT_METHOD(discoverCharacteristics:(NSString *)peripheralUuid forService:
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error{
 	
 	if (error) {
+		NSDictionary *dict = @{	@"error": [error localizedDescription] };
 		NSLog(@"Error discovering characteristics: %@", [error localizedDescription]);
+		[self.bridge.eventDispatcher sendDeviceEventWithName:@"characteristics" body:dict];
 		return;
 	}
 	NSMutableArray *characteristicsUUID = [NSMutableArray new];
@@ -306,7 +314,14 @@ RCT_EXPORT_METHOD(discoverCharacteristics:(NSString *)peripheralUuid forService:
 		//[peripheral readValueForCharacteristic:characteristic];
 	}
 	NSLog(@"-%@-", peripheral.services[0].characteristics);
-	[self.bridge.eventDispatcher sendDeviceEventWithName:@"characteristics" body:characteristicsUUID];
+	
+	NSDictionary *dict = @{
+						   @"peripheralUuid": peripheral.identifier.UUIDString,
+						   @"serviceUuid": service.UUID.UUIDString,
+						   @"characteristics": characteristicsUUID
+						   };
+	
+	[self.bridge.eventDispatcher sendDeviceEventWithName:@"characteristics" body:dict];
 }
 
 RCT_EXPORT_METHOD(readCharacteristic:(NSString *)peripheralUuid forService:(NSString *)serviceUUID andCharacteristic:(NSString *)characteristicUUID)
@@ -384,17 +399,19 @@ RCT_EXPORT_METHOD(subscribeCharacteristic:(NSString *)peripheralUuid forService:
 	NSString *str = [[NSString alloc] initWithData:characteristic.value encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF8)];
 	NSLog(@"--%@--", [self NSDataToHex:characteristic.value]);
 	
+	NSDictionary *dict = @{
+						   @"peripheralUuid": peripheral.identifier.UUIDString,
+						   @"serviceUuid": characteristic.service.UUID.UUIDString,
+						   @"characteristicUuid": characteristic.UUID.UUIDString,
+						   @"data": [self NSDataToHex:characteristic.value]
+						   };
+	
 	if ([characteristic isNotifying] == true) {
-		[self.bridge.eventDispatcher sendDeviceEventWithName:@"notify" body:[self NSDataToHex:characteristic.value]];
+		[self.bridge.eventDispatcher sendDeviceEventWithName:@"notify" body:dict];
 	}
 	else {
-		[self.bridge.eventDispatcher sendDeviceEventWithName:@"read" body:[self NSDataToHex:characteristic.value]];
+		[self.bridge.eventDispatcher sendDeviceEventWithName:@"read" body:dict];
 	}
-	
-	
-	//	if ([characteristic.UUID isEqual:_photoUUID]) {
-	//		NSArray * photos = [NSKeyedUnarchiver unarchiveObjectWithData:characteristic.value];
-	//	}
 }
 
 static inline char itoh(int i) {
