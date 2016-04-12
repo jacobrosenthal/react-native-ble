@@ -29,6 +29,10 @@ Characteristic.prototype.toString = function () {
   });
 };
 
+Characteristic.prototype.getId = function () {
+  return this._characteristicUuid;
+};
+
 Characteristic.prototype.read = function (callback) {
   if (callback) {
     this.once('read', function (data) {

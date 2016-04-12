@@ -27,10 +27,14 @@ Service.prototype.toString = function () {
   });
 };
 
+Service.prototype.getId = function () {
+  return this._serviceUuid;
+};
+
 Service.prototype.discoverCharacteristics = function (characteristicsUuid, callback) {
   if (callback) {
     this.once('characteristicsDiscovered', function (characteristics) {
-      callback(null, characteristics);
+      callback(characteristics);
     });
   }
 
