@@ -20,9 +20,6 @@ var {
 
 var Buffer = require('buffer').Buffer;
 
-// Callbacks of Bluetooth functions
-var _callbacks = {};
-
 /**
  *  NobleBindings for react native
  */
@@ -150,7 +147,6 @@ NobleBindings.prototype.onCharacteristicsDiscovered = function (data) {
 NobleBindings.prototype.onRead = function (data) {
 
   const buf = new Buffer(data.data, 'hex');
-  console.log('Buffer :' + buf);
   if (data) {
     this.emit('read', data.peripheralUuid, data.serviceUuid, data.characteristicUuid, buf, false);
   }
@@ -158,16 +154,10 @@ NobleBindings.prototype.onRead = function (data) {
 
 NobleBindings.prototype.onNotify = function (data) {
 
-  const buf = new Buffer(data, 'hex');
+  const buf = new Buffer(data.data, 'hex');
 
   if (data) {
-    _callbacks['notify'](null, buf);
-
-    //_readValueCallback(null, data);
-  } else {
-    _callbacks['notify']('no value to read');
-
-    //_readValueCallback(error, null);
+    this.emit('notify', data.peripheralUuid, data.serviceUuid, data.characteristicUuid, buf);
   }
 };
 
@@ -242,7 +232,6 @@ nobleBindings.broadcast = function (deviceUuid, serviceUuid, characteristicUuid,
 };
 
 nobleBindings.notify = function (deviceUuid, serviceUuid, characteristicUuid, notify) {
-  _callbacks['notify'] = notify;
   RNBLE.subscribeCharacteristic(deviceUuid, serviceUuid, characteristicUuid);
 };
 

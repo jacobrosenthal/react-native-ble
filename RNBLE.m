@@ -256,6 +256,7 @@ RCT_EXPORT_METHOD(discoverServices:(NSString *)peripheralUuid withUuids:(NSArray
 	
 	if (error) {
 		NSLog(@"Error discovering services: %@", [error localizedDescription]);
+		[self.bridge.eventDispatcher sendDeviceEventWithName:@"services" body:[self errorHandler:[error localizedDescription]]];
 		return;
 	}
 	NSMutableArray *servicesUUID = [NSMutableArray new];

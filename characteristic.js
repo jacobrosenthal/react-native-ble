@@ -39,4 +39,14 @@ Characteristic.prototype.read = function (callback) {
   this._noble.read(this._peripheralUuid, this._serviceUuid, this._characteristicUuid);
 };
 
+Characteristic.prototype.notify = function (callback) {
+  if (callback) {
+    this.on('notify', function (data) {
+      callback(data);
+    });
+  }
+
+  this._noble.notify(this._peripheralUuid, this._serviceUuid, this._characteristicUuid);
+};
+
 module.exports = Characteristic;
