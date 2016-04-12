@@ -75,7 +75,7 @@ Peripheral.prototype.disconnect = function (callback) {
 
 // Called when device disconnected without user wants
 Peripheral.prototype.onDisconnect = function () {
-  this.emit('disconnect');
+  this.emit('disconnect', this);
 };
 
 Peripheral.prototype.updateRssi = function (callback) {

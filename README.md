@@ -64,6 +64,21 @@ peripheral.connect(function (error) {
 });
 ```
 
+#### disconnect
+
+When you're connected to a peripheral, you can handle the automatic disconnection by doing :
+```javascript
+peripheral.once('disconnect', function () {
+
+});
+
+If you want to disconnect manually :
+```javascript
+peripheral.disconnect(function (error) {
+
+});
+```
+
 #### Discover Services
 ```javascript
 var serviceUUIDs = ["<service UUID 1>", ...];
