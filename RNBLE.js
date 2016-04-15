@@ -62,6 +62,31 @@ Noble.prototype.onStateChange = function(state) {
   this.emit('stateChange', state);
 };
 
+Noble.prototype.startAdvertising = function(advertisingData, callback) {
+  if (this.state !== 'poweredOn') {
+    var error = new Error('Could not start advertising, state is ' + this.state + ' (not poweredOn)');
+
+    if (typeof callback === 'function') {
+      callback(error);
+    } else {
+      throw error;
+    }
+  } else {
+    if (callback) {
+      this.once('advertiseStart', callback);
+    }
+
+    this._bindings.startAdvertising(advertisingData);
+  }
+};
+
+Noble.prototype.stopAdvertising = function(callback) {
+  if (callback) {
+    this.once('advertiseStop', callback);
+  }
+  this._bindings.stopAdvertising();
+};
+
 Noble.prototype.startScanning = function(serviceUuids, allowDuplicates, callback) {
   if (this.state !== 'poweredOn') {
     var error = new Error('Could not start scanning, state is ' + this.state + ' (not poweredOn)');

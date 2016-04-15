@@ -108,6 +108,14 @@ NobleBindings.prototype.onStateChange = function(state) {
 
 var nobleBindings = new NobleBindings();
 
+nobleBindings.startAdvertising = function(advertisementData) {
+  RNBLE.startAdvertising(advertisementData);
+};
+
+nobleBindings.stopAdvertising = function() {
+  RNBLE.stopAdvertising();
+};
+
 /**
  * Start scanning
  * @param  {Array} serviceUuids     Scan for these UUIDs, if undefined then scan for all
