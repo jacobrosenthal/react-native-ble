@@ -8,23 +8,14 @@
 
 'use strict';
 
-var debug = require('debug')('react-native-ble');
-
-//var events = require('events');
-//var util = require('util');
-
-//var warning = require('warning');
-
-var bindings = require('./androidbindings.js');
 
 function Noble() {
 
 }
 
 Noble.prototype.hello = function () {
-  bindings.hello();
+  console.log('hello');
+//  bindings.hello();
 };
-
-//util.inherits(NobleBindings, events.EventEmitter);
 
 module.exports = Noble;
