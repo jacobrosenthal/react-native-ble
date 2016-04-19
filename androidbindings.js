@@ -24,7 +24,8 @@ var Buffer = require('buffer').Buffer;
  * NobleBindings for react native
  */
 var NobleBindings = function () {
-  DeviceEventEmitter.addListener('testEvent', this.onHello.bind(this));
+  DeviceEventEmitter.addListener('stateChange', this.onStateChange.bind(this));
+
   // DeviceEventEmitter.addListener('discover', this.onDiscover.bind(this));
   // DeviceEventEmitter.addListener('stateChange', this.onStateChange.bind(this));
   // DeviceEventEmitter.addListener('connect', this.onConnect.bind(this));
@@ -38,16 +39,18 @@ var NobleBindings = function () {
 
 util.inherits(NobleBindings, events.EventEmitter);
 
-NobleBindings.prototype.onHello = function (args) {
-  console.log('tryit : ' + args);
-}
+NobleBindings.prototype.onStateChange = function (state) {
+  // var state = ['unknown', 'resetting', 'unsupported', 'unauthorized', 'poweredOff', 'poweredOn'][args.kCBMsgArgState];
+  debug('state change ' + state);
+
+  this.emit('stateChange', state);
+};
 
 var nobleBindings = new NobleBindings();
+nobleBindings._peripherals = {};
 
-//nobleBindings._peripherals = {};
-
-nobleBindings.hello = function () {
-  console.log('------- ' + RNBLE.getTest());
+nobleBindings.init = function () {
+  RNBLE.setup();
 };
 
 // Exports
