@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 12-04-2016
+* @Last modified time: 20-04-2016
 */
 
 /*jshint loopfunc: true */
@@ -26,6 +26,28 @@ function Peripheral(noble, id, address, addressType, connectable, advertisement,
   this.state = 'disconnected';
 }
 
+Peripheral.prototype = {
+  _noble: null,
+  id: null,
+  uuid: null, // for legacy
+  address: null,
+  addressType: null,
+  connectable: null,
+  advertisement: null,
+  rssi: null,
+  services: null,
+  state: 'disconnected',
+};
+
+Peripheral.prototype.initAndroid = function (noble, address, name, rssi) {
+  this._noble = noble;
+  this.address = address;
+  this.name = name;
+  this.rssi = rssi;
+
+  return this;
+};
+
 util.inherits(Peripheral, events.EventEmitter);
 
 Peripheral.prototype.toString = function () {
@@ -41,6 +63,7 @@ Peripheral.prototype.toString = function () {
 };
 
 Peripheral.prototype.connect = function (callback) {
+  console.log('Je vais me connecter.....\n');
   if (callback) {
     this.once('connect', function (data) {
       this.once('disconnect', this.onDisconnect);
@@ -57,7 +80,11 @@ Peripheral.prototype.connect = function (callback) {
     this.emit('connect', new Error('Peripheral already connected'));
   } else {
     this.state = 'connecting';
-    this._noble.connect(this.id);
+    if (this.id != null) {
+      this._noble.connect(this.id);
+    } else {
+      this._noble.connect(this.address);
+    }
   }
 };
 

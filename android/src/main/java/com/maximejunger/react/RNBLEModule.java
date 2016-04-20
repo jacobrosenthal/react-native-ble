@@ -11,24 +11,35 @@
 package com.maximejunger.react;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.widget.Toast;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -38,9 +49,9 @@ import javax.annotation.Nullable;
  * Email : maxime.junger@epitech.eu
  */
 
-public class RNBLEModule extends ReactContextBaseJavaModule {
+public class RNBLEModule extends ReactContextBaseJavaModule implements BluetoothAdapter.LeScanCallback {
 
-    private Map                 mPeripherals;
+    private Map<String, BluetoothDevice> mPeripherals;
     private BluetoothAdapter    mBluetoothAdapter;
     private BroadcastReceiver   mReceiver;
 
@@ -52,7 +63,6 @@ public class RNBLEModule extends ReactContextBaseJavaModule {
     public String getName() {
         return "RNBLE";
     }
-
 
     // use this as an inner class like here or as a top-level class
     public class MyBroadCastReceiver extends BroadcastReceiver {
@@ -80,6 +90,32 @@ public class RNBLEModule extends ReactContextBaseJavaModule {
 
                 if (params.getString("state") != null) {
                     sendEvent(this.mReactApplicationContext, "stateChange", params);
+                }
+            }
+            else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                // Create a new device item
+                int i = 0;
+                System.out.print(device.getName());
+
+                ParcelUuid[] pcl = device.getUuids();
+                //System.out.println(device.getUuids());
+
+
+                System.out.println(device.getAddress());
+
+                System.out.println(device.getType());
+               // DeviceItem newDevice = new DeviceItem(device.getName(), device.getAddress(), "false");
+                // Add it to our adapter
+               // mAdapter.add(newDevice);
+            }
+            else  if (BluetoothDevice.ACTION_UUID.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Parcelable[] uuids = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
+                System.out.print("JE SUIS LA EHEHHEHE");
+                for (Parcelable ep : uuids) {
+                    System.out.print("UUID Records : " + ep.toString());
+                    //Utilities.print("UUID records : "+ ep.toString());
                 }
             }
         }
@@ -123,13 +159,15 @@ public class RNBLEModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setup() {
 
-        mPeripherals = new HashMap();
+        mPeripherals = new HashMap<String, BluetoothDevice>();
 
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        BluetoothManager manager = (BluetoothManager) this.getReactApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = manager.getAdapter();
 
         WritableMap params = Arguments.createMap();
 
-        if (mBluetoothAdapter == null) {
+        if (mBluetoothAdapter == null || !this.getReactApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             params.putString("state", "unsupported");
         } else {
             if (!mBluetoothAdapter.isEnabled()) {
@@ -147,4 +185,72 @@ public class RNBLEModule extends ReactContextBaseJavaModule {
         this.mReceiver = new MyBroadCastReceiver(this.getReactApplicationContext());
         this.getReactApplicationContext().registerReceiver(this.mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
+
+    @ReactMethod
+    public void startScanning(ReadableArray uuids, Boolean allowDuplicates) {
+        System.out.println("Je start scanning :D");
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+
+        this.mPeripherals.clear();
+
+        if (mBluetoothAdapter.isDiscovering())
+            mBluetoothAdapter.cancelDiscovery();
+
+      //  this.getReactApplicationContext().registerReceiver(this.mReceiver, filter);
+       // this.getReactApplicationContext().registerReceiver(this.mReceiver, new IntentFilter(BluetoothDevice.ACTION_UUID));
+        //this.mBluetoothAdapter.startDiscovery();
+
+
+        UUID[] arrayUUIDS = new UUID[1];
+        arrayUUIDS[0] = UUID.fromString("00001816-0000-1000-8000-00805F9B34FB");
+
+
+       // UUID[] arrayUUIDS = new UUID[uuids.size()];
+
+//        for (int i = 0; i < uuids.size(); i++) {
+//            arrayUUIDS[i] = UUID.fromString(uuids.getString(i));
+//
+//        }
+
+        /**
+         * Start scanning for needed UUIDS
+         */
+        this.mBluetoothAdapter.startLeScan(arrayUUIDS, this);
+    }
+
+    @Override
+    public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+
+        WritableMap params = Arguments.createMap();
+
+        /**
+         * Save devices in map if not present
+         */
+        if (!this.mPeripherals.containsKey(device.getAddress()))
+            this.mPeripherals.put(device.getAddress(), device);
+
+        params.putString("name", device.getName());
+        params.putString("address", device.getAddress());
+        params.putInt("rssi", rssi);
+
+        sendEvent(this.getReactApplicationContext(), "discover", params);
+    }
+
+    @ReactMethod
+    public void connect(String address) {
+        System.out.print("JE VAIS ME CONNECTER EHEHEH ");
+
+        BluetoothDevice device = this.mPeripherals.get(address);
+
+        if (device != null) {
+            // Connect to device
+            device.connectGatt(this.getReactApplicationContext(), true, mGattCallbacl);
+        }
+
+
+    }
+
+    private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+    }
+
 }
