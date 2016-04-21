@@ -12,8 +12,11 @@ package com.maximejunger.react;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -54,6 +57,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
     private Map<String, BluetoothDevice> mPeripherals;
     private BluetoothAdapter    mBluetoothAdapter;
     private BroadcastReceiver   mReceiver;
+    private BluetoothGattCallbackHandler mBluetoothGattCallbackHandler;
 
     public RNBLEModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -189,17 +193,8 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
     @ReactMethod
     public void startScanning(ReadableArray uuids, Boolean allowDuplicates) {
         System.out.println("Je start scanning :D");
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 
         this.mPeripherals.clear();
-
-        if (mBluetoothAdapter.isDiscovering())
-            mBluetoothAdapter.cancelDiscovery();
-
-      //  this.getReactApplicationContext().registerReceiver(this.mReceiver, filter);
-       // this.getReactApplicationContext().registerReceiver(this.mReceiver, new IntentFilter(BluetoothDevice.ACTION_UUID));
-        //this.mBluetoothAdapter.startDiscovery();
-
 
         UUID[] arrayUUIDS = new UUID[1];
         arrayUUIDS[0] = UUID.fromString("00001816-0000-1000-8000-00805F9B34FB");
@@ -238,19 +233,81 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
     @ReactMethod
     public void connect(String address) {
-        System.out.print("JE VAIS ME CONNECTER EHEHEH ");
 
         BluetoothDevice device = this.mPeripherals.get(address);
+        WritableMap params = Arguments.createMap();
 
         if (device != null) {
-            // Connect to device
-            device.connectGatt(this.getReactApplicationContext(), true, mGattCallbacl);
+            mBluetoothGattCallbackHandler = new BluetoothGattCallbackHandler(this.getReactApplicationContext());
+            device.connectGatt(this.getReactApplicationContext(), true, mBluetoothGattCallbackHandler);
+        } else {
+            params.putString("error", "Device not found");
+            sendEvent(this.getReactApplicationContext(), "connect", params);
         }
 
-
     }
 
-    private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+    @ReactMethod
+    public void discoverServices(String address, ReadableArray uuids) {
+
+        BluetoothDevice device = this.mPeripherals.get(address);
+        WritableMap params = Arguments.createMap();
+
+        if (device != null) {
+            this.mBluetoothGattCallbackHandler.getmBluetoothGatt().discoverServices();
+        } else {
+            params.putString("error", "Device not found");
+            sendEvent(this.getReactApplicationContext(), "connect", params);
+        }
     }
+
+    /**
+     * Callbacks for BluetoothGatt
+     */
+//    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+//
+//        private ReactApplicationContext mReactApplicationContext;
+//
+//        public void setContext(ReactApplicationContext rac) {
+//            this.mReactApplicationContext = rac;
+//        }
+//
+////        @Override
+////        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+////            String intentAction;
+////            if (newState == BluetoothProfile.STATE_CONNECTED) {
+////
+////                Log.i("Status :", "Connected to GATT server. " + gatt.getDevice().getName());
+////                sendEvent(this.getReactApplicationContext(), "connect", params);
+////                //       mBluetoothGatt.discoverServices());
+////            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+////               // intentAction = ACTION_GATT_DISCONNECTED;
+////                //mConnectionState = STATE_DISCONNECTED;
+////                Log.i("Status :", "Disconnected from GATT server.");
+////                //broadcastUpdate(intentAction);
+////            }
+////        }
+//////        @Override
+//////        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+//////            if (status == BluetoothGatt.GATT_SUCCESS) {
+//////                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+//////            } else {
+//////                Log.w(TAG, "onServicesDiscovered received: " + status);
+//////            }
+//////        }
+//////        @Override
+//////        public void onCharacteristicRead(BluetoothGatt gatt,
+//////                                         BluetoothGattCharacteristic characteristic,
+//////                                         int status) {
+//////            if (status == BluetoothGatt.GATT_SUCCESS) {
+//////                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+//////            }
+//////        }
+//////        @Override
+//////        public void onCharacteristicChanged(BluetoothGatt gatt,
+//////                                            BluetoothGattCharacteristic characteristic) {
+//////            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+//////        }
+////    };
 
 }

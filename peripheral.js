@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 20-04-2016
+* @Last modified time: 21-04-2016
 */
 
 /*jshint loopfunc: true */
@@ -66,6 +66,7 @@ Peripheral.prototype.connect = function (callback) {
   console.log('Je vais me connecter.....\n');
   if (callback) {
     this.once('connect', function (data) {
+      console.log('Hello guys');
       this.once('disconnect', this.onDisconnect);
       if (data instanceof Peripheral) {
         callback(data);
@@ -122,7 +123,11 @@ Peripheral.prototype.discoverServices = function (uuids, callback) {
     });
   }
 
-  this._noble.discoverServices(this.id, uuids);
+  if (this.id != null) {
+    this._noble.discoverServices(this.id, uuids);
+  }  else {
+    this._noble.discoverServices(this.address, uuids);
+  }
 };
 
 Peripheral.prototype.discoverSomeServicesAndCharacteristics = function (serviceUuids, characteristicsUuids, callback) {

@@ -3,7 +3,7 @@
 * @Date:   12-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 20-04-2016
+* @Last modified time: 21-04-2016
 */
 
 'use strict';
@@ -33,6 +33,8 @@ function Noble() {
   this._bindings.on('scanStart', this.onScanStart.bind(this));
   this._bindings.on('scanStop', this.onScanStop.bind(this));
   this._bindings.on('discover', this.onDiscover.bind(this));
+  this._bindings.on('connect', this.onConnect.bind(this));
+  this._bindings.on('servicesDiscover', this.onServicesDiscover.bind(this));
 
   //this._bindings.on('connect', this.onConnect.bind(this));
 
@@ -122,6 +124,48 @@ Noble.prototype.onDiscover = function (address, name, rssi, advertisement) {
 
 Noble.prototype.connect = function (peripheralUuid, callback) {
   this._bindings.connect(peripheralUuid);
+};
+
+Noble.prototype.onConnect = function (address, error) {
+  var peripheral = this._peripherals[address];
+
+  if (peripheral) {
+    peripheral.state = error ? 'error' : 'connected';
+    peripheral.emit('connect', peripheral);
+  } else {
+    peripheral.emit('warning', 'unknown peripheral ' + address + ' connected!');
+  }
+};
+
+Noble.prototype.discoverServices = function (address, uuids) {
+  this._bindings.discoverServices(address, uuids);//, function (error, data) {
+};
+
+Noble.prototype.onServicesDiscover = function (peripheralUuid, serviceUuids) {
+  console.log('je suis là putain');
+
+  var peripheral = this._peripherals[peripheralUuid];
+
+  if (peripheral) {
+    var services = [];
+
+    for (var i = 0; i < serviceUuids.length; i++) {
+      var serviceUuid = serviceUuids[i];
+      var service = new Service(this, peripheralUuid, serviceUuid);
+
+      this._services[peripheralUuid][serviceUuid] = service;
+      this._characteristics[peripheralUuid][serviceUuid] = {};
+      this._descriptors[peripheralUuid][serviceUuid] = {};
+
+      services.push(service);
+    }
+
+    peripheral.services = services;
+
+    peripheral.emit('servicesDiscover', services);
+  } else {
+    this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' services discover!');
+  }
 };
 
 module.exports = Noble;
