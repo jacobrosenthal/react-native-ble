@@ -99,6 +99,7 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
     }
 
 
+
     public BluetoothGatt getmBluetoothGatt() {
         return mBluetoothGatt;
     }

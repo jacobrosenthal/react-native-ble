@@ -1,5 +1,7 @@
 package com.maximejunger.react;
 
+import java.util.UUID;
+
 /**
  * Project - android - BluetoothUUIDHelper
  * Created by Maxime JUNGER - junger_m on 21/04/16.
@@ -7,6 +9,10 @@ package com.maximejunger.react;
  */
 
 public class BluetoothUUIDHelper {
+
+    // Bluetooth Base ID
+    public static final long BT_UUID_LOWER_BITS = 0x800000805F9B34FBl;
+    public static final long BT_UUID_UPPER_BITS = 0x1000;
 
     static public String longUUIDToShort(String data) {
 
@@ -19,4 +25,10 @@ public class BluetoothUUIDHelper {
         return res;
     }
 
+    static public UUID shortUUIDToLong(String service) {
+
+        long serviceLong = Long.parseLong(service, 16);
+
+        return new UUID(BT_UUID_UPPER_BITS + (serviceLong << 32), BT_UUID_LOWER_BITS);
+    }
 }

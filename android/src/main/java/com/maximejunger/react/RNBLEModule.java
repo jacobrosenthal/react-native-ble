@@ -15,6 +15,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
@@ -33,6 +35,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
@@ -253,17 +256,57 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         BluetoothDevice device = this.mPeripherals.get(address);
         WritableMap params = Arguments.createMap();
 
-        if (device != null) {
+        if (device != null && this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getDevice().getAddress().equals(device.getAddress())) {
             this.mBluetoothGattCallbackHandler.getmBluetoothGatt().discoverServices();
         } else {
             params.putString("error", "Device not found");
-            sendEvent(this.getReactApplicationContext(), "connect", params);
+            sendEvent(this.getReactApplicationContext(), "services", params);
         }
     }
 
-    /**
-     * Callbacks for BluetoothGatt
-     */
+    @ReactMethod
+    public void discoverCharacteristicsForService(String address, String serviceUUID, ReadableArray characteristicsUUIDs) {
+
+        BluetoothDevice device = this.mPeripherals.get(address);
+        WritableMap params = Arguments.createMap();
+        WritableArray characteristics = Arguments.createArray();
+        if (device != null && this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getDevice().getAddress().equals(device.getAddress())) {
+
+            BluetoothGattService service = mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID));
+
+            if (service != null && BluetoothUUIDHelper.longUUIDToShort(String.valueOf(service.getUuid())).equals(serviceUUID)) {
+
+                params.putString("address", address);
+                params.putString("serviceUUID", serviceUUID);
+
+                for (int i = 0; i < characteristicsUUIDs.size(); i++) {
+                    UUID uuid = BluetoothUUIDHelper.shortUUIDToLong(characteristicsUUIDs.getString(i));
+                     characteristics.pushString(BluetoothUUIDHelper.longUUIDToShort(service.getCharacteristic(uuid).getUuid().toString()));
+                }
+
+                params.putArray("characteristics", characteristics);
+
+                sendEvent(this.getReactApplicationContext(), "characteristics", params);
+            }
+            else {
+                params.putString("error", "Service not found");
+                sendEvent(this.getReactApplicationContext(), "characteristics", params);
+            }
+        }
+        else {
+            params.putString("error", "Device not found");
+            sendEvent(this.getReactApplicationContext(), "characteristics", params);
+        }
+    }
+
+    @ReactMethod
+    public void testHello() {
+        sendEvent(this.getReactApplicationContext(), "hello", Arguments.createMap().putString("Hello", "hello test aha"););
+    }
+
+        /**
+         * Callbacks for BluetoothGatt
+         */
 //    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 //
 //        private ReactApplicationContext mReactApplicationContext;

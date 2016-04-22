@@ -3,7 +3,7 @@
 * @Date:   12-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 21-04-2016
+* @Last modified time: 22-04-2016
 */
 
 'use strict';
@@ -35,6 +35,7 @@ function Noble() {
   this._bindings.on('discover', this.onDiscover.bind(this));
   this._bindings.on('connect', this.onConnect.bind(this));
   this._bindings.on('servicesDiscover', this.onServicesDiscover.bind(this));
+  this._bindings.on('characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
 
   //this._bindings.on('connect', this.onConnect.bind(this));
 
@@ -141,6 +142,10 @@ Noble.prototype.discoverServices = function (address, uuids) {
   this._bindings.discoverServices(address, uuids);//, function (error, data) {
 };
 
+Noble.prototype.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids) {
+  this._bindings.discoverCharacteristics(deviceUuid, serviceUuid[0], characteristicUuids);
+};
+
 Noble.prototype.onServicesDiscover = function (peripheralUuid, serviceUuids) {
   console.log('je suis là putain');
 
@@ -165,6 +170,44 @@ Noble.prototype.onServicesDiscover = function (peripheralUuid, serviceUuids) {
     peripheral.emit('servicesDiscover', services);
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' services discover!');
+  }
+};
+
+Noble.prototype.onCharacteristicsDiscover = function (peripheralUuid, serviceUuid, characteristics) {
+
+  if (peripheralUuid.error) {
+    this.emit('characteristicsDiscovered', peripheral.error);
+    return;
+  }
+
+  //var service = this._peripherals[peripheralUuid].services[serviceUuid];
+
+  var service = this._services[peripheralUuid][serviceUuid];
+
+  if (service) {
+    var characteristics_ = [];
+
+    for (var i = 0; i < characteristics.length; i++) {
+      var characteristicUuid = characteristics[i];
+
+      var characteristic = new Characteristic(
+                                this,
+                                peripheralUuid,
+                                serviceUuid,
+                                characteristicUuid
+                            );
+
+      this._characteristics[peripheralUuid][serviceUuid][characteristicUuid] = characteristic;
+      this._descriptors[peripheralUuid][serviceUuid][characteristicUuid] = {};
+
+      characteristics_.push(characteristic);
+    }
+
+    service.characteristics = characteristics_;
+
+    service.emit('characteristicsDiscovered', characteristics_);
+  } else {
+    this.emit('warning', 'unknown peripheral ' + peripheralUuid + ', ' + serviceUuid + ' characteristics discover!');
   }
 };
 
