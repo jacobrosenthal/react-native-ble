@@ -36,6 +36,7 @@ function Noble() {
   this._bindings.on('connect', this.onConnect.bind(this));
   this._bindings.on('servicesDiscover', this.onServicesDiscover.bind(this));
   this._bindings.on('characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
+  this._bindings.on('read', this.onRead.bind(this));
 
   //this._bindings.on('connect', this.onConnect.bind(this));
 
@@ -142,10 +143,6 @@ Noble.prototype.discoverServices = function (address, uuids) {
   this._bindings.discoverServices(address, uuids);//, function (error, data) {
 };
 
-Noble.prototype.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids) {
-  this._bindings.discoverCharacteristics(deviceUuid, serviceUuid[0], characteristicUuids);
-};
-
 Noble.prototype.onServicesDiscover = function (peripheralUuid, serviceUuids) {
   console.log('je suis là putain');
 
@@ -171,6 +168,10 @@ Noble.prototype.onServicesDiscover = function (peripheralUuid, serviceUuids) {
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' services discover!');
   }
+};
+
+Noble.prototype.discoverCharacteristics = function (deviceUuid, serviceUuid, characteristicUuids) {
+  this._bindings.discoverCharacteristics(deviceUuid, serviceUuid[0], characteristicUuids);
 };
 
 Noble.prototype.onCharacteristicsDiscover = function (peripheralUuid, serviceUuid, characteristics) {
@@ -208,6 +209,20 @@ Noble.prototype.onCharacteristicsDiscover = function (peripheralUuid, serviceUui
     service.emit('characteristicsDiscovered', characteristics_);
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ', ' + serviceUuid + ' characteristics discover!');
+  }
+};
+
+Noble.prototype.read = function (peripheralUuid, serviceUuid, characteristicUuid) {
+  this._bindings.read(peripheralUuid, serviceUuid, characteristicUuid);
+};
+
+Noble.prototype.onRead = function (peripheralUuid, serviceUuid, characteristicUuid, data, isNotification) {
+  var characteristic = this._characteristics[peripheralUuid][serviceUuid][characteristicUuid];
+
+  if (characteristic) {
+    characteristic.emit('read', data, isNotification); // for backwards compatbility
+  } else {
+    this.emit('warning', 'unknown peripheral ' + peripheralUuid + ', ' + serviceUuid + ', ' + characteristicUuid + ' read!');
   }
 };
 

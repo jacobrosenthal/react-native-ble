@@ -36,7 +36,8 @@ var NobleBindings = function () {
   // DeviceEventEmitter.addListener('disconnect', this.onDisconnect.bind(this));
   // DeviceEventEmitter.addListener('services', this.onServicesDiscovered.bind(this));
   // DeviceEventEmitter.addListener('characteristics', this.onCharacteristicsDiscovered.bind(this));
-  // DeviceEventEmitter.addListener('read', this.onRead.bind(this));
+  DeviceEventEmitter.addListener('read', this.onRead.bind(this));
+
   // DeviceEventEmitter.addListener('notify', this.onNotify.bind(this));
 
 };
@@ -100,6 +101,14 @@ NobleBindings.prototype.onCharacteristicsDiscovered = function (data) {
   }
 };
 
+NobleBindings.prototype.onRead = function (data) {
+
+  const buf = new Buffer(data.data, 'hex');
+  if (data) {
+    this.emit('read', data.address, data.serviceUUID, data.characteristicUuid, buf, false);
+  }
+};
+
 var nobleBindings = new NobleBindings();
 nobleBindings._peripherals = {};
 
@@ -128,6 +137,10 @@ nobleBindings.discoverServices = function (address, uuids) {
 
 nobleBindings.discoverCharacteristics = function (address, serviceUUID, characteristics) {
   RNBLE.discoverCharacteristicsForService(address, serviceUUID, characteristics);
+};
+
+nobleBindings.read = function (address, serviceUuid, characteristicUuid, callback) {
+  RNBLE.readCharacteristic(address, serviceUuid, characteristicUuid);
 };
 
 // Exports

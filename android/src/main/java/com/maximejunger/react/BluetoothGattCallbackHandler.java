@@ -14,6 +14,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,8 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
 
     private ReactApplicationContext mReactApplicationContext;
     private BluetoothGatt mBluetoothGatt;
+
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     public BluetoothGattCallbackHandler(ReactApplicationContext rac) {
         this.mReactApplicationContext = rac;
@@ -98,9 +101,41 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
         }
     }
 
+    @Override
+    public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        super.onCharacteristicRead(gatt, characteristic, status);
+        String str;
 
+        try {
+            str = new String(characteristic.getValue(), "UTF-8");
+            Log.i("Characteristic read : ", str);
+
+            WritableMap params = Arguments.createMap();
+            params.putString("address", gatt.getDevice().getAddress());
+            params.putString("serviceUUID", BluetoothUUIDHelper.longUUIDToShort(characteristic.getService().getUuid().toString()));
+            params.putString("data", bytesToHex(characteristic.getValue()));
+            params.putString("characteristicUuid", BluetoothUUIDHelper.longUUIDToShort(characteristic.getUuid().toString()));
+
+            sendEvent(this.mReactApplicationContext, "read", params);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+
+    }
 
     public BluetoothGatt getmBluetoothGatt() {
         return mBluetoothGatt;
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }
