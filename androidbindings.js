@@ -72,13 +72,12 @@ NobleBindings.prototype.onDiscover = function (args) {
 NobleBindings.prototype.onConnect = function (args) {
   var peripheral = this._peripherals[args.address];
 
-  console.log("I'm connected with " + peripheral);
-
-  if (peripheral) {
+  if (peripheral && peripheral.state != 'connected') {
+    console.log("I'm connected with " + peripheral);
     peripheral.state = args.error ? 'error' : 'connected';
     this.emit('connect', args.address, null);
   } else {
-    this.emit('connect', null, 'Peripheral Not Found');
+    //this.emit('connect', null, 'Peripheral Not Found');
   }
 };
 

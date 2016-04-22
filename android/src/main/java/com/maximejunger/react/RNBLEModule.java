@@ -58,8 +58,8 @@ import javax.annotation.Nullable;
 public class RNBLEModule extends ReactContextBaseJavaModule implements BluetoothAdapter.LeScanCallback {
 
     private Map<String, BluetoothDevice> mPeripherals;
-    private BluetoothAdapter    mBluetoothAdapter;
-    private BroadcastReceiver   mReceiver;
+    private BluetoothAdapter mBluetoothAdapter;
+    private BroadcastReceiver mReceiver;
     private BluetoothGattCallbackHandler mBluetoothGattCallbackHandler;
 
     public RNBLEModule(ReactApplicationContext reactContext) {
@@ -98,8 +98,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
                 if (params.getString("state") != null) {
                     sendEvent(this.mReactApplicationContext, "stateChange", params);
                 }
-            }
-            else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+            } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // Create a new device item
                 int i = 0;
@@ -112,11 +111,10 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
                 System.out.println(device.getAddress());
 
                 System.out.println(device.getType());
-               // DeviceItem newDevice = new DeviceItem(device.getName(), device.getAddress(), "false");
+                // DeviceItem newDevice = new DeviceItem(device.getName(), device.getAddress(), "false");
                 // Add it to our adapter
-               // mAdapter.add(newDevice);
-            }
-            else  if (BluetoothDevice.ACTION_UUID.equals(action)) {
+                // mAdapter.add(newDevice);
+            } else if (BluetoothDevice.ACTION_UUID.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Parcelable[] uuids = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
                 System.out.print("JE SUIS LA EHEHHEHE");
@@ -134,9 +132,10 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
     /**
      * Send events to Javascript
+     *
      * @param reactContext context of react
-     * @param eventName name of event that Javascript is listening
-     * @param params WritableMap of params
+     * @param eventName    name of event that Javascript is listening
+     * @param params       WritableMap of params
      */
     private void sendEvent(ReactContext reactContext,
                            String eventName,
@@ -147,27 +146,13 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
     }
 
     /**
-     * Just a simple test
-     */
-    @ReactMethod
-    public void getTest() {
-        System.out.println("Hello moto");
-
-        WritableMap params = Arguments.createMap();
-
-        params.putString("name", "test ahahahahhahah");
-
-        sendEvent(this.getReactApplicationContext(), "testEvent", params);
-    }
-
-    /**
      * Prepare the Bluetooth and set the stateChange handler
+     * Send event of the current Bluetooth state to React
      */
     @ReactMethod
     public void setup() {
 
         mPeripherals = new HashMap<String, BluetoothDevice>();
-
 
         BluetoothManager manager = (BluetoothManager) this.getReactApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = manager.getAdapter();
@@ -179,11 +164,8 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         } else {
             if (!mBluetoothAdapter.isEnabled()) {
                 params.putString("state", "poweredOff");
-                System.out.println("NOT ENABLED");
-            }
-            else {
+            } else {
                 params.putString("state", "poweredOn");
-                System.out.println("ENABLED");
             }
         }
 
@@ -193,29 +175,31 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         this.getReactApplicationContext().registerReceiver(this.mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
 
+    /**
+     * Start scanning for needed uuids
+     * @param uuids UUIDS needed
+     * @param allowDuplicates true/false
+     */
     @ReactMethod
     public void startScanning(ReadableArray uuids, Boolean allowDuplicates) {
-        System.out.println("Je start scanning :D");
 
         this.mPeripherals.clear();
 
-        UUID[] arrayUUIDS = new UUID[1];
-        arrayUUIDS[0] = UUID.fromString("00001816-0000-1000-8000-00805F9B34FB");
+        UUID[] arrayUUIDS = new UUID[uuids.size()];
 
+        for (int i = 0; i < uuids.size(); i++) {
+            arrayUUIDS[i] =  BluetoothUUIDHelper.shortUUIDToLong(uuids.getString(i));
+        }
 
-       // UUID[] arrayUUIDS = new UUID[uuids.size()];
-
-//        for (int i = 0; i < uuids.size(); i++) {
-//            arrayUUIDS[i] = UUID.fromString(uuids.getString(i));
-//
-//        }
-
-        /**
-         * Start scanning for needed UUIDS
-         */
         this.mBluetoothAdapter.startLeScan(arrayUUIDS, this);
     }
 
+    /**
+     * Called when a device is found
+     * @param device device found
+     * @param rssi Signal strength
+     * @param scanRecord record
+     */
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
 
@@ -234,6 +218,10 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         sendEvent(this.getReactApplicationContext(), "discover", params);
     }
 
+    /**
+     * Connect to device
+     * @param address of the device
+     */
     @ReactMethod
     public void connect(String address) {
 
@@ -250,6 +238,11 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
     }
 
+    /**
+     * Discover services of device
+     * @param address of the device
+     * @param uuids wanted
+     */
     @ReactMethod
     public void discoverServices(String address, ReadableArray uuids) {
 
@@ -264,6 +257,12 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         }
     }
 
+    /**
+     * Discover Characteristics for service
+     * @param address of device
+     * @param serviceUUID UUID of service where characteristics are
+     * @param characteristicsUUIDs Characteristics wanted
+     */
     @ReactMethod
     public void discoverCharacteristicsForService(String address, String serviceUUID, ReadableArray characteristicsUUIDs) {
 
@@ -303,6 +302,12 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         }
     }
 
+    /**
+     * Read value of characteristic
+     * @param address of the device
+     * @param serviceUUID UUID of service where characteristic is
+     * @param characteristicUUID Characteristic we want to read
+     */
     @ReactMethod
     public void readCharacteristic(String address, String serviceUUID, String characteristicUUID) {
 
@@ -310,54 +315,5 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         this.mBluetoothGattCallbackHandler.getmBluetoothGatt().readCharacteristic(charac);
 
     }
-
-        /**
-         * Callbacks for BluetoothGatt
-         */
-//    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-//
-//        private ReactApplicationContext mReactApplicationContext;
-//
-//        public void setContext(ReactApplicationContext rac) {
-//            this.mReactApplicationContext = rac;
-//        }
-//
-////        @Override
-////        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-////            String intentAction;
-////            if (newState == BluetoothProfile.STATE_CONNECTED) {
-////
-////                Log.i("Status :", "Connected to GATT server. " + gatt.getDevice().getName());
-////                sendEvent(this.getReactApplicationContext(), "connect", params);
-////                //       mBluetoothGatt.discoverServices());
-////            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-////               // intentAction = ACTION_GATT_DISCONNECTED;
-////                //mConnectionState = STATE_DISCONNECTED;
-////                Log.i("Status :", "Disconnected from GATT server.");
-////                //broadcastUpdate(intentAction);
-////            }
-////        }
-//////        @Override
-//////        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-//////            if (status == BluetoothGatt.GATT_SUCCESS) {
-//////                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
-//////            } else {
-//////                Log.w(TAG, "onServicesDiscovered received: " + status);
-//////            }
-//////        }
-//////        @Override
-//////        public void onCharacteristicRead(BluetoothGatt gatt,
-//////                                         BluetoothGattCharacteristic characteristic,
-//////                                         int status) {
-//////            if (status == BluetoothGatt.GATT_SUCCESS) {
-//////                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-//////            }
-//////        }
-//////        @Override
-//////        public void onCharacteristicChanged(BluetoothGatt gatt,
-//////                                            BluetoothGattCharacteristic characteristic) {
-//////            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-//////        }
-////    };
 
 }

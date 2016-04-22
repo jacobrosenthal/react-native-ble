@@ -51,6 +51,12 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
                 .emit(eventName, params);
     }
 
+    /**
+     * Called when the connection state has changes
+     * @param gatt
+     * @param status
+     * @param newState
+     */
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
 
@@ -59,21 +65,18 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
         mBluetoothGatt = gatt;
 
         if (newState == BluetoothProfile.STATE_CONNECTED) {
-
-            Log.i("Status :", "Connected to GATT server. " + gatt.getDevice().getName());
             params.putString("address", gatt.getDevice().getAddress());
-            Log.i("DebugEheheh", "Ici");
             sendEvent(this.mReactApplicationContext, "connect", params);
-            Log.i("DebugEheheh", "Laaaa");
-
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-            // intentAction = ACTION_GATT_DISCONNECTED;
-            //mConnectionState = STATE_DISCONNECTED;
             Log.i("Status :", "Disconnected from GATT server.");
-            //broadcastUpdate(intentAction);
         }
     }
 
+    /**
+     * Called when we discovered some services
+     * @param gatt gatt
+     * @param status status
+     */
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
 
@@ -101,34 +104,38 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
         }
     }
 
+    /**
+     * Called when a characteristic is read
+     * @param gatt Gatt
+     * @param characteristic Characteristic that has been read
+     * @param status of read
+     */
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicRead(gatt, characteristic, status);
-        String str;
 
-        try {
-            str = new String(characteristic.getValue(), "UTF-8");
-            Log.i("Characteristic read : ", str);
+        WritableMap params = Arguments.createMap();
+        params.putString("address", gatt.getDevice().getAddress());
+        params.putString("serviceUUID", BluetoothUUIDHelper.longUUIDToShort(characteristic.getService().getUuid().toString()));
+        params.putString("data", bytesToHex(characteristic.getValue()));
+        params.putString("characteristicUuid", BluetoothUUIDHelper.longUUIDToShort(characteristic.getUuid().toString()));
 
-            WritableMap params = Arguments.createMap();
-            params.putString("address", gatt.getDevice().getAddress());
-            params.putString("serviceUUID", BluetoothUUIDHelper.longUUIDToShort(characteristic.getService().getUuid().toString()));
-            params.putString("data", bytesToHex(characteristic.getValue()));
-            params.putString("characteristicUuid", BluetoothUUIDHelper.longUUIDToShort(characteristic.getUuid().toString()));
-
-            sendEvent(this.mReactApplicationContext, "read", params);
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-
+        sendEvent(this.mReactApplicationContext, "read", params);
     }
 
+    /**
+     * Get the BluetoothGatt instance
+     * @return mBluetoothGatt
+     */
     public BluetoothGatt getmBluetoothGatt() {
         return mBluetoothGatt;
     }
 
+    /**
+     * Convert byte array to String
+     * @param bytes to convert
+     * @return array converted
+     */
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
