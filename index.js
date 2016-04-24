@@ -1,2 +1,3 @@
-var RNBLE = require('./RNBLE');
-module.exports = new RNBLE();
+var noble = require('noble/with-bindings');
+var bindings = require('./bindings');
+module.exports = new noble(bindings);

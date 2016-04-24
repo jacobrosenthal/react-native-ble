@@ -31,8 +31,9 @@
   "homepage": "https://github.com/jacobrosenthal/react-native-ble",
   "scripts": {},
   "dependencies": {
-    "buffer": "^3.4.3",
+    "noble": "^1.5.0",
     "debug": "^2.2.0",
+    "buffer": "^3.4.3",
     "events": "^1.0.2",
     "util": "^0.10.3"
   },
