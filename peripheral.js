@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 21-04-2016
+* @Last modified time: 25-04-2016
 */
 
 /*jshint loopfunc: true */
@@ -98,7 +98,11 @@ Peripheral.prototype.disconnect = function (callback) {
   }
 
   this.state = 'disconnecting';
-  this._noble.disconnect(this.id);
+  if (this.id != undefined) {
+    this._noble.disconnect(this.id);
+  } else {
+    this._noble.disconnect(this.address);
+  }
 };
 
 // Called when device disconnected without user wants

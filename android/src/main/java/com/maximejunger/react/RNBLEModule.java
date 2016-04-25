@@ -249,6 +249,20 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
     }
 
+    @ReactMethod
+    public void disconnect(String address) {
+        BluetoothDevice device = this.mPeripherals.get(address);
+        WritableMap params = Arguments.createMap();
+
+        if (device != null) {
+            if (this.mBluetoothGattCallbackHandler != null) {
+                this.mBluetoothGattCallbackHandler.getmBluetoothGatt().close();
+                params.putString("address", device.getAddress());
+                sendEvent(this.getReactApplicationContext(), "disconnect", params);
+            }
+        }
+    }
+
     /**
      * Discover services of device
      * @param address of the device

@@ -33,7 +33,8 @@ var NobleBindings = function () {
   // DeviceEventEmitter.addListener('discover', this.onDiscover.bind(this));
   // DeviceEventEmitter.addListener('stateChange', this.onStateChange.bind(this));
   // DeviceEventEmitter.addListener('connect', this.onConnect.bind(this));
-  // DeviceEventEmitter.addListener('disconnect', this.onDisconnect.bind(this));
+  DeviceEventEmitter.addListener('disconnect', this.onDisconnect.bind(this));
+
   // DeviceEventEmitter.addListener('services', this.onServicesDiscovered.bind(this));
   // DeviceEventEmitter.addListener('characteristics', this.onCharacteristicsDiscovered.bind(this));
   DeviceEventEmitter.addListener('read', this.onRead.bind(this));
@@ -77,6 +78,13 @@ NobleBindings.prototype.onConnect = function (args) {
     this.emit('connect', args.address, null);
   } else {
     //this.emit('connect', null, 'Peripheral Not Found');
+  }
+};
+
+NobleBindings.prototype.onDisconnect = function (peripheralData) {
+  var peripheral = this._peripherals[peripheralData.address];
+  if (peripheral) {
+    this.emit('disconnect', peripheralData.address);
   }
 };
 
@@ -136,6 +144,10 @@ nobleBindings.connect = function (peripheralUuid) {
   // delete peripheral['_noble'];
   console.log('--------\nConnexion on ' + peripheralUuid + '\n---------\n');
   RNBLE.connect(peripheralUuid);
+};
+
+nobleBindings.disconnect = function (deviceUuid) {
+  RNBLE.disconnect(deviceUuid);
 };
 
 nobleBindings.discoverServices = function (address, uuids) {

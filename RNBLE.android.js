@@ -38,6 +38,7 @@ function Noble() {
   this._bindings.on('characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
   this._bindings.on('read', this.onRead.bind(this));
   this._bindings.on('notify', this.onNotify.bind(this));
+  this._bindings.on('disconnect', this.onDisconnect.bind(this));
 
   //this._bindings.on('connect', this.onConnect.bind(this));
 
@@ -137,6 +138,21 @@ Noble.prototype.onConnect = function (address, error) {
     peripheral.emit('connect', peripheral);
   } else {
     peripheral.emit('warning', 'unknown peripheral ' + address + ' connected!');
+  }
+};
+
+Noble.prototype.disconnect = function (peripheralUuid) {
+  this._bindings.disconnect(peripheralUuid);
+};
+
+Noble.prototype.onDisconnect = function (peripheralUuid) {
+  var peripheral = this._peripherals[peripheralUuid];
+
+  if (peripheral) {
+    peripheral.state = 'disconnected';
+    peripheral.emit('disconnect');
+  } else {
+    this.emit('warning', 'unknown peripheral ' + peripheralUuid + ' disconnected!');
   }
 };
 
