@@ -3,7 +3,7 @@
 * @Date:   12-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 12-04-2016
+* @Last modified time: 25-04-2016
 */
 
 var debug = require('debug')('peripheral');

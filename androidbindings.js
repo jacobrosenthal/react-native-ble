@@ -3,7 +3,7 @@
 * @Date              : 18-04-2016
 * @Email             : maximejunger@gmail.com
 * @Last modified by  : junger_m
-* @Last modified time: 22-04-2016
+* @Last modified time: 25-04-2016
 */
 
 var debug  = require('debug')('android-bindings');
@@ -37,8 +37,7 @@ var NobleBindings = function () {
   // DeviceEventEmitter.addListener('services', this.onServicesDiscovered.bind(this));
   // DeviceEventEmitter.addListener('characteristics', this.onCharacteristicsDiscovered.bind(this));
   DeviceEventEmitter.addListener('read', this.onRead.bind(this));
-
-  // DeviceEventEmitter.addListener('notify', this.onNotify.bind(this));
+  DeviceEventEmitter.addListener('notify', this.onNotify.bind(this));
 
 };
 
@@ -108,6 +107,15 @@ NobleBindings.prototype.onRead = function (data) {
   }
 };
 
+NobleBindings.prototype.onNotify = function (data) {
+
+  const buf = new Buffer(data.data, 'hex');
+
+  if (data) {
+    this.emit('notify', data.address, data.serviceUUID, data.characteristicUUID, buf);
+  }
+};
+
 var nobleBindings = new NobleBindings();
 nobleBindings._peripherals = {};
 
@@ -140,6 +148,10 @@ nobleBindings.discoverCharacteristics = function (address, serviceUUID, characte
 
 nobleBindings.read = function (address, serviceUuid, characteristicUuid, callback) {
   RNBLE.readCharacteristic(address, serviceUuid, characteristicUuid);
+};
+
+nobleBindings.notify = function (deviceUuid, serviceUuid, characteristicUuid, notify) {
+  RNBLE.subscribeCharacteristic(deviceUuid, serviceUuid, characteristicUuid);
 };
 
 // Exports

@@ -88,7 +88,8 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
 
             for (BluetoothGattService bgs : services) {
                 UUID uuid = bgs.getUuid();
-                uuidArray.pushString(BluetoothUUIDHelper.longUUIDToShort(uuid.toString()));
+                String uuidStr = BluetoothUUIDHelper.longUUIDToShort(uuid.toString()).toUpperCase();
+                uuidArray.pushString(uuidStr);
             }
 
             params.putString("address", gatt.getDevice().getAddress());
@@ -115,12 +116,33 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
         super.onCharacteristicRead(gatt, characteristic, status);
 
         WritableMap params = Arguments.createMap();
+
+        String serviceUUIDStr = BluetoothUUIDHelper.longUUIDToShort(characteristic.getService().getUuid().toString()).toUpperCase();
+        String characteristicUUIDStr = BluetoothUUIDHelper.longUUIDToShort(characteristic.getUuid().toString()).toUpperCase();
+
         params.putString("address", gatt.getDevice().getAddress());
-        params.putString("serviceUUID", BluetoothUUIDHelper.longUUIDToShort(characteristic.getService().getUuid().toString()));
+        params.putString("serviceUUID", serviceUUIDStr);
         params.putString("data", bytesToHex(characteristic.getValue()));
-        params.putString("characteristicUuid", BluetoothUUIDHelper.longUUIDToShort(characteristic.getUuid().toString()));
+        params.putString("characteristicUuid", characteristicUUIDStr);
 
         sendEvent(this.mReactApplicationContext, "read", params);
+    }
+
+    @Override
+    public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        super.onCharacteristicChanged(gatt, characteristic);
+
+        WritableMap params = Arguments.createMap();
+
+        String serviceUUIDStr = BluetoothUUIDHelper.longUUIDToShort(characteristic.getService().getUuid().toString()).toUpperCase();
+        String characteristicUUIDStr = BluetoothUUIDHelper.longUUIDToShort(characteristic.getUuid().toString()).toUpperCase();
+
+        params.putString("address", gatt.getDevice().getAddress());
+        params.putString("serviceUUID", serviceUUIDStr);
+        params.putString("data", bytesToHex(characteristic.getValue()));
+        params.putString("characteristicUUID", characteristicUUIDStr);
+
+        sendEvent(this.mReactApplicationContext, "notify", params);
     }
 
     /**

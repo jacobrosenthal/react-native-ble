@@ -3,7 +3,7 @@
 * @Date:   07-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 12-04-2016
+* @Last modified time: 25-04-2016
 */
 
 var debug = require('debug')('ios-bindings');
@@ -228,7 +228,7 @@ nobleBindings.discoverCharacteristics = function (deviceUuid, serviceUuid, chara
   RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
 };
 
-nobleBindings.read = function (deviceUuid, serviceUuid, characteristicUuid, callback) {
+nobleBindings.read = function (deviceUuid, serviceUuid, characteristicUuid) {
   RNBLE.readCharacteristic(deviceUuid, serviceUuid, characteristicUuid);
 };
 

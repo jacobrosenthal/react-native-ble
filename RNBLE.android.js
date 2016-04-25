@@ -3,7 +3,7 @@
 * @Date:   12-04-2016
 * @Email:  maximejunger@gmail.com
 * @Last modified by:   junger_m
-* @Last modified time: 22-04-2016
+* @Last modified time: 25-04-2016
 */
 
 'use strict';
@@ -37,6 +37,7 @@ function Noble() {
   this._bindings.on('servicesDiscover', this.onServicesDiscover.bind(this));
   this._bindings.on('characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
   this._bindings.on('read', this.onRead.bind(this));
+  this._bindings.on('notify', this.onNotify.bind(this));
 
   //this._bindings.on('connect', this.onConnect.bind(this));
 
@@ -223,6 +224,20 @@ Noble.prototype.onRead = function (peripheralUuid, serviceUuid, characteristicUu
     characteristic.emit('read', data, isNotification); // for backwards compatbility
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ', ' + serviceUuid + ', ' + characteristicUuid + ' read!');
+  }
+};
+
+Noble.prototype.notify = function (peripheralUuid, serviceUuid, characteristicUuid) {
+  this._bindings.notify(peripheralUuid, serviceUuid, characteristicUuid);
+};
+
+Noble.prototype.onNotify = function (peripheralUuid, serviceUuid, characteristicUuid, data) {
+  var characteristic = this._characteristics[peripheralUuid][serviceUuid][characteristicUuid];
+
+  if (characteristic) {
+    characteristic.emit('notify', data);
+  } else {
+    this.emit('warning', 'unknown peripheral ' + peripheralUuid + ', ' + serviceUuid + ', ' + characteristicUuid + ' notify!');
   }
 };
 

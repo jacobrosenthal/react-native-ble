@@ -15,6 +15,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothManager;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
@@ -61,6 +63,8 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
     private BluetoothAdapter mBluetoothAdapter;
     private BroadcastReceiver mReceiver;
     private BluetoothGattCallbackHandler mBluetoothGattCallbackHandler;
+
+    private static final UUID CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     public RNBLEModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -95,7 +99,8 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
                         break;
                 }
 
-                if (params.getString("state") != null) {
+
+                if (params.hasKey("state") && params.getString("state") != null) {
                     sendEvent(this.mReactApplicationContext, "stateChange", params);
                 }
             } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
@@ -105,8 +110,6 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
                 System.out.print(device.getName());
 
                 ParcelUuid[] pcl = device.getUuids();
-                //System.out.println(device.getUuids());
-
 
                 System.out.println(device.getAddress());
 
@@ -187,6 +190,9 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
         UUID[] arrayUUIDS = new UUID[uuids.size()];
 
+        int y = 0;
+        y += 1;
+
         for (int i = 0; i < uuids.size(); i++) {
             arrayUUIDS[i] =  BluetoothUUIDHelper.shortUUIDToLong(uuids.getString(i));
         }
@@ -227,6 +233,11 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
         BluetoothDevice device = this.mPeripherals.get(address);
         WritableMap params = Arguments.createMap();
+
+        if (mBluetoothGattCallbackHandler != null && mBluetoothGattCallbackHandler.getmBluetoothGatt() != null) {
+            mBluetoothGattCallbackHandler.getmBluetoothGatt().close();
+            mBluetoothGattCallbackHandler = null;
+        }
 
         if (device != null) {
             mBluetoothGattCallbackHandler = new BluetoothGattCallbackHandler(this.getReactApplicationContext());
@@ -282,19 +293,20 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
                     List<BluetoothGattCharacteristic> characs = service.getCharacteristics();
 
                     for (BluetoothGattCharacteristic blc : characs) {
-                        characteristics.pushString(BluetoothUUIDHelper.longUUIDToShort(blc.getUuid().toString()));
+                        String uuidStr = BluetoothUUIDHelper.longUUIDToShort(blc.getUuid().toString()).toUpperCase();
+                        characteristics.pushString(uuidStr);
                     }
 
                 } else {
                     for (int i = 0; i < characteristicsUUIDs.size(); i++) {
                         UUID uuid = BluetoothUUIDHelper.shortUUIDToLong(characteristicsUUIDs.getString(i));
-                        characteristics.pushString(BluetoothUUIDHelper.longUUIDToShort(service.getCharacteristic(uuid).getUuid().toString()));
+                        String uuidStr = BluetoothUUIDHelper.longUUIDToShort(service.getCharacteristic(uuid).getUuid().toString()).toUpperCase();
+                        characteristics.pushString(uuidStr);
                     }
-
-                    params.putArray("characteristics", characteristics);
-
-                    sendEvent(this.getReactApplicationContext(), "characteristics", params);
                 }
+                params.putArray("characteristics", characteristics);
+
+                sendEvent(this.getReactApplicationContext(), "characteristics", params);
             } else {
                 params.putString("error", "Device not found");
                 sendEvent(this.getReactApplicationContext(), "characteristics", params);
@@ -314,6 +326,53 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         BluetoothGattCharacteristic charac = this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID)).getCharacteristic(BluetoothUUIDHelper.shortUUIDToLong(characteristicUUID));
         this.mBluetoothGattCallbackHandler.getmBluetoothGatt().readCharacteristic(charac);
 
+    }
+
+    @ReactMethod
+    public void subscribeCharacteristic(String address, String serviceUUID, String characteristicUUID) {
+
+        WritableMap params = Arguments.createMap();
+
+        BluetoothDevice device = this.mPeripherals.get(address);
+
+        if (device == null) {
+            params.putString("error", "Device not found");
+            return;
+        }
+
+        BluetoothGattService service = this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID));
+
+        if (service == null) {
+            params.putString("error", "Service not found");
+            return;
+        }
+
+        BluetoothGattCharacteristic characteristic = service.getCharacteristic(BluetoothUUIDHelper.shortUUIDToLong(characteristicUUID));
+
+        if (characteristic == null) {
+            params.putString("error", "Characteristic not found");
+            return;
+        }
+
+
+        // Check characteristic property
+        final int properties = characteristic.getProperties();
+        if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0)
+            return;
+
+        this.mBluetoothGattCallbackHandler.getmBluetoothGatt().setCharacteristicNotification(characteristic, true);
+
+        final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
+
+        if (descriptor != null) {
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            this.mBluetoothGattCallbackHandler.getmBluetoothGatt().writeDescriptor(descriptor);
+        }
+    }
+
+    @ReactMethod
+    public void test() {
+        Log.i("TEST", "TEST HELLO");
     }
 
 }
