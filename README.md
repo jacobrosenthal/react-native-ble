@@ -3,7 +3,7 @@
 @Date:   12-04-2016
 @Email:  maximejunger@gmail.com
 @Last modified by:   junger_m
-@Last modified time: 12-04-2016
+@Last modified time: 26-04-2016
 -->
 
 # react-native-ble
@@ -24,7 +24,7 @@ Next see the [react native linking guide](https://facebook.github.io/react-nativ
 
 It follows the [noble](https://github.com/sandeepmistry/noble/) api usage.
 
-Only support of following usages on iOS !
+Support of following usages on iOS & Android !
 
 #### Require the module
 
@@ -67,12 +67,14 @@ peripheral.connect(function (error) {
 #### Disconnect
 
 When you're connected to a peripheral, you can handle the automatic disconnection by doing :
+
 ```javascript
 peripheral.once('disconnect', function () {
 
 });
+```
 
-If you want to disconnect manually :
+If you want to disconnect manually : (Needs more tests on Android)
 ```javascript
 peripheral.disconnect(function (error) {
 
