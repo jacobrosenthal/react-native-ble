@@ -33,7 +33,7 @@
   "dependencies": {
     "noble": "^1.5.0",
     "debug": "^2.2.0",
-    "buffer": "^3.4.3",
+    "buffer": "^4.6.0",
     "events": "^1.1.0",
     "util": "^0.10.3"
   },
