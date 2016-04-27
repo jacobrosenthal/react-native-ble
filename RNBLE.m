@@ -23,19 +23,13 @@ RCT_EXPORT_MODULE()
 - (instancetype)init
 {
     if (self = [super init]) {
-        
+        centralEventQueue = dispatch_queue_create("com.openble.mycentral", DISPATCH_QUEUE_SERIAL);
+        dispatch_set_target_queue(centralEventQueue, dispatch_get_main_queue());
+        centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:centralEventQueue];
+
+        peripherals = [NSMutableDictionary new];
     }
     return self;
-}
-
-RCT_EXPORT_METHOD(setup)
-{
-    eventQueue = dispatch_queue_create("com.openble.mycentral", DISPATCH_QUEUE_SERIAL);
-
-    dispatch_set_target_queue(eventQueue, dispatch_get_main_queue());
-
-    centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:eventQueue options:@{}];
-    peripherals = [NSMutableDictionary new];
 }
 
 RCT_EXPORT_METHOD(startScanning:(CBUUIDArray *)uuids allowDuplicates:(BOOL)allowDuplicates)
