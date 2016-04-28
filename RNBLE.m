@@ -5,11 +5,9 @@
 #import "RCTCONVERT+CBUUID.h"
 #import "RCTUtils.h"
 
-@interface RNBLE () <CBCentralManagerDelegate, CBPeripheralDelegate, CBPeripheralManagerDelegate> {
+@interface RNBLE () <CBCentralManagerDelegate, CBPeripheralDelegate> {
     CBCentralManager *centralManager;
-    CBPeripheralManager *peripheralManager;
     dispatch_queue_t centralEventQueue;
-    dispatch_queue_t peripheralEventQueue;
     NSMutableDictionary *peripherals;
 }
 @end
@@ -29,41 +27,9 @@ RCT_EXPORT_MODULE()
         dispatch_set_target_queue(centralEventQueue, dispatch_get_main_queue());
         centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:centralEventQueue];
         
-        peripheralEventQueue = dispatch_queue_create("com.openble.myperipheral", DISPATCH_QUEUE_SERIAL);
-        dispatch_set_target_queue(peripheralEventQueue, dispatch_get_main_queue());
-        peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:peripheralEventQueue];
-
         peripherals = [NSMutableDictionary new];
     }
     return self;
-}
-
-RCT_EXPORT_METHOD(startAdvertising:(NSDictionary *)advertisementData)
-{
-    NSDictionary *data = [NSDictionary new];
-    
-    if (advertisementData[@"localName"] != nil) {
-        [data setValue:advertisementData[@"localName"] forKey:CBAdvertisementDataLocalNameKey];
-    }
-    if (advertisementData[@"serviceUuids"] != nil && [advertisementData[@"serviceUuids"] isKindOfClass:[NSArray class]]) {
-        NSMutableArray *serviceUuids = [NSMutableArray new];
-        for (NSString *uuid in advertisementData[@"serviceUuids"]) {
-            [serviceUuids addObject:[CBUUID UUIDWithString:uuid]];
-        }
-        [data setValue:serviceUuids forKey:CBAdvertisementDataServiceUUIDsKey];
-    }
-    
-    [peripheralManager startAdvertising:data];
-}
-
-RCT_EXPORT_METHOD(stopAdvertising)
-{
-    [peripheralManager stopAdvertising];
-}
-
-- (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral
-{
-    // @TODO?
 }
 
 RCT_EXPORT_METHOD(startScanning:(CBUUIDArray *)uuids allowDuplicates:(BOOL)allowDuplicates)
