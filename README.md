@@ -1,6 +1,6 @@
 # react-native-ble
 
-Central role ble for react native. Technically a shim for the excellent [noble](https://github.com/sandeepmistry/noble/) Only supports scanning advertisements currently. Ive successfully tested [wimoto](https://github.com/sandeepmistry/node-wimoto) and [eddystone-beacon-scanner](https://github.com/sandeepmistry/node-eddystone-beacon-scanner/) on top of of this require.
+Central role ble for react native. Technically a shim for the excellent [noble](https://github.com/sandeepmistry/noble/) 
 
 #install
 The depenency story on react native is still very incomplete so bear with me. From your existing react native project:
