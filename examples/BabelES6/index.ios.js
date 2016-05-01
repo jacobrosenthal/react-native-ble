@@ -116,20 +116,25 @@ var bleqr = React.createClass({
       });
     }
 
+    var characteristic;
     function notify(error, services, characteristics){
-        console.log("discovered", characteristics);
-        characteristics[0].notify(true);
-        characteristics[0].on("data", print);
+        console.log("discovered characteristics", services[0].uuid, characteristics[0].uuid);
+        self.characteristic = characteristics[0];
+        self.characteristic.notify(true);
+        self.characteristic.on("data", print);
     };
 
-    function disconnect(){
+    function disconnected(){
+      console.log("disconnected");
+      self.characteristic.removeListener('data', print);
+      self._connectHeartRate(peripheral);
       self.setState({
         heartRate:0
       });
     };
 
     function discover(error){
-        peripheral.once('disconnect', disconnect);
+        peripheral.once('disconnect', disconnected);
         console.log("connect", error);
         peripheral.discoverSomeServicesAndCharacteristics(["180d"], ["2a37"], notify);
     }
