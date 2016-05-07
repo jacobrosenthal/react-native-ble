@@ -29,7 +29,9 @@ nobleBindings.init = function() {
   setTimeout(function() {
     RNBLE.getState();
   }, 1000);
-};// Exports
+};
+
+// Exports
 
 module.exports = nobleBindings;
 
