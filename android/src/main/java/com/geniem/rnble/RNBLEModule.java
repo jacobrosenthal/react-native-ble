@@ -193,7 +193,11 @@ class RNBLEModule extends ReactContextBaseJavaModule {
 
             //add manufacturer data to advertisement map
             byte[] manufacturerData = record.getManufacturerSpecificData();
-            advertisement.putString("manufacturerData", Arrays.toString(manufacturerData));
+            if(manufacturerData != null){
+                advertisement.putString("manufacturerData", Arrays.toString(manufacturerData));
+            } else {
+                advertisement.putNull("manufacturerData");
+            }
 
             //add local name to advertisement map
             advertisement.putString("localName", record.getDeviceName());

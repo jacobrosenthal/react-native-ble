@@ -25,17 +25,17 @@ NobleBindings.prototype.onStateChange = function(params) {
 };
 
 NobleBindings.prototype.onDiscover = function({ id, address, addressType, advertisement, connectable, rssi }) {
-  /*
+  
   if (advertisement.manufacturerData) {
-    advertisement.manufacturerData = new Buffer(advertisement.manufacturerData, 'base64');
+    advertisement.manufacturerData = new Buffer(JSON.parse(advertisement.manufacturerData), 'base64');
   }
 
   if (advertisement.serviceData) {
     advertisement.serviceData = advertisement.serviceData.map(({ uuid, data }) => ({
       uuid,
-      data: new Buffer(data, 'base64'),
+      data: new Buffer(JSON.parse(data), 'base64'),
     }));
-  } */
+  } 
 
   this.emit('discover', id, address, addressType, connectable, advertisement, rssi);
 };
