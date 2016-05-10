@@ -107,23 +107,16 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         // http://stackoverflow.com/questions/18019161/startlescan-with-128-bit-uuids-doesnt-work-on-native-android-ble-implementation?noredirect=1#comment27879874_18019161
         // see also. https://github.com/tdicola/BTLETest/blob/master/app/src/main/java/com/tonydicola/bletest/app/MainActivity.java
 
-
-        
-        /*
-        new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetoothAdapter.stopLeScan(callback);
-                }
-        }, 10*1000);
-        */
-
-        bluetoothAdapter.startLeScan(callback);
+        if(bluetoothAdapter != null){
+            bluetoothAdapter.startLeScan(callback);
+        }
     }
 
     @ReactMethod
     public void stopScanning() {
-        bluetoothAdapter.stopLeScan(callback);
+        if(bluetoothAdapter != null){
+            bluetoothAdapter.stopLeScan(callback);
+        }
     }
 
     private void sendEvent(String eventName, WritableMap params) {
