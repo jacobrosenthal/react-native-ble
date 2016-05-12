@@ -72,6 +72,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
     private BluetoothManager bluetoothManager;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
+    private String deviceAddress;
 
 
     public RNBLEModule(ReactApplicationContext reactContext) {
@@ -109,11 +110,12 @@ class RNBLEModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void startScanning(ReadableArray serviceUuids, Boolean allowDuplicates) {
+    public void startScanning(String deviceAddress, Boolean allowDuplicates) {
         // allowDuplicates can not currently be used in Android
 
         if(bluetoothLeScanner != null){
             if (scanCallback == null) {
+                this.deviceAddress = deviceAddress;
                 scanCallback = new RnbleScanCallback(this);
                 bluetoothLeScanner.startScan(buildScanFilters(), buildScanSettings(), scanCallback);
             }
@@ -140,6 +142,9 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         ScanFilter.Builder builder = new ScanFilter.Builder();
         // Comment out the below line to see all BLE devices around you
         //builder.setServiceUuid("add service uuid");
+        if(deviceAddress != null){
+            builder.setDeviceAddress(deviceAddress);
+        }
         scanFilters.add(builder.build());
 
         return scanFilters;
