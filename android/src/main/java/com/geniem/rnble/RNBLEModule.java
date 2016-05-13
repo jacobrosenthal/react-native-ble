@@ -86,7 +86,9 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         super.initialize();
         bluetoothManager = (BluetoothManager) this.context.getSystemService(ReactApplicationContext.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
-        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        if(bluetoothAdapter != null){
+            bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        }
     }
 
     /**
