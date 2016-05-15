@@ -72,8 +72,15 @@ class RNBLEModule extends ReactContextBaseJavaModule {
     private BluetoothManager bluetoothManager;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
+    private final BluetoothGattCallback gattCallback = new RnbleGattCallback(this);
     private String deviceAddress;
+    private String bluetoothDeviceAddress;
+    private BluetoothGatt bluetoothGatt;
+    private int connectionState = STATE_DISCONNECTED;    
 
+    private static final int STATE_DISCONNECTED = 0;
+    private static final int STATE_CONNECTING = 1;
+    private static final int STATE_CONNECTED = 2;
 
     public RNBLEModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -132,6 +139,79 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void disconnect(final String peripheralUuid) {
+        WritableMap params = Arguments.createMap();
+        params.putString("peripheralUuid", peripheralUuid);
+
+        if (bluetoothAdapter == null || bluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+
+            WritableMap error = Arguments.createMap();
+            error.putInt("erroCode", -1);
+            error.putString("errorMessage", "BluetoothAdapter not initialized.");
+            params.putMap("error", error);
+            return;
+        }
+        bluetoothGatt.disconnect();
+        this.sendEvent("ble.disconnect.", params);
+    }
+
+    @ReactMethod
+    public void connect(final String peripheralUuid) { //in android peripheralUuid is the mac address of the BLE device
+        if (bluetoothAdapter == null || peripheralUuid == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized or unspecified peripheralUuid.");
+            
+
+            WritableMap error = Arguments.createMap();
+            error.putInt("erroCode", -1);
+            error.putString("errorMessage", "BluetoothAdapter not initialized or unspecified peripheralUuid.");
+            
+            WritableMap params = Arguments.createMap();
+            params.putString("peripheralUuid", peripheralUuid);
+            params.putMap("error", error);
+
+            this.sendEvent("ble.connect", params);
+            return;
+        }
+
+        // Previously connected device.  Try to reconnect.
+        if (bluetoothDeviceAddress != null && peripheralUuid.equals(bluetoothDeviceAddress)
+                && bluetoothGatt != null) {
+            Log.d(TAG, "Trying to use an existing bluetoothGatt for connection.");
+            if (bluetoothGatt.connect()) {
+                connectionState = STATE_CONNECTING;
+                return;
+            }
+        }
+
+        final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(peripheralUuid);
+        if (device == null) {
+            Log.w(TAG, "Device not found.  Unable to connect.");
+            connectionState = STATE_DISCONNECTED;
+
+
+            WritableMap error = Arguments.createMap();
+            error.putInt("erroCode", -2);
+            error.putString("errorMessage", "Device not found.  Unable to connect.");
+
+            WritableMap params = Arguments.createMap();
+            params.putString("peripheralUuid", peripheralUuid);
+            params.putMap("error", error);
+
+            this.sendEvent("ble.connect", params);
+            return;
+        }
+    
+        // We want to directly connect to the device, so we are setting the autoConnect
+        // parameter to false.
+        bluetoothGatt = device.connectGatt(context, false, gattCallback);
+        Log.d(TAG, "Trying to create a new connection.");
+        bluetoothDeviceAddress = peripheralUuid;
+        connectionState = STATE_CONNECTING;
+    }
+
+
     private void sendEvent(String eventName, WritableMap params) {
         getReactApplicationContext()
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
@@ -173,8 +253,39 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         }
     }
 
-    //RnbleScanCallback scan callback
 
+    // GATT callback and methods
+    private class RnbleGattCallback extends BluetoothGattCallback {
+        private RNBLEModule rnbleModule;
+ 
+        public RnbleGattCallback(RNBLEModule rnbleModule) {
+            this.rnbleModule = rnbleModule;
+        }
+
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            BluetoothDevice remoteDevice = gatt.getDevice();
+            String remoteAddress = remoteDevice.getAddress();
+            WritableMap params = Arguments.createMap();
+            params.putString("peripheralUuid", remoteAddress);
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                connectionState = STATE_CONNECTED;
+                rnbleModule.sendEvent("ble.connect", params);
+                Log.i(TAG, "Connected to GATT server.");
+                // Attempts to discover services after successful connection.
+                //Log.i(TAG, "Attempting to start service discovery:" +
+                //        mBluetoothGatt.discoverServices());
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                connectionState = STATE_DISCONNECTED;
+                Log.i(TAG, "Disconnected from GATT server.");
+                rnbleModule.sendEvent("ble.disconnect", params);
+            }
+        }
+    };    
+
+
+    //RnbleScanCallback scan callback
     private class RnbleScanCallback extends ScanCallback {
         private RNBLEModule rnbleModule;
 
