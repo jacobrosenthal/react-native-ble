@@ -15,6 +15,8 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.disconnect', this.onDisconnect.bind(this));  
   DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
   DeviceEventEmitter.addListener('ble.discover', this.onDiscover.bind(this));
+  DeviceEventEmitter.addListener('ble.servicesDiscover', this.onServicesDiscover.bind(this));
+  DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -25,6 +27,14 @@ NobleBindings.prototype.onConnect = function({ peripheralUuid, error = null }) {
 
 NobleBindings.prototype.onDisconnect = function({ peripheralUuid, error = null }) {
   this.emit('disconnect', peripheralUuid, error);
+};
+
+NobleBindings.prototype.onServicesDiscover = function({ peripheralUuid, serviceUuids }) {
+  this.emit('servicesDiscover', peripheralUuid, serviceUuids);
+};
+
+NobleBindings.prototype.onIncludedServicesDiscover = function({ peripheralUuid, serviceUuid, includedServiceUuids }) {
+  this.emit('includedServicesDiscover', peripheralUuid, serviceUuid, includedServiceUuids);
 };
 
 NobleBindings.prototype.onStateChange = function(params) {
@@ -73,6 +83,14 @@ nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
 nobleBindings.stopScanning = function() {
   RNBLE.stopScanning();
   this.emit('scanStop');
+};
+
+nobleBindings.discoverServices = function(deviceUuid, uuids) {
+  RNBLE.discoverServices(deviceUuid, uuids);
+};
+
+nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, serviceUuids) {
+  throw new Error('discoverIncludedServices not yet implemented');
 };
 
 // Exports
