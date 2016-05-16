@@ -17,6 +17,10 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.discover', this.onDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.servicesDiscover', this.onServicesDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
+  DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
+  DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
+
+
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -35,6 +39,19 @@ NobleBindings.prototype.onServicesDiscover = function({ peripheralUuid, serviceU
 
 NobleBindings.prototype.onIncludedServicesDiscover = function({ peripheralUuid, serviceUuid, includedServiceUuids }) {
   this.emit('includedServicesDiscover', peripheralUuid, serviceUuid, includedServiceUuids);
+};
+
+NobleBindings.prototype.onCharacteristicsDiscover = function({ peripheralUuid, serviceUuid, characteristics }) {
+  this.emit(
+    'characteristicsDiscover', 
+    peripheralUuid, 
+    serviceUuid, 
+    characteristics
+  );
+};
+
+NobleBindings.prototype.onDescriptorsDiscover = function({ peripheralUuid, serviceUuid, characteristicUuid, descriptors }) {
+  this.emit('descriptorsDiscover', peripheralUuid, serviceUuid, characteristicUuid, descriptors);
 };
 
 NobleBindings.prototype.onStateChange = function(params) {
@@ -93,6 +110,13 @@ nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, servi
   throw new Error('discoverIncludedServices not yet implemented');
 };
 
+nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
+  RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
+};
+
+nobleBindings.discoverDescriptors = function(deviceUuid, serviceUuid, characteristicUuid) {
+  RNBLE.discoverDescriptors(deviceUuid, serviceUuid, characteristicUuid);
+};
+
 // Exports
 module.exports = nobleBindings;
-

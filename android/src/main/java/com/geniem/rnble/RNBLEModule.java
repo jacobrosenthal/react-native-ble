@@ -61,6 +61,7 @@ import android.os.ParcelUuid;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 
@@ -242,6 +243,112 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         params.putArray("serviceUuids", filteredServiceUuids);
 
         this.sendEvent("ble.servicesDiscover", params);
+    }
+
+    @ReactMethod
+    public void discoverCharacteristics(final String peripheralUuid, final String serviceUuid, ReadableArray characteristicUuids){
+        WritableArray requestedCharacteristics = Arguments.createArray();
+
+        for(BluetoothGattService service : this.discoveredServices){
+            String uuid = service.getUuid().toString();
+            //filter requested service
+            if(uuid != null && uuid.equals(serviceUuid)){      
+                List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+
+                //remove characteristics from the characteristics list based on requested characteristicUuids          
+                if(characteristicUuids != null && characteristicUuids.size() > 0){
+                    for(int i = 0; i <  characteristicUuids.size(); i++){
+                        Iterator<BluetoothGattCharacteristic> iterator = characteristics.iterator();
+                        while(iterator.hasNext()){
+                            BluetoothGattCharacteristic characteristic = iterator.next();
+                            if(!characteristicUuids.getString(i).equals(characteristic.getUuid().toString()))
+                                iterator.remove();
+                        }
+                    }                    
+                }
+
+                //process characteristics 
+                for(BluetoothGattCharacteristic c : characteristics){
+                    WritableArray properties = Arguments.createArray();
+                    int propertyBitmask = c.getProperties();
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_BROADCAST) != 0){
+                        properties.pushString("boradcast");
+                    }
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_READ) != 0){
+                        properties.pushString("read");
+                    }
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0){
+                        properties.pushString("writeWithoutResponse");
+                    }
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0){
+                        properties.pushString("write");
+                    }
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0){
+                       properties.pushString("notify");
+                    }                                                
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
+                        properties.pushString("indicaste");
+                    }
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE) != 0){
+                        properties.pushString("authenticatedSignedWrites");
+                    }
+
+                    if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS) != 0){
+                        properties.pushString("extendedProperties");
+                    }
+
+                    WritableMap characteristicObject = Arguments.createMap();
+                    characteristicObject.putArray("properties", properties);
+                    characteristicObject.putString("uuid", c.getUuid().toString());
+
+                    requestedCharacteristics.pushMap(characteristicObject);
+                }
+            break;    
+            }
+        }
+
+        WritableMap params = Arguments.createMap();
+        params.putString("peripheralUuid", peripheralUuid);
+        params.putString("serviceUuid", serviceUuid);
+        params.putArray("characteristics", requestedCharacteristics);
+        this.sendEvent("ble.characteristicsDiscover", params);
+    }
+
+    @ReactMethod
+    public void discoverDescriptors(final String peripheralUuid, final String serviceUuid, final String characteristicUuid){
+        WritableArray descriptors = Arguments.createArray();
+
+        for(BluetoothGattService service : this.discoveredServices){
+            String uuid = service.getUuid().toString();
+            //filter requested service
+            if(uuid != null && uuid.equals(serviceUuid)){      
+                List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                for(BluetoothGattCharacteristic characteristic : characteristics){
+                    String cUuid = characteristic.getUuid().toString();
+                    if(cUuid != null && cUuid.equals(characteristicUuid)){
+                        List<BluetoothGattDescriptor> descriptorList = characteristic.getDescriptors();
+                        for(BluetoothGattDescriptor descriptor : descriptorList){
+                            descriptors.pushString(descriptor.getUuid().toString());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        WritableMap params = Arguments.createMap();
+        params.putString("peripheralUuid", peripheralUuid);
+        params.putString("serviceUuid", serviceUuid);
+        params.putString("characteristicUuid", characteristicUuid);
+        params.putArray("descriptors", descriptors);
+        this.sendEvent("ble.descriptorsDiscover", params);
     }
 
     private void sendEvent(String eventName, WritableMap params) {
