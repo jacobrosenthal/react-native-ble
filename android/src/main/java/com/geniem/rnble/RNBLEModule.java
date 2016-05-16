@@ -146,18 +146,17 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         WritableMap params = Arguments.createMap();
         params.putString("peripheralUuid", peripheralUuid);
 
-        if (bluetoothAdapter == null || bluetoothGatt == null) {
+        if (bluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
 
             WritableMap error = Arguments.createMap();
             error.putInt("erroCode", -1);
             error.putString("errorMessage", "BluetoothAdapter not initialized.");
             params.putMap("error", error);
-            return;
+
+        } else {
+            bluetoothGatt.disconnect();
         }
-        bluetoothGatt.disconnect();
-        bluetoothGatt.close();
-        bluetoothGatt = null;
         discoveredServices = null;
         connectionState = STATE_DISCONNECTED;
 
@@ -182,7 +181,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         }
 
         // Previously connected device.  Try to reconnect.
-        if (bluetoothDeviceAddress != null && peripheralUuid.equals(bluetoothDeviceAddress)
+/*        if (bluetoothDeviceAddress != null && peripheralUuid.equalsIgnoreCase(bluetoothDeviceAddress)
                 && bluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing bluetoothGatt for connection.");
             if (bluetoothGatt.connect()) {
@@ -190,7 +189,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
                 return;
             }
         }
-
+*/
         final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(peripheralUuid);
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
@@ -210,6 +209,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
     
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
+        if(bluetoothGatt != null) {bluetoothGatt.close();}
         bluetoothGatt = device.connectGatt(context, false, gattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         bluetoothDeviceAddress = peripheralUuid;
@@ -225,7 +225,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
             for(BluetoothGattService service : this.discoveredServices){
                 String uuid = service.getUuid().toString();
                 for(int i = 0; i < uuids.size(); i++){
-                    if(uuid.equals(uuids.getString(i))){
+                    if(uuid.equalsIgnoreCase(uuids.getString(i))){
                         filteredServiceUuids.pushString(uuid);
                     }
                 }
@@ -252,7 +252,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         for(BluetoothGattService service : this.discoveredServices){
             String uuid = service.getUuid().toString();
             //filter requested service
-            if(uuid != null && uuid.equals(serviceUuid)){      
+            if(uuid != null && uuid.equalsIgnoreCase(serviceUuid)){      
                 List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
                 //remove characteristics from the characteristics list based on requested characteristicUuids          
@@ -261,7 +261,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
                         Iterator<BluetoothGattCharacteristic> iterator = characteristics.iterator();
                         while(iterator.hasNext()){
                             BluetoothGattCharacteristic characteristic = iterator.next();
-                            if(!characteristicUuids.getString(i).equals(characteristic.getUuid().toString()))
+                            if(!characteristicUuids.getString(i).equalsIgnoreCase(characteristic.getUuid().toString()))
                                 iterator.remove();
                         }
                     }                    
@@ -328,11 +328,11 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         for(BluetoothGattService service : this.discoveredServices){
             String uuid = service.getUuid().toString();
             //filter requested service
-            if(uuid != null && uuid.equals(serviceUuid)){      
+            if(uuid != null && uuid.equalsIgnoreCase(serviceUuid)){      
                 List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
                 for(BluetoothGattCharacteristic characteristic : characteristics){
                     String cUuid = characteristic.getUuid().toString();
-                    if(cUuid != null && cUuid.equals(characteristicUuid)){
+                    if(cUuid != null && cUuid.equalsIgnoreCase(characteristicUuid)){
                         List<BluetoothGattDescriptor> descriptorList = characteristic.getDescriptors();
                         for(BluetoothGattDescriptor descriptor : descriptorList){
                             descriptors.pushString(descriptor.getUuid().toString());
@@ -340,6 +340,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
                         break;
                     }
                 }
+            break;
             }
         }
 
@@ -349,6 +350,28 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         params.putString("characteristicUuid", characteristicUuid);
         params.putArray("descriptors", descriptors);
         this.sendEvent("ble.descriptorsDiscover", params);
+    }
+
+    @ReactMethod
+    public void read(String peripheralUuid, String serviceUuid, String characteristicUuid){
+        for(BluetoothGattService service : this.discoveredServices){
+            String uuid = service.getUuid().toString();
+            //find requested service
+            if(uuid != null && uuid.equalsIgnoreCase(serviceUuid)){
+                List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                //find requested characteristic
+                for(BluetoothGattCharacteristic characteristic : characteristics){
+                    String cUuid = characteristic.getUuid().toString();
+                    if(cUuid != null && cUuid.equalsIgnoreCase(characteristicUuid)){
+                        if(bluetoothGatt != null) {
+                            bluetoothGatt.readCharacteristic(characteristic);
+                        }        
+                        break;
+                    }
+                }
+                break;  
+            }
+        }
     }
 
     private void sendEvent(String eventName, WritableMap params) {
@@ -410,10 +433,15 @@ class RNBLEModule extends ReactContextBaseJavaModule {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i(TAG, "Connected to GATT server.");
+                connectionState = STATE_CONNECTED;
                 // Attempts to discover services after successful connection.
                 bluetoothGatt.discoverServices();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connectionState = STATE_DISCONNECTED;
+                if(bluetoothGatt != null){
+                    bluetoothGatt.close();
+                    bluetoothGatt = null;
+                }
                 Log.i(TAG, "Disconnected from GATT server.");
                 rnbleModule.sendEvent("ble.disconnect", params);
             }
@@ -435,6 +463,30 @@ class RNBLEModule extends ReactContextBaseJavaModule {
             WritableMap params = Arguments.createMap();
             params.putString("peripheralUuid", remoteAddress);
             rnbleModule.sendEvent("ble.connect", params);
+        }
+
+        @Override
+        public void onCharacteristicRead (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){
+            byte[] characteristicValue = null;
+            Boolean notification = false;            
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                characteristicValue = characteristic.getValue();
+            } else {
+                Log.w(TAG, "onServicesDiscovered received: " + status);
+            }
+
+            WritableMap params = Arguments.createMap();
+
+            BluetoothDevice remoteDevice = gatt.getDevice();
+            String remoteAddress = remoteDevice.getAddress();
+
+            params.putString("peripheralUuid", remoteAddress);
+
+            params.putString("serviceUuid", characteristic.getService().getUuid().toString());
+            params.putString("characteristicUuid", characteristic.getUuid().toString());
+            params.putString("data", Arrays.toString(characteristicValue));
+            params.putBoolean("isNotification", notification);
+            rnbleModule.sendEvent("ble.data", params);
         }
     };    
 
