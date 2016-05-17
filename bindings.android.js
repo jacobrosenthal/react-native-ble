@@ -19,6 +19,7 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
+  DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
 
 
 };
@@ -52,6 +53,13 @@ NobleBindings.prototype.onCharacteristicsDiscover = function({ peripheralUuid, s
 
 NobleBindings.prototype.onDescriptorsDiscover = function({ peripheralUuid, serviceUuid, characteristicUuid, descriptors }) {
   this.emit('descriptorsDiscover', peripheralUuid, serviceUuid, characteristicUuid, descriptors);
+};
+
+
+NobleBindings.prototype.onData = function({ peripheralUuid, serviceUuid, characteristicUuid, data, isNotification }) {
+  let processedData = new Buffer(JSON.parse(data), 'base64');
+  this.emit('data', peripheralUuid, serviceUuid, characteristicUuid, processedData, isNotification);
+  this.emit('read', peripheralUuid, serviceUuid, characteristicUuid, processedData, isNotification);
 };
 
 NobleBindings.prototype.onStateChange = function(params) {
@@ -116,6 +124,10 @@ nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, charac
 
 nobleBindings.discoverDescriptors = function(deviceUuid, serviceUuid, characteristicUuid) {
   RNBLE.discoverDescriptors(deviceUuid, serviceUuid, characteristicUuid);
+};
+
+nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {
+  RNBLE.read(deviceUuid, serviceUuid, characteristicUuid);
 };
 
 // Exports
