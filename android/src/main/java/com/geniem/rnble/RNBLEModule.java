@@ -56,6 +56,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.bridge.LifecycleEventListener;
 
 import android.os.ParcelUuid;
 import java.util.List;
@@ -65,7 +66,7 @@ import java.util.Iterator;
 
 
 
-class RNBLEModule extends ReactContextBaseJavaModule {
+class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private static final String TAG = "RNBLEModule";
 
     private Context context;
@@ -87,6 +88,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
     public RNBLEModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.context = reactContext;
+        reactContext.addLifecycleEventListener(this);
     }
 
 
@@ -123,13 +125,18 @@ class RNBLEModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void startScanning(String deviceAddress, Boolean allowDuplicates) {
         // allowDuplicates can not currently be used in Android
-
+        Log.d(TAG, "RNBLE startScanning 1");
         if(bluetoothLeScanner != null){
             if (scanCallback == null) {
                 this.deviceAddress = deviceAddress;
                 scanCallback = new RnbleScanCallback(this);
+                Log.d(TAG, "RNBLE startScanning 1");
                 bluetoothLeScanner.startScan(buildScanFilters(), buildScanSettings(), scanCallback);
             }
+        }
+
+        if(bluetoothLeScanner == null || scanCallback == null) {
+             Log.d(TAG, "RNBLE startScanning - FAIlED to start scan");
         }
     }
 
@@ -147,11 +154,11 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         params.putString("peripheralUuid", peripheralUuid);
 
         if (bluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Log.w(TAG, "BluetoothGAtt not initialized");
 
             WritableMap error = Arguments.createMap();
             error.putInt("erroCode", -1);
-            error.putString("errorMessage", "BluetoothAdapter not initialized.");
+            error.putString("errorMessage", "BluetoothGatt not initialized.");
             params.putMap("error", error);
 
         } else {
@@ -165,6 +172,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void connect(final String peripheralUuid) { //in android peripheralUuid is the mac address of the BLE device
+        Log.d(TAG, "RNBLE Connect called");
         if (bluetoothAdapter == null || peripheralUuid == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified peripheralUuid.");
             
@@ -374,6 +382,37 @@ class RNBLEModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @Override
+    public void onHostResume() {
+        Log.d(TAG, "onHostResume");
+    }
+
+    @Override
+    public void onHostPause() {
+        Log.v(TAG, "onHostPause");
+        if(bluetoothLeScanner != null){
+            bluetoothLeScanner.stopScan(scanCallback);
+            scanCallback = null;
+        }
+        if (bluetoothGatt != null) {
+            bluetoothGatt.disconnect();
+            bluetoothGatt.close();
+            bluetoothGatt = null;
+            connectionState = STATE_DISCONNECTED;
+        }
+    }
+
+    @Override
+    public void onHostDestroy() {
+        Log.v(TAG, "onHostDestroy");
+        if (bluetoothGatt != null) {
+            bluetoothGatt.disconnect();
+            bluetoothGatt.close();
+            bluetoothGatt = null;
+            connectionState = STATE_DISCONNECTED;
+        }
+    }
+
     private void sendEvent(String eventName, WritableMap params) {
         getReactApplicationContext()
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
@@ -449,6 +488,7 @@ class RNBLEModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            Log.w(TAG, "onServicesDiscovered received: " + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 rnbleModule.discoveredServices = bluetoothGatt.getServices();
             } else {
