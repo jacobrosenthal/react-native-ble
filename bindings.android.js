@@ -77,24 +77,13 @@ NobleBindings.prototype.onNotify = function({ peripheralUuid, serviceUuid, chara
   this.emit('notify', peripheralUuid, serviceUuid, characteristicUuid, state);
 };
 
-NobleBindings.prototype.onDiscover = function({ peripheralUuid, advertisement, connectable, rssi }) {
+NobleBindings.prototype.onDiscover = function({ name, peripheralUuid, address, connectable, rssi }) {
   debug('peripheral ' + peripheralUuid + ' discovered');
 
-  if (advertisement.manufacturerData) {
-    advertisement.manufacturerData = new Buffer(advertisement.manufacturerData, 'base64');
-  }
+  var advertisement = {};
+  advertisement.localName = name;
 
-  if (advertisement.serviceData) {
-    advertisement.serviceData = advertisement.serviceData.map(({ uuid, data }) => ({
-      uuid,
-      data: new Buffer(data, 'base64'),
-    }));
-  }
-
-  // We don't know these values because iOS doesn't want to give us
-  // this information. Only random UUIDs are generated from them
-  // under the hood
-  var address = 'unknown';
+  var address = address;
   var addressType = 'unknown';
 
   this.emit('discover', peripheralUuid, address, addressType, connectable, advertisement, rssi);

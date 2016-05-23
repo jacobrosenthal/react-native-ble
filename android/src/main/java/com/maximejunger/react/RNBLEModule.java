@@ -20,6 +20,8 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -61,7 +63,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
     private Map<String, BluetoothDevice> mPeripherals;
     private BluetoothAdapter mBluetoothAdapter;
-    private BroadcastReceiver mReceiver;
+    private boolean scanAllowingDuplicate = true;
     private BluetoothGattCallbackHandler mBluetoothGattCallbackHandler;
 
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -196,7 +198,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         for (int i = 0; i < uuids.size(); i++) {
             arrayUUIDS[i] =  BluetoothUUIDHelper.shortUUIDToLong(uuids.getString(i));
         }
-
+        this.scanAllowingDuplicate = allowDuplicates;
         this.mBluetoothAdapter.startLeScan(arrayUUIDS, this);
     }
 
@@ -211,17 +213,19 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
         WritableMap params = Arguments.createMap();
 
-        /**
-         * Save devices in map if not present
-         */
         if (!this.mPeripherals.containsKey(device.getAddress()))
             this.mPeripherals.put(device.getAddress(), device);
+        else {
+            if (!this.scanAllowingDuplicate) return;
+        }
 
         params.putString("name", device.getName());
+        params.putString("peripheralUuid", device.getAddress());
         params.putString("address", device.getAddress());
         params.putInt("rssi", rssi);
+        params.putBoolean("connectable", true);
 
-        sendEvent(this.getReactApplicationContext(), "discover", params);
+        sendEvent(this.getReactApplicationContext(), "ble.discover", params);
     }
 
     /**
