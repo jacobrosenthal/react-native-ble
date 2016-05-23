@@ -125,12 +125,11 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     @ReactMethod
     public void startScanning(String deviceAddress, Boolean allowDuplicates) {
         // allowDuplicates can not currently be used in Android
-        Log.d(TAG, "RNBLE startScanning 1");
+        Log.d(TAG, "RNBLE startScanning");
         if(bluetoothLeScanner != null){
             if (scanCallback == null) {
                 this.deviceAddress = deviceAddress;
                 scanCallback = new RnbleScanCallback(this);
-                Log.d(TAG, "RNBLE startScanning 1");
                 bluetoothLeScanner.startScan(buildScanFilters(), buildScanSettings(), scanCallback);
             }
         }
