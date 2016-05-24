@@ -63,11 +63,11 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
         WritableMap params = Arguments.createMap();
 
         mBluetoothGatt = gatt;
-
+        params.putString("peripheralUuid", gatt.getDevice().getAddress());
         if (newState == BluetoothProfile.STATE_CONNECTED) {
-            params.putString("peripheralUuid", gatt.getDevice().getAddress());
             sendEvent(this.mReactApplicationContext, "ble.connect", params);
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            sendEvent(this.mReactApplicationContext, "ble.disconnect", params);
             Log.i("Status :", "Disconnected from GATT server.");
         }
     }
@@ -93,15 +93,15 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
             }
 
             params.putString("peripheralUuid", gatt.getDevice().getAddress());
-            params.putArray("servicesUuid", uuidArray);
-            sendEvent(this.mReactApplicationContext, "services", params);
+            params.putArray("serviceUuids", uuidArray);
+            sendEvent(this.mReactApplicationContext, "ble.servicesDiscover", params);
 
         } else {
             Log.w("Services :", "onServicesDiscovered received: " + status);
 
             params.putInt("error", status);
 
-            sendEvent(this.mReactApplicationContext, "services", params);
+            sendEvent(this.mReactApplicationContext, "ble.servicesDiscover", params);
         }
     }
 

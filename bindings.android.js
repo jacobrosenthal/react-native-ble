@@ -17,15 +17,15 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.connect', this.onConnect.bind(this));
   DeviceEventEmitter.addListener('ble.disconnect', this.onDisconnect.bind(this));
   DeviceEventEmitter.addListener('ble.discover', this.onDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.rssiUpdate', this.onRssiUpdate.bind(this));
+//  DeviceEventEmitter.addListener('ble.rssiUpdate', this.onRssiUpdate.bind(this));
   DeviceEventEmitter.addListener('ble.servicesDiscover', this.onServicesDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
+//  DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
+//  DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
-  DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
-  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
-  DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
+//  DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
+//  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
+//  DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -51,12 +51,7 @@ NobleBindings.prototype.onIncludedServicesDiscover = function({ peripheralUuid, 
 };
 
 NobleBindings.prototype.onCharacteristicsDiscover = function({ peripheralUuid, serviceUuid, characteristics }) {
-  this.emit(
-    'characteristicsDiscover',
-    peripheralUuid,
-    serviceUuid,
-    characteristics
-  );
+  this.emit('characteristicsDiscover', peripheralUuid, serviceUuid, characteristics);
 };
 
 NobleBindings.prototype.onDescriptorsDiscover = function({ peripheralUuid, serviceUuid, characteristicUuid, descriptors }) {
@@ -156,7 +151,7 @@ nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, servi
 };
 
 nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
-  RNBLE.discoverCharacteristics(deviceUuid, serviceUuid);
+  RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
 };
 
 nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {

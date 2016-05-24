@@ -269,8 +269,8 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         if (device != null) {
             if (this.mBluetoothGattCallbackHandler != null) {
                 this.mBluetoothGattCallbackHandler.getmBluetoothGatt().close();
-                params.putString("address", device.getAddress());
-                sendEvent(this.getReactApplicationContext(), "disconnect", params);
+                params.putString("peripheralUuid", device.getAddress());
+                sendEvent(this.getReactApplicationContext(), "ble.disconnect", params);
             }
         }
     }
@@ -290,7 +290,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
             this.mBluetoothGattCallbackHandler.getmBluetoothGatt().discoverServices();
         } else {
             params.putString("error", "Device not found");
-            sendEvent(this.getReactApplicationContext(), "services", params);
+            sendEvent(this.getReactApplicationContext(), "ble.servicesDiscover", params);
         }
     }
 
@@ -301,7 +301,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
      * @param characteristicsUUIDs Characteristics wanted
      */
     @ReactMethod
-    public void discoverCharacteristicsForService(String address, String serviceUUID, ReadableArray characteristicsUUIDs) {
+    public void discoverCharacteristics(String address, String serviceUUID, ReadableArray characteristicsUUIDs) {
 
         BluetoothDevice device = this.mPeripherals.get(address);
         WritableMap params = Arguments.createMap();
@@ -309,11 +309,12 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         if (device != null && this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getDevice().getAddress().equals(device.getAddress())) {
 
             BluetoothGattService service = mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID));
+            boolean testUuid = BluetoothUUIDHelper.longUUIDToShort(String.valueOf(service.getUuid())).equals(serviceUUID);
+            String uuidLol = BluetoothUUIDHelper.longUUIDToShort(String.valueOf(service.getUuid()));
+            if (service != null) {
 
-            if (service != null && BluetoothUUIDHelper.longUUIDToShort(String.valueOf(service.getUuid())).equals(serviceUUID)) {
-
-                params.putString("address", address);
-                params.putString("serviceUUID", serviceUUID);
+                params.putString("peripheralUuid", address);
+                params.putString("serviceUuid", serviceUUID);
 
                 if (characteristicsUUIDs.size() == 0) {
                     List<BluetoothGattCharacteristic> characs = service.getCharacteristics();
@@ -326,16 +327,22 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
                 } else {
                     for (int i = 0; i < characteristicsUUIDs.size(); i++) {
                         UUID uuid = BluetoothUUIDHelper.shortUUIDToLong(characteristicsUUIDs.getString(i));
-                        String uuidStr = BluetoothUUIDHelper.longUUIDToShort(service.getCharacteristic(uuid).getUuid().toString()).toUpperCase();
-                        characteristics.pushString(uuidStr);
+
+                        BluetoothGattCharacteristic charac = service.getCharacteristic(uuid);
+
+                        if (charac != null) {
+                            UUID characteristicUuid = charac.getUuid();
+                            String uuidStr = BluetoothUUIDHelper.longUUIDToShort(characteristicUuid.toString()).toUpperCase();
+                            characteristics.pushString(uuidStr);
+                        }
                     }
                 }
                 params.putArray("characteristics", characteristics);
 
-                sendEvent(this.getReactApplicationContext(), "characteristics", params);
+                sendEvent(this.getReactApplicationContext(), "ble.characteristicsDiscover", params);
             } else {
                 params.putString("error", "Device not found");
-                sendEvent(this.getReactApplicationContext(), "characteristics", params);
+                sendEvent(this.getReactApplicationContext(), "ble.characteristicsDiscover", params);
             }
         }
     }
