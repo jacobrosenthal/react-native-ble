@@ -125,12 +125,12 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
         String serviceUUIDStr = BluetoothUUIDHelper.longUUIDToShort(characteristic.getService().getUuid().toString()).toUpperCase();
         String characteristicUUIDStr = BluetoothUUIDHelper.longUUIDToShort(characteristic.getUuid().toString()).toUpperCase();
 
-        params.putString("address", gatt.getDevice().getAddress());
-        params.putString("serviceUUID", serviceUUIDStr);
+        params.putString("peripheralUuid", gatt.getDevice().getAddress());
+        params.putString("serviceUuid", serviceUUIDStr);
         params.putString("data", bytesToHex(characteristic.getValue()));
         params.putString("characteristicUuid", characteristicUUIDStr);
-
-        sendEvent(this.mReactApplicationContext, "read", params);
+        params.putBoolean("isNotification", false);
+        sendEvent(this.mReactApplicationContext, "ble.data", params);
     }
 
     @Override

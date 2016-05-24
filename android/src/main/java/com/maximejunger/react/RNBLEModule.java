@@ -194,9 +194,6 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
         UUID[] arrayUUIDS = new UUID[uuids.size()];
 
-        int y = 0;
-        y += 1;
-
         for (int i = 0; i < uuids.size(); i++) {
             arrayUUIDS[i] =  BluetoothUUIDHelper.shortUUIDToLong(uuids.getString(i));
         }
@@ -340,7 +337,9 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
                         if (charac != null) {
                             UUID characteristicUuid = charac.getUuid();
                             String uuidStr = BluetoothUUIDHelper.longUUIDToShort(characteristicUuid.toString()).toUpperCase();
-                            characteristics.pushString(uuidStr);
+                            WritableMap map = Arguments.createMap();
+                            map.putString("uuid", uuidStr);
+                            characteristics.pushMap(map);
                         }
                     }
                 }
@@ -361,10 +360,31 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
      * @param characteristicUUID Characteristic we want to read
      */
     @ReactMethod
-    public void readCharacteristic(String address, String serviceUUID, String characteristicUUID) {
+    public void read(String address, String serviceUUID, String characteristicUUID) {
 
-        BluetoothGattCharacteristic charac = this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID)).getCharacteristic(BluetoothUUIDHelper.shortUUIDToLong(characteristicUUID));
-        this.mBluetoothGattCallbackHandler.getmBluetoothGatt().readCharacteristic(charac);
+        BluetoothDevice device = this.mPeripherals.get(address);
+        WritableMap params = Arguments.createMap();
+
+        if (device == null) {
+            params.putString("error", "Device not found");
+            return;
+        }
+
+        BluetoothGattService service = this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID));
+
+        if (service == null) {
+            params.putString("error", "Service not found");
+            return;
+        }
+
+        BluetoothGattCharacteristic characteristic = service.getCharacteristic(BluetoothUUIDHelper.shortUUIDToLong(characteristicUUID));
+
+        if (characteristic == null) {
+            params.putString("error", "Characteristic not found");
+            return;
+        }
+
+        this.mBluetoothGattCallbackHandler.getmBluetoothGatt().readCharacteristic(characteristic);
 
     }
 

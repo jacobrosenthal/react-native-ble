@@ -23,7 +23,7 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
 //  DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
-//  DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
+  DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
 //  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
 //  DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
 };
