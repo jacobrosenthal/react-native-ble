@@ -122,14 +122,23 @@ nobleBindings.stopScanning = function() {
   this.emit('scanStop');
 };
 
+/**
+ * Init scanner
+ */
 nobleBindings.init = function() {
   RNBLE.getState();
 };
 
+/**
+ * Connect to peripheral
+ */
 nobleBindings.connect = function(deviceUuid) {
   RNBLE.connect(deviceUuid);
 };
 
+/**
+ * Disconnect from peripheral
+ */
 nobleBindings.disconnect = function(deviceUuid) {
   RNBLE.disconnect(deviceUuid);
 };

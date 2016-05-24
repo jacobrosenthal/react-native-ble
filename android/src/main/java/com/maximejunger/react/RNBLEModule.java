@@ -203,6 +203,14 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
     }
 
     /**
+     * Stop Scanning for LE
+     */
+    @ReactMethod
+    public void stopScanning() {
+        this.mBluetoothAdapter.stopLeScan(this);
+    }
+
+    /**
      * Called when a device is found
      * @param device device found
      * @param rssi Signal strength
@@ -248,7 +256,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
             device.connectGatt(this.getReactApplicationContext(), true, mBluetoothGattCallbackHandler);
         } else {
             params.putString("error", "Device not found");
-            sendEvent(this.getReactApplicationContext(), "connect", params);
+            sendEvent(this.getReactApplicationContext(), "ble.connect", params);
         }
 
     }
