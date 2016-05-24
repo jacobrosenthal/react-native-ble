@@ -20,6 +20,8 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
+  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
+
 
 
 };
@@ -83,6 +85,10 @@ NobleBindings.prototype.onDiscover = function({ id, address, addressType, advert
   this.emit('discover', id, address, addressType, connectable, advertisement, rssi);
 };
 
+NobleBindings.prototype.onWrite = function({ peripheralUuid, serviceUuid, characteristicUuid }) {
+  this.emit('write', peripheralUuid, serviceUuid, characteristicUuid);
+};
+
 var nobleBindings = new NobleBindings();
 
 nobleBindings.init = function() {
@@ -129,6 +135,11 @@ nobleBindings.discoverDescriptors = function(deviceUuid, serviceUuid, characteri
 nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {
   RNBLE.read(deviceUuid, serviceUuid, characteristicUuid);
 };
+
+nobleBindings.write = function(deviceUuid, serviceUuid, characteristicUuid, data, withoutResponse) {
+  RNBLE.write(deviceUuid, serviceUuid, characteristicUuid, data.toString("base64"), withoutResponse);
+};
+
 
 // Exports
 module.exports = nobleBindings;

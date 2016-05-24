@@ -63,8 +63,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
-
-
+import android.util.Base64;
 
 class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private static final String TAG = "RNBLEModule";
@@ -225,6 +224,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
     @ReactMethod
     public void discoverServices(final String peripheralUuid, ReadableArray uuids){
+        Log.d(TAG, "discoverServices");
         WritableArray filteredServiceUuids = Arguments.createArray();
 
         if(bluetoothGatt != null && this.discoveredServices != null && uuids != null && uuids.size() > 0){
@@ -255,6 +255,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     @ReactMethod
     public void discoverCharacteristics(final String peripheralUuid, final String serviceUuid, ReadableArray characteristicUuids){
         WritableArray requestedCharacteristics = Arguments.createArray();
+        List<BluetoothGattCharacteristic> filteredCharacteristics = new ArrayList<BluetoothGattCharacteristic>(); 
 
         for(BluetoothGattService service : this.discoveredServices){
             String uuid = service.getUuid().toString();
@@ -264,18 +265,20 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
                 //remove characteristics from the characteristics list based on requested characteristicUuids          
                 if(characteristicUuids != null && characteristicUuids.size() > 0){
-                    for(int i = 0; i <  characteristicUuids.size(); i++){
+                    for(int i = 0; i <  characteristicUuids.size(); i++){                        
                         Iterator<BluetoothGattCharacteristic> iterator = characteristics.iterator();
                         while(iterator.hasNext()){
                             BluetoothGattCharacteristic characteristic = iterator.next();
-                            if(!characteristicUuids.getString(i).equalsIgnoreCase(characteristic.getUuid().toString()))
-                                iterator.remove();
+                            if(characteristicUuids.getString(i).equalsIgnoreCase(characteristic.getUuid().toString())){
+                                filteredCharacteristics.add(characteristic);
+                                break;                                
+                            }
                         }
                     }                    
                 }
 
                 //process characteristics 
-                for(BluetoothGattCharacteristic c : characteristics){
+                for(BluetoothGattCharacteristic c : filteredCharacteristics){
                     WritableArray properties = Arguments.createArray();
                     int propertyBitmask = c.getProperties();
 
@@ -381,6 +384,41 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         }
     }
 
+    @ReactMethod
+    public void write(String deviceUuid,String serviceUuid,String characteristicUuid,String data, Boolean withoutResponse){
+        for(BluetoothGattService service : this.discoveredServices){
+            String uuid = service.getUuid().toString();
+            //find requested service
+            if(uuid != null && uuid.equalsIgnoreCase(serviceUuid)){
+                List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                //find requested characteristic
+                for(BluetoothGattCharacteristic characteristic : characteristics){
+                    String cUuid = characteristic.getUuid().toString();
+                    if(cUuid != null && cUuid.equalsIgnoreCase(characteristicUuid)){                     
+                        if(bluetoothGatt != null) {
+                            Log.d(TAG, "Writing data to BLE characteristic");
+                            //set new data to characteristic
+                            if(withoutResponse){
+                                characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+                            } else {
+                                characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT); // TODO: not tested                                
+                            }
+                            byte[] bArr = Base64.decode(data, Base64.DEFAULT);
+                            Log.d(TAG, "bArr: " + Arrays.toString(bArr) + "\n" + " bArr length: " + bArr.length);
+                            characteristic.setValue(bArr);
+                            //write the data to the characterustic
+                            if(!bluetoothGatt.writeCharacteristic(characteristic)){
+                                Log.d(TAG, "Error initating BLE write operation.");
+                            }
+                        }
+                    break;
+                    }
+                }
+            break;
+            }
+        }       
+    }
+
     @Override
     public void onHostResume() {
         Log.d(TAG, "onHostResume");
@@ -470,7 +508,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             params.putString("peripheralUuid", remoteAddress);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.i(TAG, "Connected to GATT server.");
+                Log.i(TAG, "Connected to GATT server. Discovering services.");
                 connectionState = STATE_CONNECTED;
                 // Attempts to discover services after successful connection.
                 bluetoothGatt.discoverServices();
@@ -487,7 +525,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            Log.w(TAG, "onServicesDiscovered received: " + status);
+            Log.i(TAG, "onServicesDiscovered");
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 rnbleModule.discoveredServices = bluetoothGatt.getServices();
             } else {
@@ -526,6 +564,27 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             params.putString("data", Arrays.toString(characteristicValue));
             params.putBoolean("isNotification", notification);
             rnbleModule.sendEvent("ble.data", params);
+        }
+
+
+        @Override
+        public void onCharacteristicWrite (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(TAG, "characteristic written successfully");
+                WritableMap params = Arguments.createMap();
+
+                BluetoothDevice remoteDevice = gatt.getDevice();
+                String remoteAddress = remoteDevice.getAddress();
+
+                params.putString("peripheralUuid", remoteAddress);
+                params.putString("serviceUuid", characteristic.getService().getUuid().toString());
+                params.putString("characteristicUuid", characteristic.getUuid().toString());
+
+                Log.w(TAG, "sending ble.write callback");
+                rnbleModule.sendEvent("ble.write", params);
+            } else {
+                Log.d(TAG, "onServicesDiscovered received: " + status);
+            }
         }
     };    
 
