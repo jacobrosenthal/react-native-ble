@@ -25,7 +25,7 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
   DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
 //  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
-//  DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
+  DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -157,6 +157,9 @@ nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, charac
   RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
 };
 
+/**
+ * Read Characteristic for service
+ */
 nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {
   RNBLE.read(deviceUuid, serviceUuid, characteristicUuid);
 };

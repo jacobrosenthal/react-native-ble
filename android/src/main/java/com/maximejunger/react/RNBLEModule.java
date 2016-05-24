@@ -389,7 +389,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
     }
 
     @ReactMethod
-    public void subscribeCharacteristic(String address, String serviceUUID, String characteristicUUID) {
+    public void notify(String address, String serviceUUID, String characteristicUUID, boolean notify) {
 
         WritableMap params = Arguments.createMap();
 
@@ -420,7 +420,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0)
             return;
 
-        this.mBluetoothGattCallbackHandler.getmBluetoothGatt().setCharacteristicNotification(characteristic, true);
+        this.mBluetoothGattCallbackHandler.getmBluetoothGatt().setCharacteristicNotification(characteristic, notify);
 
         final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
 
