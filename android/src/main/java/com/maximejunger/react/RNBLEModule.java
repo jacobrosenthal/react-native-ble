@@ -63,10 +63,12 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
 
     private Map<String, BluetoothDevice> mPeripherals;
     private BluetoothAdapter mBluetoothAdapter;
-    private boolean scanAllowingDuplicate = true;
     private BluetoothGattCallbackHandler mBluetoothGattCallbackHandler;
 
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
+    // Options
+    private boolean scanAllowingDuplicate = true;
 
     public RNBLEModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -286,6 +288,13 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         BluetoothDevice device = this.mPeripherals.get(address);
         WritableMap params = Arguments.createMap();
 
+        List<String> uuidsList = new ArrayList<>();
+
+        for (int i = 0; i < uuids.size(); i++) {
+            uuidsList.add(uuids.getString(i));
+        }
+        mBluetoothGattCallbackHandler.setServicesUuidSearched(uuidsList);
+
         if (device != null && this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getDevice().getAddress().equals(device.getAddress())) {
             this.mBluetoothGattCallbackHandler.getmBluetoothGatt().discoverServices();
         } else {
@@ -308,10 +317,8 @@ public class RNBLEModule extends ReactContextBaseJavaModule implements Bluetooth
         WritableArray characteristics = Arguments.createArray();
         if (device != null && this.mBluetoothGattCallbackHandler.getmBluetoothGatt().getDevice().getAddress().equals(device.getAddress())) {
 
-            BluetoothGattService service = mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID));
-            boolean testUuid = BluetoothUUIDHelper.longUUIDToShort(String.valueOf(service.getUuid())).equals(serviceUUID);
-            String uuidLol = BluetoothUUIDHelper.longUUIDToShort(String.valueOf(service.getUuid()));
-            if (service != null) {
+           BluetoothGattService service = mBluetoothGattCallbackHandler.getmBluetoothGatt().getService(BluetoothUUIDHelper.shortUUIDToLong(serviceUUID));
+           if (service != null) {
 
                 params.putString("peripheralUuid", address);
                 params.putString("serviceUuid", serviceUUID);

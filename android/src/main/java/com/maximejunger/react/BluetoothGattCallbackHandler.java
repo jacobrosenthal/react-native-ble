@@ -10,6 +10,7 @@ import android.util.Log;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -27,6 +28,8 @@ import javax.annotation.Nullable;
  */
 
 public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
+
+    private List<String> servicesUuidSearched = null;
 
     private ReactApplicationContext mReactApplicationContext;
     private BluetoothGatt mBluetoothGatt;
@@ -89,7 +92,9 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
             for (BluetoothGattService bgs : services) {
                 UUID uuid = bgs.getUuid();
                 String uuidStr = BluetoothUUIDHelper.longUUIDToShort(uuid.toString()).toUpperCase();
-                uuidArray.pushString(uuidStr);
+                if (servicesUuidSearched == null || (servicesUuidSearched != null && servicesUuidSearched.contains(uuidStr))) {
+                    uuidArray.pushString(uuidStr);
+                }
             }
 
             params.putString("peripheralUuid", gatt.getDevice().getAddress());
@@ -166,5 +171,13 @@ public class BluetoothGattCallbackHandler extends BluetoothGattCallback {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public List<String> getServicesUuidSearched() {
+        return servicesUuidSearched;
+    }
+
+    public void setServicesUuidSearched(List<String> servicesUuidSearched) {
+        this.servicesUuidSearched = servicesUuidSearched;
     }
 }

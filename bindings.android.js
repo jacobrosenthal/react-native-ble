@@ -150,6 +150,9 @@ nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, servi
   RNBLE.discoverIncludedServices(deviceUuid, serviceUuid, serviceUuids);
 };
 
+/**
+ * Discover characteristics for service
+ */
 nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
   RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
 };
