@@ -1,4 +1,4 @@
-var debug = require('debug')('ios-bindings');
+var debug = require('debug')('android-bindings');
 
 var events = require('events');
 var util = require('util');
@@ -17,14 +17,14 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.connect', this.onConnect.bind(this));
   DeviceEventEmitter.addListener('ble.disconnect', this.onDisconnect.bind(this));
   DeviceEventEmitter.addListener('ble.discover', this.onDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.rssiUpdate', this.onRssiUpdate.bind(this));
+//  DeviceEventEmitter.addListener('ble.rssiUpdate', this.onRssiUpdate.bind(this));
   DeviceEventEmitter.addListener('ble.servicesDiscover', this.onServicesDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
+//  DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
+//  DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
   DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
-  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
+//  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
   DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
 };
 
@@ -51,12 +51,7 @@ NobleBindings.prototype.onIncludedServicesDiscover = function({ peripheralUuid, 
 };
 
 NobleBindings.prototype.onCharacteristicsDiscover = function({ peripheralUuid, serviceUuid, characteristics }) {
-  this.emit(
-    'characteristicsDiscover',
-    peripheralUuid,
-    serviceUuid,
-    characteristics
-  );
+  this.emit('characteristicsDiscover', peripheralUuid, serviceUuid, characteristics);
 };
 
 NobleBindings.prototype.onDescriptorsDiscover = function({ peripheralUuid, serviceUuid, characteristicUuid, descriptors }) {
@@ -77,24 +72,13 @@ NobleBindings.prototype.onNotify = function({ peripheralUuid, serviceUuid, chara
   this.emit('notify', peripheralUuid, serviceUuid, characteristicUuid, state);
 };
 
-NobleBindings.prototype.onDiscover = function({ peripheralUuid, advertisement, connectable, rssi }) {
+NobleBindings.prototype.onDiscover = function({ name, peripheralUuid, address, connectable, rssi }) {
   debug('peripheral ' + peripheralUuid + ' discovered');
 
-  if (advertisement.manufacturerData) {
-    advertisement.manufacturerData = new Buffer(advertisement.manufacturerData, 'base64');
-  }
+  var advertisement = {};
+  advertisement.localName = name;
 
-  if (advertisement.serviceData) {
-    advertisement.serviceData = advertisement.serviceData.map(({ uuid, data }) => ({
-      uuid,
-      data: new Buffer(data, 'base64'),
-    }));
-  }
-
-  // We don't know these values because iOS doesn't want to give us
-  // this information. Only random UUIDs are generated from them
-  // under the hood
-  var address = 'unknown';
+  var address = address;
   var addressType = 'unknown';
 
   this.emit('discover', peripheralUuid, address, addressType, connectable, advertisement, rssi);
@@ -102,8 +86,8 @@ NobleBindings.prototype.onDiscover = function({ peripheralUuid, advertisement, c
 
 NobleBindings.prototype.onStateChange = function(state) {
   // var state = ['unknown', 'resetting', 'unsupported', 'unauthorized', 'poweredOff', 'poweredOn'][args.kCBMsgArgState];
-  debug('state change ' + state);
-  this.emit('stateChange', state);
+  debug('state change ' + state.state);
+  this.emit('stateChange', state.state);
 };
 
 var nobleBindings = new NobleBindings();
@@ -133,16 +117,25 @@ nobleBindings.stopScanning = function() {
   this.emit('scanStop');
 };
 
+/**
+ * Init scanner
+ */
 nobleBindings.init = function() {
   setTimeout(function() {
     RNBLE.getState();
   }, 1000);
 };
 
+/**
+ * Connect to peripheral
+ */
 nobleBindings.connect = function(deviceUuid) {
   RNBLE.connect(deviceUuid);
 };
 
+/**
+ * Disconnect from peripheral
+ */
 nobleBindings.disconnect = function(deviceUuid) {
   RNBLE.disconnect(deviceUuid);
 };
@@ -159,10 +152,16 @@ nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, servi
   RNBLE.discoverIncludedServices(deviceUuid, serviceUuid, serviceUuids);
 };
 
+/**
+ * Discover characteristics for service
+ */
 nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
-  RNBLE.discoverCharacteristics(deviceUuid, serviceUuid);
+  RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
 };
 
+/**
+ * Read Characteristic for service
+ */
 nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {
   RNBLE.read(deviceUuid, serviceUuid, characteristicUuid);
 };

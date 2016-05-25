@@ -26,7 +26,7 @@ RCT_EXPORT_MODULE()
         centralEventQueue = dispatch_queue_create("com.openble.mycentral", DISPATCH_QUEUE_SERIAL);
         dispatch_set_target_queue(centralEventQueue, dispatch_get_main_queue());
         centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:centralEventQueue options:@{ CBCentralManagerOptionRestoreIdentifierKey:@"myCentralManagerIdentifier" }];
-        
+
         peripherals = [NSMutableDictionary new];
     }
     return self;
@@ -75,7 +75,7 @@ RCT_EXPORT_METHOD(getState)
 RCT_EXPORT_METHOD(connect:(NSString *)peripheralUuid)
 {
     CBPeripheral *peripheral = peripherals[peripheralUuid];
-    
+
     if (peripheral) {
         [centralManager connectPeripheral:peripheral options:nil];
     } else {
@@ -86,7 +86,7 @@ RCT_EXPORT_METHOD(connect:(NSString *)peripheralUuid)
 RCT_EXPORT_METHOD(disconnect:(NSString *)peripheralUuid)
 {
     CBPeripheral *peripheral = peripherals[peripheralUuid];
-    
+
     if (peripheral) {
         [centralManager cancelPeripheralConnection:peripheral];
     } else {
@@ -122,7 +122,7 @@ RCT_EXPORT_METHOD(disconnect:(NSString *)peripheralUuid)
 RCT_EXPORT_METHOD(updateRssi:(NSString *)peripheralUuid)
 {
     CBPeripheral *peripheral = peripherals[peripheralUuid];
-    
+
     if (peripheral) {
         [peripheral readRSSI];
     } else {
@@ -159,7 +159,7 @@ RCT_EXPORT_METHOD(updateRssi:(NSString *)peripheralUuid)
 RCT_EXPORT_METHOD(discoverServices:(NSString *)peripheralUuid serviceUuids:(CBUUIDArray *)serviceUuids)
 {
     CBPeripheral *peripheral = peripherals[peripheralUuid];
-    
+
     if (peripheral) {
         [peripheral discoverServices:serviceUuids];
     } else {
@@ -170,7 +170,7 @@ RCT_EXPORT_METHOD(discoverServices:(NSString *)peripheralUuid serviceUuids:(CBUU
 RCT_EXPORT_METHOD(discoverIncludedServices:(NSString *)peripheralUuid serviceUuid:(NSString *)serviceUuid serviceUuids:(CBUUIDArray *)serviceUuids)
 {
     CBPeripheral *peripheral = peripherals[peripheralUuid];
-    
+
     if (peripheral) {
         CBService *targetService = [self getTargetService:peripheral serviceUuid:serviceUuid];
         if (targetService) {
@@ -249,53 +249,53 @@ RCT_EXPORT_METHOD(discoverDescriptors:(NSString *)peripheralUuid serviceUuid:(NS
         for (CBCharacteristic *characteristic in service.characteristics) {
             NSMutableDictionary *characteristicObject = [NSMutableDictionary new];
             [characteristicObject setValue:characteristic.UUID.UUIDString forKey:@"uuid"];
-            
+
             NSMutableArray *properties = [NSMutableArray new];
-            
+
             if (characteristic.properties & CBCharacteristicPropertyBroadcast) {
                 [properties addObject:@"broadcast"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyRead) {
                 [properties addObject:@"read"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse) {
                 [properties addObject:@"writeWithoutResponse"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyWrite) {
                 [properties addObject:@"write"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyNotify) {
                 [properties addObject:@"notify"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyIndicate) {
                 [properties addObject:@"indicate"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyAuthenticatedSignedWrites) {
                 [properties addObject:@"authenticatedSignedWrites"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyExtendedProperties) {
                 [properties addObject:@"extendedProperties"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyNotifyEncryptionRequired) {
                 [properties addObject:@"notifyEncryptionRequired"];
             }
-            
+
             if (characteristic.properties & CBCharacteristicPropertyIndicateEncryptionRequired) {
                 [properties addObject:@"indicateEncryptionRequired"];
             }
-            
+
             [characteristicObject setValue:properties forKey:@"properties"];
             [characteristics addObject:characteristicObject];
         }
-        
+
         [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.characteristicsDiscover" body:@{
                                                                                         @"peripheralUuid": peripheral.identifier.UUIDString,
                                                                                         @"serviceUuid": service.UUID.UUIDString,
@@ -431,15 +431,15 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
 - (NSDictionary *)dictionaryForAdvertisementData:(NSDictionary *)advertisementData fromPeripheral:(CBPeripheral *)peripheral
 {
     NSMutableDictionary *advertisement = [NSMutableDictionary new];
-    
+
     if (advertisementData[CBAdvertisementDataLocalNameKey] != nil) {
         advertisement[@"localName"] = advertisementData[CBAdvertisementDataLocalNameKey];
     }
-    
+
     if (advertisementData[CBAdvertisementDataManufacturerDataKey] != nil) {
         advertisement[@"manufacturerData"] = [advertisementData[CBAdvertisementDataManufacturerDataKey] base64EncodedStringWithOptions:0];
     }
-    
+
     if (advertisementData[CBAdvertisementDataServiceDataKey] != nil) {
         advertisement[@"serviceData"] = [NSMutableArray new];
         for (CBUUID *uuid in advertisementData[CBAdvertisementDataServiceDataKey]) {
@@ -449,7 +449,7 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
                                                        }];
         }
     }
-    
+
     if (advertisementData[CBAdvertisementDataServiceUUIDsKey] != nil) {
         advertisement[@"serviceUuids"] = [NSMutableArray new];
         for (CBUUID *uuid in advertisementData[CBAdvertisementDataServiceUUIDsKey]) {
@@ -463,18 +463,18 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
             [advertisement[@"overflowServiceUuids"] addObject:uuid.UUIDString];
         }
     }
-    
+
     if (advertisementData[CBAdvertisementDataTxPowerLevelKey] != nil) {
         advertisement[@"txPowerLevel"] = advertisementData[CBAdvertisementDataTxPowerLevelKey];
     }
-    
+
     if (advertisementData[CBAdvertisementDataSolicitedServiceUUIDsKey] != nil) {
         advertisement[@"solicitedServiceUuids"] = [NSMutableArray new];
         for (CBUUID *uuid in advertisementData[CBAdvertisementDataSolicitedServiceUUIDsKey]) {
             [advertisement[@"solicitedServiceUuids"] addObject:uuid.UUIDString];
         }
     }
-    
+
     return advertisement;
 }
 
@@ -487,7 +487,7 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
 - (NSString *)NSStringForCBCentralManagerState:(CBCentralManagerState)state
 {
     NSString *stateString = [NSString new];
-    
+
     switch (state) {
         case CBCentralManagerStateResetting:
             stateString = @"resetting";
