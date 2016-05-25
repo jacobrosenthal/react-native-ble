@@ -121,7 +121,9 @@ nobleBindings.stopScanning = function() {
  * Init scanner
  */
 nobleBindings.init = function() {
-  RNBLE.getState();
+  setTimeout(function() {
+    RNBLE.getState();
+  }, 1000);
 };
 
 /**

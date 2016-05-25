@@ -52,9 +52,9 @@ NobleBindings.prototype.onIncludedServicesDiscover = function({ peripheralUuid, 
 
 NobleBindings.prototype.onCharacteristicsDiscover = function({ peripheralUuid, serviceUuid, characteristics }) {
   this.emit(
-    'characteristicsDiscover', 
-    peripheralUuid, 
-    serviceUuid, 
+    'characteristicsDiscover',
+    peripheralUuid,
+    serviceUuid,
     characteristics
   );
 };
@@ -91,8 +91,8 @@ NobleBindings.prototype.onDiscover = function({ peripheralUuid, advertisement, c
     }));
   }
 
-  // We don't know these values because iOS doesn't want to give us 
-  // this information. Only random UUIDs are generated from them 
+  // We don't know these values because iOS doesn't want to give us
+  // this information. Only random UUIDs are generated from them
   // under the hood
   var address = 'unknown';
   var addressType = 'unknown';
@@ -134,7 +134,9 @@ nobleBindings.stopScanning = function() {
 };
 
 nobleBindings.init = function() {
-  RNBLE.getState();
+  setTimeout(function() {
+    RNBLE.getState();
+  }, 1000);
 };
 
 nobleBindings.connect = function(deviceUuid) {
