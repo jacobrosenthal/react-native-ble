@@ -74,7 +74,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
     private final BluetoothGattCallback gattCallback = new RnbleGattCallback(this);
-    private String deviceAddress;
+    private String serviceUuid;
     private String bluetoothDeviceAddress;
     private BluetoothGatt bluetoothGatt;
     private int connectionState = STATE_DISCONNECTED;    
@@ -122,12 +122,12 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     }
 
     @ReactMethod
-    public void startScanning(String deviceAddress, Boolean allowDuplicates) {
+    public void startScanning(String serviceUuid, Boolean allowDuplicates) {
         // allowDuplicates can not currently be used in Android
-        Log.d(TAG, "RNBLE startScanning");
+        Log.d(TAG, "RNBLE startScanning - service uuid: " + serviceUuid);
         if(bluetoothLeScanner != null){
             if (scanCallback == null) {
-                this.deviceAddress = deviceAddress;
+                this.serviceUuid = serviceUuid;
                 scanCallback = new RnbleScanCallback(this);
                 bluetoothLeScanner.startScan(buildScanFilters(), buildScanSettings(), scanCallback);
             }
@@ -459,11 +459,10 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     private List<ScanFilter> buildScanFilters() {
         List<ScanFilter> scanFilters = new ArrayList<>();
 
-        ScanFilter.Builder builder = new ScanFilter.Builder();
-        // Comment out the below line to see all BLE devices around you
-        //builder.setServiceUuid("add service uuid");
-        if(deviceAddress != null){
-            builder.setDeviceAddress(deviceAddress);
+        ScanFilter.Builder builder = new ScanFilter.Builder();        
+        if(serviceUuid != null){
+            //builder.setDeviceAddress(serviceUuid);
+            builder.setServiceUuid(ParcelUuid.fromString(serviceUuid));
         }
         scanFilters.add(builder.build());
 
