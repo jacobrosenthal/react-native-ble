@@ -162,9 +162,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         } else {
             bluetoothGatt.disconnect();
         }
-        discoveredServices = null;
         connectionState = STATE_DISCONNECTED;
-
         this.sendEvent("ble.disconnect.", params);
     }
 
