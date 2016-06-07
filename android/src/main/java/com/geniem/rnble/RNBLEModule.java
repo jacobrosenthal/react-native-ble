@@ -79,6 +79,8 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     private BluetoothGatt bluetoothGatt;
     private int connectionState = STATE_DISCONNECTED;    
     private List<BluetoothGattService> discoveredServices;
+    private List<String> scannedDeviceAddresses = new ArrayList<String>();
+    private Boolean allowDuplicates = false;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -122,11 +124,12 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     }
 
     @ReactMethod
-    public void startScanning(String serviceUuid, Boolean allowDuplicates) {
-        // allowDuplicates can not currently be used in Android
+    public void startScanning(String serviceUuid, Boolean allowDuplicates) {        
         Log.d(TAG, "RNBLE startScanning - service uuid: " + serviceUuid);
         if(bluetoothLeScanner != null){
             if (scanCallback == null) {
+                this.allowDuplicates = allowDuplicates;
+                scannedDeviceAddresses.clear();
                 this.serviceUuid = serviceUuid;
                 scanCallback = new RnbleScanCallback(this);
                 bluetoothLeScanner.startScan(buildScanFilters(), buildScanSettings(), scanCallback);
@@ -605,8 +608,26 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            processScanResult(result);
+            boolean isDuplicate = false;
+
+            //filter out duplicate entries if requested
+            if(!rnbleModule.allowDuplicates){                
+                for(String s : scannedDeviceAddresses){
+                    BluetoothDevice device = result.getDevice();
+                    String address = device.getAddress();
+
+                    if(s.equals(address)) {
+                       isDuplicate = true;
+                       break;
+                    }
+                }
+            }
+
+            if(!isDuplicate){  
+                scannedDeviceAddresses.add(result.getDevice().getAddress());
+                super.onScanResult(callbackType, result);
+                processScanResult(result);
+            }
         }
 
         @Override
