@@ -144,8 +144,10 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     @ReactMethod
     public void stopScanning() {
         if(bluetoothLeScanner != null){
-            bluetoothLeScanner.stopScan(scanCallback);
-            scanCallback = null;
+            if(scanCallback != null){
+                bluetoothLeScanner.stopScan(scanCallback);
+                scanCallback = null;
+            }            
         }
     }
 
