@@ -105,8 +105,9 @@ nobleBindings.disconnect = function(deviceUuid) {
   RNBLE.disconnect(deviceUuid);
 };
 
-nobleBindings.startScanning = function(serviceUuid, allowDuplicates) {
+nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
   var duplicates = allowDuplicates || false;
+  let serviceUuid = serviceUuids ? serviceUuids.pop() : null;
   RNBLE.startScanning(serviceUuid, duplicates);
   this.emit('scanStart');
 };
