@@ -58,11 +58,11 @@ NobleBindings.prototype.onWrite = function(message) {
 NobleBindings.prototype.onValueWrite = function(message) {
   var processedData = new Buffer(message.data, 'base64');
 
-  this.emit('valueWrite', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorIdentifier, );
+  this.emit('valueWrite', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorUuid);
 };
 
 NobleBindings.prototype.onValueUpdate = function(message) {
-  this.emit('valueRead', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorIdentifier);
+  this.emit('valueRead', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorUuid, message.data);
 };
 
 NobleBindings.prototype.onNotify = function(message) {

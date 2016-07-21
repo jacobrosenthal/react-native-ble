@@ -498,9 +498,18 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
                                              @"serviceUuid": [self toNobleUuid:descriptor.characteristic.service.UUID.UUIDString],
                                              @"characteristicUuid": [self toNobleUuid:descriptor.characteristic.UUID.UUIDString],
                                              @"descriptorUuid": [self toNobleUuid:descriptor.UUID.UUIDString],
-                                             @"data": [descriptor.value base64EncodedStringWithOptions:0]
+                                             @"data": [self valueFromDescriptor:descriptor]
                                              }];
   }
+}
+
+//conversion should handle everything except the data case.
+- (id) valueFromDescriptor:(CBDescriptor *)descriptor{
+    if ([descriptor.UUID.UUIDString isEqualToString:CBUUIDCharacteristicFormatString]){
+        return [descriptor.value base64EncodedStringWithOptions:0];
+    }else{
+        return descriptor.value;
+    }
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForDescriptor:(CBDescriptor *)descriptor error:(NSError *)error
