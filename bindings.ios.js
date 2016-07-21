@@ -1,12 +1,7 @@
 var debug = require('debug')('ios-bindings');
 
-var events = require('events');
 var util = require('util');
-
-var {
-  DeviceEventEmitter,
-  NativeModules: { RNBLE },
-} = require('react-native');
+var events = require('events');
 
 var Buffer = require('buffer').Buffer;
 
@@ -15,6 +10,7 @@ var Buffer = require('buffer').Buffer;
  */
 var NobleBindings = function() {
 
+  this.RNBLE = null;
 };
 
 util.inherits(NobleBindings, events.EventEmitter);
@@ -105,7 +101,7 @@ nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
 
   var duplicates = allowDuplicates || false;
 
-  RNBLE.startScanning(serviceUuids, duplicates);
+  this.RNBLE.startScanning(toAppleUuids(serviceUuids), duplicates);
   this.emit('scanStart');
 };
 
@@ -115,69 +111,77 @@ nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
  * @discussion tested
  */
 nobleBindings.stopScanning = function() {
-  RNBLE.stopScanning();
+  this.RNBLE.stopScanning();
   this.emit('scanStop');
 };
 
-nobleBindings.init = function() {
+nobleBindings.init = function(native) {
 
-  DeviceEventEmitter.addListener('ble.connect', this.onConnect.bind(this));
-  DeviceEventEmitter.addListener('ble.disconnect', this.onDisconnect.bind(this));
-  DeviceEventEmitter.addListener('ble.discover', this.onDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.rssiUpdate', this.onRssiUpdate.bind(this));
-  DeviceEventEmitter.addListener('ble.servicesDiscover', this.onServicesDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
-  DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
-  DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
-  DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
-  DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
+  if(native) {
+    this.RNBLE = native.RNBLE;
+    this.DeviceEventEmitter = native.DeviceEventEmitter;
+  }else {
+    this.RNBLE = require('react-native').NativeModules.RNBLE;
+    this.DeviceEventEmitter = require('react-native').DeviceEventEmitter;
+  }
+
+  this.DeviceEventEmitter.addListener('ble.connect', this.onConnect.bind(this));
+  this.DeviceEventEmitter.addListener('ble.disconnect', this.onDisconnect.bind(this));
+  this.DeviceEventEmitter.addListener('ble.discover', this.onDiscover.bind(this));
+  this.DeviceEventEmitter.addListener('ble.rssiUpdate', this.onRssiUpdate.bind(this));
+  this.DeviceEventEmitter.addListener('ble.servicesDiscover', this.onServicesDiscover.bind(this));
+  this.DeviceEventEmitter.addListener('ble.includedServicesDiscover', this.onIncludedServicesDiscover.bind(this));
+  this.DeviceEventEmitter.addListener('ble.characteristicsDiscover', this.onCharacteristicsDiscover.bind(this));
+  this.DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
+  this.DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
+  this.DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
+  this.DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
+  this.DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
 
   setTimeout(function() {
-  RNBLE.getState();
+  this.RNBLE.getState();
   }.bind(this), 1000);
 };
 
 nobleBindings.connect = function(deviceUuid) {
-  RNBLE.connect(deviceUuid);
+  this.RNBLE.connect(toAppleUuid(deviceUuid));
 };
 
 nobleBindings.disconnect = function(deviceUuid) {
-  RNBLE.disconnect(deviceUuid);
+  this.RNBLE.disconnect(toAppleUuid(deviceUuid));
 };
 
 nobleBindings.updateRssi = function(deviceUuid) {
-  RNBLE.updateRssi(deviceUuid);
+  this.RNBLE.updateRssi(toAppleUuid(deviceUuid));
 };
 
 nobleBindings.discoverServices = function(deviceUuid, uuids) {
-  RNBLE.discoverServices(deviceUuid, uuids);
+  this.RNBLE.discoverServices(toAppleUuid(deviceUuid), toAppleUuids(uuids));
 };
 
 nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, serviceUuids) {
-  RNBLE.discoverIncludedServices(deviceUuid, serviceUuid, serviceUuids);
+  this.RNBLE.discoverIncludedServices(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuids(serviceUuids));
 };
 
 nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
-  //TODO this isnt sending in characteristics??
-  RNBLE.discoverCharacteristics(deviceUuid, serviceUuid);
+  //TODO this isnt sending in characteristics?? toAppleUuids(characteristicUuids)
+  this.RNBLE.discoverCharacteristics(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid));
 };
 
 nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {
-  RNBLE.read(deviceUuid, serviceUuid, characteristicUuid);
+  this.RNBLE.read(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid));
 };
 
 nobleBindings.write = function(deviceUuid, serviceUuid, characteristicUuid, data, withoutResponse) {
-  RNBLE.write(deviceUuid, serviceUuid, characteristicUuid, data.toString('base64'), withoutResponse);
+  this.RNBLE.write(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), data.toString('base64'), withoutResponse);
 };
 
 nobleBindings.notify = function(deviceUuid, serviceUuid, characteristicUuid, notify) {
-  RNBLE.notify(deviceUuid, serviceUuid, characteristicUuid, notify);
+  this.RNBLE.notify(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), notify);
 };
 
 nobleBindings.discoverDescriptors = function(deviceUuid, serviceUuid, characteristicUuid) {
-  RNBLE.discoverDescriptors(deviceUuid, serviceUuid, characteristicUuid);
+  this.RNBLE.discoverDescriptors(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid));
 };
 
 nobleBindings.readValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid) {
@@ -195,6 +199,23 @@ nobleBindings.readHandle = function(deviceUuid, handle) {
 nobleBindings.writeHandle = function(deviceUuid, handle, data, withoutResponse) {
   throw new Error('writeHandle not implemented on ios');
 };
+
+
+function toAppleUuid(uuid) {
+ return uuid.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, "$1-$2-$3-$4-$5").toUpperCase();
+}
+
+function toAppleUuids(uuids) {
+  var convertedUuids = [];
+
+  if (uuids) {
+    uuids.forEach(function(uuid) {
+      convertedUuids.push(toAppleUuid(uuid));
+    });
+  }
+
+  return convertedUuids;
+}
 
 
 // Exports
