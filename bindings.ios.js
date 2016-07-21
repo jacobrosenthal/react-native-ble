@@ -164,8 +164,7 @@ nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, servi
 };
 
 nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
-  //TODO this isnt sending in characteristics?? toAppleUuids(characteristicUuids)
-  this.RNBLE.discoverCharacteristics(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid));
+  this.RNBLE.discoverCharacteristics(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuids(characteristicUuids));
 };
 
 nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {

@@ -212,13 +212,13 @@ RCT_EXPORT_METHOD(discoverIncludedServices:(NSString *)peripheralUuid serviceUui
   }
 }
 
-RCT_EXPORT_METHOD(discoverCharacteristics:(NSString *)peripheralUuid serviceUuid:(NSString *)serviceUuid)
+RCT_EXPORT_METHOD(discoverCharacteristics:(NSString *)peripheralUuid serviceUuid:(NSString *)serviceUuid characteristicUuids:(CBUUIDArray *)characteristicUuids)
 {
   CBPeripheral *peripheral = peripherals[peripheralUuid];
   if (peripheral) {
     CBService *targetService = [self getTargetService:peripheral serviceUuid:serviceUuid];
     if (targetService) {
-      [peripheral discoverCharacteristics:nil forService:targetService];
+      [peripheral discoverCharacteristics:characteristicUuids forService:targetService];
     } else {
       NSLog(@"Could not find service %@ for peripheral %@", serviceUuid, peripheralUuid);
     }
