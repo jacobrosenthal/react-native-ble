@@ -55,6 +55,16 @@ NobleBindings.prototype.onWrite = function(message) {
   this.emit('write', message.peripheralUuid, message.serviceUuid, message.characteristicUuid);
 };
 
+NobleBindings.prototype.onValueWrite = function(message) {
+  var processedData = new Buffer(message.data, 'base64');
+
+  this.emit('valueWrite', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorIdentifier, );
+};
+
+NobleBindings.prototype.onValueUpdate = function(message) {
+  this.emit('valueRead', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorIdentifier);
+};
+
 NobleBindings.prototype.onNotify = function(message) {
   this.emit('notify', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.state);
 };
@@ -137,6 +147,8 @@ nobleBindings.init = function(native) {
   this.DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
   this.DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
   this.DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
+  this.DeviceEventEmitter.addListener('ble.valueUpdate', this.onValueUpdate.bind(this));
+  this.DeviceEventEmitter.addListener('ble.valueWrite', this.onValueWrite.bind(this));
 
   setTimeout(function() {
   this.RNBLE.getState();
@@ -184,11 +196,11 @@ nobleBindings.discoverDescriptors = function(deviceUuid, serviceUuid, characteri
 };
 
 nobleBindings.readValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid) {
-  throw new Error('readValue not yet implemented');
+  this.RNBLE.readValue(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), toAppleUuid(descriptorUuid));
 };
 
 nobleBindings.writeValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid, data) {
-  throw new Error('writeValue not yet implemented');
+  this.RNBLE.writeValue(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), toAppleUuid(descriptorUuid), data.toString('base64'), withoutResponse);
 };
 
 nobleBindings.readHandle = function(deviceUuid, handle) {

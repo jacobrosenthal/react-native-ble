@@ -35,7 +35,7 @@ RCT_EXPORT_MODULE()
 RCT_EXPORT_METHOD(startScanning:(CBUUIDArray *)uuids allowDuplicates:(BOOL)allowDuplicates)
 {
   NSMutableDictionary *scanOptions = [NSMutableDictionary dictionaryWithObject:@NO
-                              forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
+                                      forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
 
   if(allowDuplicates){
     [scanOptions setObject:@YES forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
@@ -55,16 +55,16 @@ RCT_EXPORT_METHOD(getState)
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral
-      advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
+   advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
   [peripherals setObject:peripheral forKey:peripheral.identifier.UUIDString];
   NSDictionary *advertisementDictionary = [self dictionaryForAdvertisementData:advertisementData fromPeripheral:peripheral];
   [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.discover" body:@{
-    @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-    @"advertisement": advertisementDictionary,
-    @"connectable": @([advertisementData[CBAdvertisementDataIsConnectable] boolValue]),
-    @"rssi": RSSI
-  }];
+                                        @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                        @"advertisement": advertisementDictionary,
+                                        @"connectable": @([advertisementData[CBAdvertisementDataIsConnectable] boolValue]),
+                                        @"rssi": RSSI
+                                        }];
 }
 
 - (void) centralManager:(CBCentralManager *)central willRestoreState:(NSDictionary<NSString *,id> *)dict
@@ -98,7 +98,7 @@ RCT_EXPORT_METHOD(disconnect:(NSString *)peripheralUuid)
 {
   peripheral.delegate = self;
   [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.connect" body:@{
-    @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString]}];
+                                         @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString]}];
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
@@ -114,9 +114,9 @@ RCT_EXPORT_METHOD(disconnect:(NSString *)peripheralUuid)
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
   [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.connect" body:@{
-    @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-    @"error": RCTJSErrorFromNSError(error)
-  }];
+                                         @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                         @"error": RCTJSErrorFromNSError(error)
+                                         }];
 }
 
 RCT_EXPORT_METHOD(updateRssi:(NSString *)peripheralUuid)
@@ -136,9 +136,9 @@ RCT_EXPORT_METHOD(updateRssi:(NSString *)peripheralUuid)
 {
   if (error == nil) {
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.rssiUpdate" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"rssi": peripheral.RSSI
-    }];
+                                            @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                            @"rssi": peripheral.RSSI
+                                            }];
   }
 }
 
@@ -148,9 +148,9 @@ RCT_EXPORT_METHOD(updateRssi:(NSString *)peripheralUuid)
 {
   if (error == nil) {
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.rssiUpdate" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"rssi": RSSI
-    }];
+                                            @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                            @"rssi": RSSI
+                                            }];
   }
 }
 
@@ -191,9 +191,9 @@ RCT_EXPORT_METHOD(discoverIncludedServices:(NSString *)peripheralUuid serviceUui
       [serviceUuids addObject:[self toNobleUuid:service.UUID.UUIDString]];
     }
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.servicesDiscover" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"serviceUuids": serviceUuids
-    }];
+                                              @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                              @"serviceUuids": serviceUuids
+                                              }];
   }
 }
 
@@ -205,10 +205,10 @@ RCT_EXPORT_METHOD(discoverIncludedServices:(NSString *)peripheralUuid serviceUui
       [includedServiceUuids addObject:[self toNobleUuid:includedService.UUID.UUIDString]];
     }
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.includedServicesDiscover" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"serviceUuid": [self toNobleUuid:service.UUID.UUIDString],
-      @"includedServiceUuids": includedServiceUuids
-    }];
+                                                  @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                                  @"serviceUuid": [self toNobleUuid:service.UUID.UUIDString],
+                                                  @"includedServiceUuids": includedServiceUuids
+                                                  }];
   }
 }
 
@@ -297,10 +297,10 @@ RCT_EXPORT_METHOD(discoverDescriptors:(NSString *)peripheralUuid serviceUuid:(NS
     }
 
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.characteristicsDiscover" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"serviceUuid": [self toNobleUuid:service.UUID.UUIDString],
-      @"characteristics": characteristics
-    }];
+                                                   @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                                   @"serviceUuid": [self toNobleUuid:service.UUID.UUIDString],
+                                                   @"characteristics": characteristics
+                                                   }];
   }
 }
 
@@ -312,11 +312,46 @@ RCT_EXPORT_METHOD(discoverDescriptors:(NSString *)peripheralUuid serviceUuid:(NS
       [descriptors addObject:[self toNobleUuid:descriptor.UUID.UUIDString]];
     }
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.descriptorsDiscover" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
-      @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString],
-      @"descriptors": descriptors
-    }];
+                                                 @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                                 @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
+                                                 @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString],
+                                                 @"descriptors": descriptors
+                                                 }];
+  }
+}
+
+RCT_EXPORT_METHOD(read:(NSString *)peripheralUuid serviceUuid:(NSString *)serviceUuid characteristicUuid:(NSString *)characteristicUuid descriptorUuid:(NSString *)descriptorUuid)
+{
+  CBPeripheral *peripheral = peripherals[peripheralUuid];
+  if (peripheral) {
+    CBCharacteristic *targetCharacteristic = [self getTargetCharacteristic:peripheral serviceUuid:serviceUuid characteristicUuid:characteristicUuid];
+    if (targetCharacteristic) {
+      [peripheral readValueForCharacteristic:targetCharacteristic];
+    } else {
+      NSLog(@"Could not find characteristic for UUID: %@", characteristicUuid);
+    }
+  } else {
+    NSLog(@"Could not find peripheral for UUID: %@", peripheralUuid);
+  }
+}
+
+RCT_EXPORT_METHOD(readValue:(NSString *)peripheralUuid serviceUuid:(NSString *)serviceUuid characteristicUuid:(NSString *)characteristicUuid descriptorUuid:(NSString *)descriptorUuid)
+{
+  CBPeripheral *peripheral = peripherals[peripheralUuid];
+  if (peripheral) {
+    CBCharacteristic *targetCharacteristic = [self getTargetCharacteristic:peripheral serviceUuid:serviceUuid characteristicUuid:characteristicUuid];
+    if (targetCharacteristic) {
+      CBDescriptor *targetDescriptor = [self getTargetDescriptor:peripheral serviceUuid:serviceUuid characteristicUuid:characteristicUuid descriptorUuid:descriptorUuid];
+      if (targetDescriptor) {
+        [peripheral readValueForDescriptor:targetDescriptor];
+      }else {
+        NSLog(@"Could not find descriptor for UUID: %@", descriptorUuid);
+      }
+    } else {
+      NSLog(@"Could not find characteristic for UUID: %@", characteristicUuid);
+    }
+  } else {
+    NSLog(@"Could not find peripheral for UUID: %@", peripheralUuid);
   }
 }
 
@@ -334,6 +369,28 @@ RCT_EXPORT_METHOD(read:(NSString *)peripheralUuid serviceUuid:(NSString *)servic
     NSLog(@"Could not find peripheral for UUID: %@", peripheralUuid);
   }
 }
+
+
+RCT_EXPORT_METHOD(writeValue:(NSString *)peripheralUuid serviceUuid:(NSString *)serviceUuid characteristicUuid:(NSString *)characteristicUuid descriptorUuid:(NSString *)descriptorUuid data:(NSString *)data)
+{
+  CBPeripheral *peripheral = peripherals[peripheralUuid];
+  if (peripheral) {
+    CBCharacteristic *targetCharacteristic = [self getTargetCharacteristic:peripheral serviceUuid:serviceUuid characteristicUuid:characteristicUuid];
+    if (targetCharacteristic) {
+      CBDescriptor *targetDescriptor = [self getTargetDescriptor:peripheral serviceUuid:serviceUuid characteristicUuid:characteristicUuid descriptorUuid:descriptorUuid];
+      if (targetDescriptor) {
+        [peripheral writeValue:[[NSData alloc] initWithBase64EncodedString:data options:0] forDescriptor:targetDescriptor];
+      }else {
+        NSLog(@"Could not find descriptor for UUID: %@", descriptorUuid);
+      }
+    } else {
+      NSLog(@"Could not find characteristic for UUID: %@", characteristicUuid);
+    }
+  } else {
+    NSLog(@"Could not find peripheral for UUID: %@", peripheralUuid);
+  }
+}
+
 
 RCT_EXPORT_METHOD(write:(NSString *)peripheralUuid serviceUuid:(NSString *)serviceUuid characteristicUuid:(NSString *)characteristicUuid data:(NSString *)data withoutResponse:(BOOL)withoutResponse)
 {
@@ -363,6 +420,22 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
   } else {
     NSLog(@"Could not find peripheral for UUID: %@", peripheralUuid);
   }
+}
+
+
+- (CBDescriptor *)getTargetDescriptor:(CBPeripheral *)peripheral serviceUuid:(NSString *)serviceUuid characteristicUuid:(NSString *)characteristicUuid descriptorUuid:(NSString *)descriptorUuid
+{
+  CBDescriptor *targetDescriptor;
+  CBCharacteristic *targetCharacteristic = [self getTargetCharacteristic:peripheral serviceUuid:serviceUuid characteristicUuid:characteristicUuid];
+  if (targetCharacteristic) {
+    for (CBDescriptor *descriptor in targetCharacteristic.descriptors) {
+      if ([descriptor.UUID.UUIDString isEqualToString:descriptorUuid]) {
+        targetDescriptor = descriptor;
+        break;
+      }
+    }
+  }
+  return targetDescriptor;
 }
 
 - (CBCharacteristic *)getTargetCharacteristic:(CBPeripheral *)peripheral serviceUuid:(NSString *)serviceUuid characteristicUuid:(NSString *)characteristicUuid
@@ -396,11 +469,11 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
 {
   if (error == nil) {
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.notify" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
-      @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString],
-      @"state": @(characteristic.isNotifying)
-    }];
+                                          @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                          @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
+                                          @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString],
+                                          @"state": @(characteristic.isNotifying)
+                                          }];
   }
 }
 
@@ -408,23 +481,49 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
 {
   if (error == nil) {
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.data" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
-      @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString],
-      @"data": [characteristic.value base64EncodedStringWithOptions:0],
-      @"isNotification": @(characteristic.isNotifying)
-    }];
+                                        @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                        @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
+                                        @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString],
+                                        @"data": [characteristic.value base64EncodedStringWithOptions:0],
+                                        @"isNotification": @(characteristic.isNotifying)
+                                        }];
   }
 }
+
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForDescriptor:(CBDescriptor *)descriptor error:(NSError *)error
+{
+  if (error == nil) {
+    [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.valueUpdate" body:@{
+                                             @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                             @"serviceUuid": [self toNobleUuid:descriptor.characteristic.service.UUID.UUIDString],
+                                             @"characteristicUuid": [self toNobleUuid:descriptor.characteristic.UUID.UUIDString],
+                                             @"descriptorUuid": [self toNobleUuid:descriptor.UUID.UUIDString],
+                                             @"data": [descriptor.value base64EncodedStringWithOptions:0]
+                                             }];
+  }
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForDescriptor:(CBDescriptor *)descriptor error:(NSError *)error
+{
+  if (error == nil) {
+    [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.valueWrite" body:@{
+                                            @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                            @"serviceUuid": [self toNobleUuid:descriptor.characteristic.service.UUID.UUIDString],
+                                            @"characteristicUuid": [self toNobleUuid:descriptor.characteristic.UUID.UUIDString],
+                                            @"descriptorUuid": [self toNobleUuid:descriptor.UUID.UUIDString]
+                                            }];
+  }
+}
+
 
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
   if (error == nil) {
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.write" body:@{
-      @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
-      @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
-      @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString]
-    }];
+                                         @"peripheralUuid": [self toNobleUuid:peripheral.identifier.UUIDString],
+                                         @"serviceUuid": [self toNobleUuid:characteristic.service.UUID.UUIDString],
+                                         @"characteristicUuid": [self toNobleUuid:characteristic.UUID.UUIDString]
+                                         }];
   }
 }
 
@@ -435,46 +534,46 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
   if (advertisementData[CBAdvertisementDataLocalNameKey] != nil) {
     advertisement[@"localName"] = advertisementData[CBAdvertisementDataLocalNameKey];
   }
-
+  
   if (advertisementData[CBAdvertisementDataManufacturerDataKey] != nil) {
     advertisement[@"manufacturerData"] = [advertisementData[CBAdvertisementDataManufacturerDataKey] base64EncodedStringWithOptions:0];
   }
-
+  
   if (advertisementData[CBAdvertisementDataServiceDataKey] != nil) {
     advertisement[@"serviceData"] = [NSMutableArray new];
     for (CBUUID *uuid in advertisementData[CBAdvertisementDataServiceDataKey]) {
       [advertisement[@"serviceData"] addObject:@{
-        @"uuid": [self toNobleUuid:uuid.UUIDString],
-        @"data": [advertisementData[CBAdvertisementDataServiceDataKey][uuid] base64EncodedStringWithOptions:0]
-      }];
+                             @"uuid": [self toNobleUuid:uuid.UUIDString],
+                             @"data": [advertisementData[CBAdvertisementDataServiceDataKey][uuid] base64EncodedStringWithOptions:0]
+                             }];
     }
   }
-
+  
   if (advertisementData[CBAdvertisementDataServiceUUIDsKey] != nil) {
     advertisement[@"serviceUuids"] = [NSMutableArray new];
     for (CBUUID *uuid in advertisementData[CBAdvertisementDataServiceUUIDsKey]) {
       [advertisement[@"serviceUuids"] addObject:[self toNobleUuid:uuid.UUIDString]];
     }
   }
-
+  
   if (advertisementData[CBAdvertisementDataOverflowServiceUUIDsKey] != nil) {
     advertisement[@"overflowServiceUuids"] = [NSMutableArray new];
     for (CBUUID *uuid in advertisementData[CBAdvertisementDataOverflowServiceUUIDsKey]) {
       [advertisement[@"overflowServiceUuids"] addObject:[self toNobleUuid:uuid.UUIDString]];
     }
   }
-
+  
   if (advertisementData[CBAdvertisementDataTxPowerLevelKey] != nil) {
     advertisement[@"txPowerLevel"] = advertisementData[CBAdvertisementDataTxPowerLevelKey];
   }
-
+  
   if (advertisementData[CBAdvertisementDataSolicitedServiceUUIDsKey] != nil) {
     advertisement[@"solicitedServiceUuids"] = [NSMutableArray new];
     for (CBUUID *uuid in advertisementData[CBAdvertisementDataSolicitedServiceUUIDsKey]) {
       [advertisement[@"solicitedServiceUuids"] addObject:[self toNobleUuid:uuid.UUIDString]];
     }
   }
-
+  
   return advertisement;
 }
 
@@ -485,14 +584,14 @@ RCT_EXPORT_METHOD(notify:(NSString *)peripheralUuid serviceUuid:(NSString *)serv
 
 - (NSString *)toNobleUuid:(NSString *)uuidString
 {
-    NSString *noDashes = [uuidString stringByReplacingOccurrencesOfString:@"-" withString:@""];
-    return [noDashes lowercaseString];
+  NSString *noDashes = [uuidString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+  return [noDashes lowercaseString];
 }
 
 - (NSString *)NSStringForCBCentralManagerState:(CBCentralManagerState)state
 {
   NSString *stateString = [NSString new];
-
+  
   switch (state) {
     case CBCentralManagerStateResetting:
       stateString = @"resetting";
