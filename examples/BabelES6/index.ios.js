@@ -131,6 +131,7 @@ var bleqr = React.createClass({
       self.setState({
         heartRate:0
       });
+      noble.startScanning(["180d"]);
     };
 
     function discover(error){
