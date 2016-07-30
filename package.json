@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/jacobrosenthal/react-native-ble",
   "scripts": {
-      "test": "mocha -R spec test/test-bindings-central.js"
+      "test": "mocha -R spec test/test-bindings-*.js"
     },
   "dependencies": {
     "noble": "^1.5.0",

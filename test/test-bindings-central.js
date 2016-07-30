@@ -83,7 +83,7 @@ describe('Core Bluetooth Bindings Central', function() {
 
     bindings.startScanning(a.serviceUuidsArray, a.allowDuplicatesBoolean);
 
-    calledSpy.calledWithExactly([mock.nativeServiceUuidString], a.allowDuplicatesBoolean).should.equal(true);
+    calledSpy.calledWithExactly(['A90F0252-4CA8-48BB-AE90-6BC8F541CF8C'], a.allowDuplicatesBoolean).should.equal(true);
   });
 
   it('stopScanning should call native', function() {

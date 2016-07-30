@@ -23,7 +23,7 @@
   var localNameString = 'mock-name';
   var mockServiceData = {};
   var txPowerLevelNumber = 0;
-  var dataBuffer = new Buffer([0x02, 0x01, 0x00]);
+  var dataBuffer = new Buffer([0x32, 0x31, 0x30]);
 
   var advertisementObject = { localName: localNameString,
                               txPowerLevel: txPowerLevelNumber,
