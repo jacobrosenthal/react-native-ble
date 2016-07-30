@@ -15,8 +15,7 @@ Abstract.emitRead(bindings, Mock, function(mock, sandbox)
     peripheralUuid : a.peripheralUuidString,
     serviceUuid : a.serviceUuidString,
     characteristicUuid: a.characteristicUuidString,
-    data: mock.nativeDataBuffer, 
-    isNotification: false // TODO
+    data: mock.nativeDataBuffer
   };
 
   sandbox.stub(mock.RNBLE, "read", function(){
@@ -43,7 +42,7 @@ Abstract.emitNotify(bindings, Mock, function(mock, sandbox)
     peripheralUuid : a.peripheralUuidString,
     serviceUuid : a.serviceUuidString,
     characteristicUuid: a.characteristicUuidString,
-    state: false //TODO
+    state: a.notifyBoolean
   };
 
   sandbox.stub(mock.RNBLE, "notify", function(){
