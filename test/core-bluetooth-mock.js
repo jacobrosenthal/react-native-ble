@@ -28,20 +28,20 @@ util.inherits(DeviceEventEmitter, events.EventEmitter);
 function RNBLE() {}
 util.inherits(RNBLE, events.EventEmitter);
 
-RNBLE.prototype.startScanning = function(serviceUuids, duplicates){};
+RNBLE.prototype.startScanning = function(){};
 RNBLE.prototype.stopScanning = function(){};
 RNBLE.prototype.getState = function(){};
-RNBLE.prototype.connect = function(deviceUuid){};
-RNBLE.prototype.disconnect = function(deviceUuid){};
-RNBLE.prototype.updateRssi = function(deviceUuid){};
-RNBLE.prototype.discoverServices = function(deviceUuid, uuids){};
-RNBLE.prototype.discoverIncludedServices = function(deviceUuid, serviceUuid, serviceUuids){};
-RNBLE.prototype.discoverCharacteristics = function(deviceUuid, serviceUuid){};
-RNBLE.prototype.read = function(deviceUuid, serviceUuid, characteristicUuid){};
-RNBLE.prototype.write = function(deviceUuid, serviceUuid, characteristicUuid, data, withoutResponse){};
-RNBLE.prototype.readValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid){};
-RNBLE.prototype.writeValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid, data){};
-RNBLE.prototype.notify  = function(deviceUuid, serviceUuid, characteristicUuid, notify){};
-RNBLE.prototype.discoverDescriptors = function(deviceUuid, serviceUuid, characteristicUuid){};
+RNBLE.prototype.connect = function(){};
+RNBLE.prototype.disconnect = function(){};
+RNBLE.prototype.updateRssi = function(){};
+RNBLE.prototype.discoverServices = function(){};
+RNBLE.prototype.discoverIncludedServices = function(){};
+RNBLE.prototype.discoverCharacteristics = function(){};
+RNBLE.prototype.read = function(){};
+RNBLE.prototype.write = function(){};
+RNBLE.prototype.readValue = function(){};
+RNBLE.prototype.writeValue = function(){};
+RNBLE.prototype.notify  = function(){};
+RNBLE.prototype.discoverDescriptors = function(){};
 
 module.exports = Mock;

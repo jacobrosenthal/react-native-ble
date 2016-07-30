@@ -45,10 +45,10 @@ NobleBindings.prototype.onDescriptorsDiscover = function(message) {
 };
 
 NobleBindings.prototype.onData = function(message) {
-  var processedData = new Buffer(message.data, 'base64');
+  var dataBuffer = new Buffer(message.data, 'base64');
 
-  this.emit('data', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, processedData, message.isNotification);
-  this.emit('read', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, processedData, message.isNotification);
+  this.emit('data', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, dataBuffer, message.isNotification);
+  this.emit('read', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, dataBuffer, message.isNotification);
 };
 
 NobleBindings.prototype.onWrite = function(message) {
@@ -60,9 +60,9 @@ NobleBindings.prototype.onValueWrite = function(message) {
 };
 
 NobleBindings.prototype.onValueUpdate = function(message) {
-  var processedData = new Buffer(message.data, 'base64');
+  var dataBuffer = new Buffer(message.data, 'base64');
 
-  this.emit('valueRead', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorUuid, processedData);
+  this.emit('valueRead', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorUuid, dataBuffer);
 };
 
 NobleBindings.prototype.onNotify = function(message) {
@@ -107,11 +107,11 @@ var nobleBindings = new NobleBindings();
  *
  * @discussion tested
  */
-nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
+nobleBindings.startScanning = function(serviceIdentifierStringArray, allowDuplicates) {
 
   var duplicates = allowDuplicates || false;
 
-  this.RNBLE.startScanning(toAppleUuids(serviceUuids), duplicates);
+  this.RNBLE.startScanning(toAppleIdentifiers(serviceIdentifierStringArray), duplicates);
   this.emit('scanStart');
 };
 
@@ -155,77 +155,77 @@ nobleBindings.init = function(native) {
   }.bind(this), 1000);
 };
 
-nobleBindings.connect = function(deviceUuid) {
-  this.RNBLE.connect(toAppleUuid(deviceUuid));
+nobleBindings.connect = function(peripheralIdentifierString) {
+  this.RNBLE.connect(toAppleIdentifier(peripheralIdentifierString));
 };
 
-nobleBindings.disconnect = function(deviceUuid) {
-  this.RNBLE.disconnect(toAppleUuid(deviceUuid));
+nobleBindings.disconnect = function(peripheralIdentifierString) {
+  this.RNBLE.disconnect(toAppleIdentifier(peripheralIdentifierString));
 };
 
-nobleBindings.updateRssi = function(deviceUuid) {
-  this.RNBLE.updateRssi(toAppleUuid(deviceUuid));
+nobleBindings.updateRssi = function(peripheralIdentifierString) {
+  this.RNBLE.updateRssi(toAppleIdentifier(peripheralIdentifierString));
 };
 
-nobleBindings.discoverServices = function(deviceUuid, uuids) {
-  this.RNBLE.discoverServices(toAppleUuid(deviceUuid), toAppleUuids(uuids));
+nobleBindings.discoverServices = function(peripheralIdentifierString, serviceIdentifierStringArray) {
+  this.RNBLE.discoverServices(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifiers(serviceIdentifierStringArray));
 };
 
-nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, serviceUuids) {
-  this.RNBLE.discoverIncludedServices(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuids(serviceUuids));
+nobleBindings.discoverIncludedServices = function(peripheralIdentifierString, serviceIdentifierString, serviceIdentifierStringArray) {
+  this.RNBLE.discoverIncludedServices(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifiers(serviceIdentifierStringArray));
 };
 
-nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
-  this.RNBLE.discoverCharacteristics(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuids(characteristicUuids));
+nobleBindings.discoverCharacteristics = function(peripheralIdentifierString, serviceIdentifierString, characteristicIdentifierStringArray) {
+  this.RNBLE.discoverCharacteristics(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifiers(characteristicIdentifierStringArray));
 };
 
-nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {
-  this.RNBLE.read(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid));
+nobleBindings.read = function(peripheralIdentifierString, serviceIdentifierString, characteristicIdentifierString) {
+  this.RNBLE.read(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifier(characteristicIdentifierString));
 };
 
-nobleBindings.write = function(deviceUuid, serviceUuid, characteristicUuid, data, withoutResponse) {
-  this.RNBLE.write(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), data.toString('base64'), withoutResponse);
+nobleBindings.write = function(peripheralIdentifierString, serviceIdentifierString, characteristicIdentifierString, dataBuffer, withoutResponse) {
+  this.RNBLE.write(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifier(characteristicIdentifierString), dataBuffer.toString('base64'), withoutResponse);
 };
 
-nobleBindings.notify = function(deviceUuid, serviceUuid, characteristicUuid, notify) {
-  this.RNBLE.notify(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), notify);
+nobleBindings.notify = function(peripheralIdentifierString, serviceIdentifierString, characteristicIdentifierString, notify) {
+  this.RNBLE.notify(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifier(characteristicIdentifierString), notify);
 };
 
-nobleBindings.discoverDescriptors = function(deviceUuid, serviceUuid, characteristicUuid) {
-  this.RNBLE.discoverDescriptors(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid));
+nobleBindings.discoverDescriptors = function(peripheralIdentifierString, serviceIdentifierString, characteristicIdentifierString) {
+  this.RNBLE.discoverDescriptors(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifier(characteristicIdentifierString));
 };
 
-nobleBindings.readValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid) {
-  this.RNBLE.readValue(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), toAppleUuid(descriptorUuid));
+nobleBindings.readValue = function(peripheralIdentifierString, serviceIdentifierString, characteristicIdentifierString, descriptorIdentifierString) {
+  this.RNBLE.readValue(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifier(characteristicIdentifierString), toAppleIdentifier(descriptorIdentifierString));
 };
 
-nobleBindings.writeValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid, data) {
-  this.RNBLE.writeValue(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), toAppleUuid(descriptorUuid), data.toString('base64'));
+nobleBindings.writeValue = function(peripheralIdentifierString, serviceIdentifierString, characteristicIdentifierString, descriptorIdentifierString, dataBuffer) {
+  this.RNBLE.writeValue(toAppleIdentifier(peripheralIdentifierString), toAppleIdentifier(serviceIdentifierString), toAppleIdentifier(characteristicIdentifierString), toAppleIdentifier(descriptorIdentifierString), dataBuffer.toString('base64'));
 };
 
-nobleBindings.readHandle = function(deviceUuid, handle) {
+nobleBindings.readHandle = function(peripheralIdentifierString, handle) {
   throw new Error('readHandle not implemented on ios');
 };
 
-nobleBindings.writeHandle = function(deviceUuid, handle, data, withoutResponse) {
+nobleBindings.writeHandle = function(peripheralIdentifierString, handle, dataBuffer, withoutResponse) {
   throw new Error('writeHandle not implemented on ios');
 };
 
 
-function toAppleUuid(uuid) {
- return uuid.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, "$1-$2-$3-$4-$5").toUpperCase();
+function toAppleIdentifier(identifier) {
+ return identifier.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, "$1-$2-$3-$4-$5").toUpperCase();
 }
 
-function toAppleUuids(uuids) {
-  var convertedUuids = [];
+function toAppleIdentifiers(identifiers) {
+  var convertedIdentifiers = [];
 
-  if (uuids) {
-    uuids.forEach(function(uuid) {
-      convertedUuids.push(toAppleUuid(uuid));
+  if (identifiers) {
+    identifiers.forEach(function(identifier) {
+      convertedIdentifiers.push(toAppleIdentifier(identifier));
     });
   }
 
-  return convertedUuids;
+  return convertedIdentifiers;
 }
 
 
