@@ -5,9 +5,6 @@ var events = require('events');
 
 var Buffer = require('buffer').Buffer;
 
-/**
- *  NobleBindings for react native
- */
 var NobleBindings = function() {
 
   this.RNBLE = null;
@@ -100,13 +97,6 @@ NobleBindings.prototype.onStateChange = function(state) {
 
 var nobleBindings = new NobleBindings();
 
-/**
- * Start scanning
- * @param  {Array} serviceUuids     Scan for these UUIDs, if undefined then scan for all
- * @param  {Bool}  allowDuplicates  Scan can return duplicates
- *
- * @discussion tested
- */
 nobleBindings.startScanning = function(serviceIdentifierStringArray, allowDuplicates) {
 
   var duplicates = allowDuplicates || false;
@@ -115,11 +105,6 @@ nobleBindings.startScanning = function(serviceIdentifierStringArray, allowDuplic
   this.emit('scanStart');
 };
 
-/**
- * Stop scanning
- *
- * @discussion tested
- */
 nobleBindings.stopScanning = function() {
   this.RNBLE.stopScanning();
   this.emit('scanStop');
