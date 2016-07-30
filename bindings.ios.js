@@ -56,13 +56,13 @@ NobleBindings.prototype.onWrite = function(message) {
 };
 
 NobleBindings.prototype.onValueWrite = function(message) {
-  var processedData = new Buffer(message.data, 'base64');
-
   this.emit('valueWrite', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorUuid);
 };
 
 NobleBindings.prototype.onValueUpdate = function(message) {
-  this.emit('valueRead', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorUuid, message.data);
+  var processedData = new Buffer(message.data, 'base64');
+
+  this.emit('valueRead', message.peripheralUuid, message.serviceUuid, message.characteristicUuid, message.descriptorUuid, processedData);
 };
 
 NobleBindings.prototype.onNotify = function(message) {
@@ -200,7 +200,7 @@ nobleBindings.readValue = function(deviceUuid, serviceUuid, characteristicUuid, 
 };
 
 nobleBindings.writeValue = function(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid, data) {
-  this.RNBLE.writeValue(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), toAppleUuid(descriptorUuid), data.toString('base64'), withoutResponse);
+  this.RNBLE.writeValue(toAppleUuid(deviceUuid), toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), toAppleUuid(descriptorUuid), data.toString('base64'));
 };
 
 nobleBindings.readHandle = function(deviceUuid, handle) {
