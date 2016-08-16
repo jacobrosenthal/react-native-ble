@@ -234,7 +234,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                 String uuid = service.getUuid().toString();
                 for(int i = 0; i < uuids.size(); i++){
                     if(uuid.equalsIgnoreCase(uuids.getString(i))){
-                        filteredServiceUuids.pushString(uuid);
+                        filteredServiceUuids.pushString(toNobleUuid(uuid));
                     }
                 }
             }
@@ -242,7 +242,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             //if no uuids are requested return all discovered service uuids
             for(BluetoothGattService service : this.discoveredServices){
                 String uuid = service.getUuid().toString();
-                filteredServiceUuids.pushString(uuid);
+                filteredServiceUuids.pushString(toNobleUuid(uuid));
             }
         }
         
@@ -317,7 +317,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
                     WritableMap characteristicObject = Arguments.createMap();
                     characteristicObject.putArray("properties", properties);
-                    characteristicObject.putString("uuid", c.getUuid().toString());
+                    characteristicObject.putString("uuid", toNobleUuid(c.getUuid().toString()));
 
                     requestedCharacteristics.pushMap(characteristicObject);
                 }
@@ -327,7 +327,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
         WritableMap params = Arguments.createMap();
         params.putString("peripheralUuid", peripheralUuid);
-        params.putString("serviceUuid", serviceUuid);
+        params.putString("serviceUuid", toNobleUuid(serviceUuid));
         params.putArray("characteristics", requestedCharacteristics);
         this.sendEvent("ble.characteristicsDiscover", params);
     }
@@ -357,8 +357,8 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
         WritableMap params = Arguments.createMap();
         params.putString("peripheralUuid", peripheralUuid);
-        params.putString("serviceUuid", serviceUuid);
-        params.putString("characteristicUuid", characteristicUuid);
+        params.putString("serviceUuid", toNobleUuid(serviceUuid));
+        params.putString("characteristicUuid", toNobleUuid(characteristicUuid));
         params.putArray("descriptors", descriptors);
         this.sendEvent("ble.descriptorsDiscover", params);
     }
@@ -505,7 +505,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             BluetoothDevice remoteDevice = gatt.getDevice();
             String remoteAddress = remoteDevice.getAddress();
             WritableMap params = Arguments.createMap();
-            params.putString("peripheralUuid", remoteAddress);
+            params.putString("peripheralUuid", remoteAddress); //remote address used here instead of uuid, not converted to noble format
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i(TAG, "Connected to GATT server. Discovering services.");
@@ -559,8 +559,8 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
             params.putString("peripheralUuid", remoteAddress);
 
-            params.putString("serviceUuid", characteristic.getService().getUuid().toString());
-            params.putString("characteristicUuid", characteristic.getUuid().toString());
+            params.putString("serviceUuid", toNobleUuid(characteristic.getService().getUuid().toString()));
+            params.putString("characteristicUuid", toNobleUuid(characteristic.getUuid().toString()));
             params.putString("data", Arrays.toString(characteristicValue));
             params.putBoolean("isNotification", notification);
             rnbleModule.sendEvent("ble.data", params);
@@ -577,8 +577,8 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                 String remoteAddress = remoteDevice.getAddress();
 
                 params.putString("peripheralUuid", remoteAddress);
-                params.putString("serviceUuid", characteristic.getService().getUuid().toString());
-                params.putString("characteristicUuid", characteristic.getUuid().toString());
+                params.putString("serviceUuid", toNobleUuid(characteristic.getService().getUuid().toString()));
+                params.putString("characteristicUuid", toNobleUuid(characteristic.getUuid().toString()));
 
                 Log.w(TAG, "sending ble.write callback");
                 rnbleModule.sendEvent("ble.write", params);
@@ -588,6 +588,10 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         }
     };    
 
+
+     private String toNobleUuid(String uuid) {
+        return uuid.replaceAll("[\\s\\-()]", "");
+     }
 
     //RnbleScanCallback scan callback
     private class RnbleScanCallback extends ScanCallback {
@@ -652,7 +656,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                 List<ParcelUuid> uuids = record.getServiceUuids();
                 if(uuids != null){
                    for(ParcelUuid uuid : uuids){
-                        serviceUuids.pushString(uuid.toString());
+                        serviceUuids.pushString(toNobleUuid(uuid.toString()));
                     }
                 }
     
@@ -666,7 +670,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                     for(ParcelUuid uuid : uuids){
                         byte[] data = record.getServiceData(uuid);
                         if(uuid != null && data != null){
-                            serviceDataMap.putString("uuid", uuid.toString());
+                            serviceDataMap.putString("uuid", toNobleUuid(uuid.toString()));
                             serviceDataMap.putString("data", Arrays.toString(data));
                             serviceData.pushMap(serviceDataMap);
                         }
