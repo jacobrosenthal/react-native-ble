@@ -547,9 +547,10 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             byte[] characteristicValue = null;
             Boolean notification = false;            
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.w(TAG, "!!! characteristic read!!!");
                 characteristicValue = characteristic.getValue();
             } else {
-                Log.w(TAG, "onServicesDiscovered received: " + status);
+                Log.w(TAG, "onCharacteristicRead received: " + status);
             }
 
             WritableMap params = Arguments.createMap();
@@ -590,7 +591,8 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
 
      private String toNobleUuid(String uuid) {
-        return uuid.replaceAll("[\\s\\-()]", "");
+        String result = uuid.replaceAll("[\\s\\-()]", "");
+        return result.toLowerCase();
      }
 
     //RnbleScanCallback scan callback

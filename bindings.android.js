@@ -108,7 +108,7 @@ nobleBindings.disconnect = function(deviceUuid) {
 nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
   var duplicates = allowDuplicates || false;
   let serviceUuid = serviceUuids ? serviceUuids.pop() : null;
-  RNBLE.startScanning(serviceUuid, duplicates);
+  RNBLE.startScanning(toAppleUuid(serviceUuid), duplicates);
   this.emit('scanStart');
 };
 
@@ -118,7 +118,7 @@ nobleBindings.stopScanning = function() {
 };
 
 nobleBindings.discoverServices = function(deviceUuid, uuids) {
-  RNBLE.discoverServices(deviceUuid, uuids);
+  RNBLE.discoverServices(deviceUuid, toAppleUuids(uuids));
 };
 
 nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, serviceUuids) {
@@ -126,21 +126,37 @@ nobleBindings.discoverIncludedServices = function(deviceUuid, serviceUuid, servi
 };
 
 nobleBindings.discoverCharacteristics = function(deviceUuid, serviceUuid, characteristicUuids) {
-  RNBLE.discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids);
+  RNBLE.discoverCharacteristics(deviceUuid, toAppleUuid(serviceUuid), toAppleUuids(characteristicUuids));
 };
 
 nobleBindings.discoverDescriptors = function(deviceUuid, serviceUuid, characteristicUuid) {
-  RNBLE.discoverDescriptors(deviceUuid, serviceUuid, characteristicUuid);
+  RNBLE.discoverDescriptors(deviceUuid, toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid));
 };
 
 nobleBindings.read = function(deviceUuid, serviceUuid, characteristicUuid) {
-  RNBLE.read(deviceUuid, serviceUuid, characteristicUuid);
+  RNBLE.read(deviceUuid, toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid));
 };
 
 nobleBindings.write = function(deviceUuid, serviceUuid, characteristicUuid, data, withoutResponse) {
-  RNBLE.write(deviceUuid, serviceUuid, characteristicUuid, data.toString("base64"), withoutResponse);
+  RNBLE.write(deviceUuid, toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), data.toString("base64"), withoutResponse);
 };
 
+
+function toAppleUuid(uuid) {
+ return uuid.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, "$1-$2-$3-$4-$5").toUpperCase();
+}
+
+function toAppleUuids(uuids) {
+  var convertedUuids = [];
+
+  if (uuids) {
+    uuids.forEach(function(uuid) {
+      convertedUuids.push(toAppleUuid(uuid));
+    });
+  }
+
+  return convertedUuids;
+}
 
 // Exports
 module.exports = nobleBindings;
