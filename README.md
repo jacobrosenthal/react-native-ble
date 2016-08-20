@@ -12,12 +12,12 @@ Next see the [react native linking guide](https://facebook.github.io/react-nativ
 #use
 See the [noble](https://github.com/sandeepmistry/noble/) api for usage
 ```
-var noble = ('react-native-ble');
+var noble = require('react-native-ble');
 ```
 
 Better yet, as in the example, include as noble 
 ```
-var noble = ('noble');
+var noble = require('noble');
 ```
 And in your package json resolve noble to react native
 ```
