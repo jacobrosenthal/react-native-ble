@@ -1,1 +1,17 @@
-{"name":"eddystone_beacon_scanner","version":"0.0.1","private":true,"scripts":{"start":"node node_modules/react-native/local-cli/cli.js start"}}
+{
+  "name": "eddystone_beacon_scanner",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start"
+  },
+  "react-native": {
+    "noble": "react-native-ble"
+  },
+  "dependencies": {
+    "eddystone-beacon-scanner": "^3.0.0",
+    "react": "15.3.2",
+    "react-native": "git@github.com:jacobrosenthal/react-native.git#deepshim",
+    "react-native-ble": "^1.0.3"
+  }
+}

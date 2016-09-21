@@ -1,9 +1,8 @@
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
- * @flow
  */
-
+'use strict';
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -11,6 +10,8 @@ import {
   Text,
   View
 } from 'react-native';
+
+var EddystoneBeaconScanner = require('eddystone-beacon-scanner');
 
 class eddystone_beacon_scanner extends Component {
   render() {
@@ -29,6 +30,25 @@ class eddystone_beacon_scanner extends Component {
       </View>
     );
   }
+
+  componentWillMount() {
+    EddystoneBeaconScanner.on('found', this._onFound);
+    EddystoneBeaconScanner.on('updated', this._onUpdated);
+    EddystoneBeaconScanner.on('lost', this._onLost);
+    EddystoneBeaconScanner.startScanning(true);
+  }
+
+  _onFound(beacon) {
+    console.log('found Eddystone Beacon:\n', JSON.stringify(beacon, null, 2));
+  }
+
+  _onLost(beacon)  {
+    console.log('lost Eddystone beacon:\n', JSON.stringify(beacon, null, 2));
+  }
+
+  _onUpdated(beacon) {
+    console.log('updated Eddystone Beacon:\n', JSON.stringify(beacon, null, 2));
+  }
 }
 
 const styles = StyleSheet.create({
@@ -37,17 +57,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  }
 });
 
 AppRegistry.registerComponent('eddystone_beacon_scanner', () => eddystone_beacon_scanner);
