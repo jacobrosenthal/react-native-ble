@@ -1,0 +1,3 @@
+rootProject.name = 'eddystone_beacon_scanner'
+
+include ':app'
