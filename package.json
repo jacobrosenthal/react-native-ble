@@ -8,7 +8,7 @@
     "events": "events",
     "util": "util"
   },
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Central role BLE for react native noble api surface",
   "main": "index.js",
   "author": {
