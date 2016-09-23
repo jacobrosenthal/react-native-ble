@@ -11,6 +11,7 @@ For ios also see the [react native linking guide](https://facebook.github.io/rea
 npm install rnpm -g
 rnpm link
 ```
+For android also see https://facebook.github.io/react-native/docs/native-modules-android.html#register-the-module in the paragraph starting "The package needs to be provided..." for the required edits to getPackages() in MainApplication.java.
 
 #use
 See the [noble](https://github.com/sandeepmistry/noble/) api for usage
