@@ -1,6 +1,7 @@
 package com.advertisement_discovery;
 
 import com.facebook.react.ReactActivity;
+import com.geniem.rnble.RNBLEPackage;
 
 public class MainActivity extends ReactActivity {
 
