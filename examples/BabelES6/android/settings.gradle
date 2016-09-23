@@ -1,3 +1,0 @@
-rootProject.name = 'BabelES6'
-
-include ':app'
