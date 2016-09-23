@@ -3,6 +3,7 @@
  * https://github.com/facebook/react-native
  * @flow
  */
+import './shim.js'
 
 import React, { Component } from 'react';
 import {
@@ -11,6 +12,8 @@ import {
   Text,
   View
 } from 'react-native';
+
+var EddystoneBeaconScanner = require('eddystone-beacon-scanner');
 
 class eddystone_beacon_scanner extends Component {
   render() {
@@ -28,6 +31,25 @@ class eddystone_beacon_scanner extends Component {
         </Text>
       </View>
     );
+  }
+
+  componentWillMount() {
+    EddystoneBeaconScanner.on('found', this._onFound);
+    EddystoneBeaconScanner.on('updated', this._onUpdated);
+    EddystoneBeaconScanner.on('lost', this._onLost);
+    EddystoneBeaconScanner.startScanning(true);
+  }
+
+  _onFound(beacon) {
+    console.log('found Eddystone Beacon:\n', JSON.stringify(beacon, null, 2));
+  }
+
+  _onLost(beacon) {
+    console.log('lost Eddystone beacon:\n', JSON.stringify(beacon, null, 2));
+  }
+
+  _onUpdated(beacon) {
+    console.log('updated Eddystone Beacon:\n', JSON.stringify(beacon, null, 2));
   }
 }
 
