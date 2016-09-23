@@ -74,7 +74,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
     private final BluetoothGattCallback gattCallback = new RnbleGattCallback(this);
-    private String serviceUuid;
+    private ReadableArray serviceUuids;
     private String bluetoothDeviceAddress;
     private BluetoothGatt bluetoothGatt;
     private int connectionState = STATE_DISCONNECTED;    
@@ -124,13 +124,13 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     }
 
     @ReactMethod
-    public void startScanning(String serviceUuid, Boolean allowDuplicates) {        
-        Log.d(TAG, "RNBLE startScanning - service uuid: " + serviceUuid);
+    public void startScanning(ReadableArray serviceUuids, Boolean allowDuplicates) {
+        Log.d(TAG, "RNBLE startScanning - service uuid: " + serviceUuids);
         if(bluetoothLeScanner != null){
             if (scanCallback == null) {
                 this.allowDuplicates = allowDuplicates;
                 scannedDeviceAddresses.clear();
-                this.serviceUuid = serviceUuid;
+                this.serviceUuids = serviceUuids;
                 scanCallback = new RnbleScanCallback(this);
                 bluetoothLeScanner.startScan(buildScanFilters(), buildScanSettings(), scanCallback);
             }
@@ -461,9 +461,8 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         List<ScanFilter> scanFilters = new ArrayList<>();
 
         ScanFilter.Builder builder = new ScanFilter.Builder();        
-        if(serviceUuid != null){
-            //builder.setDeviceAddress(serviceUuid);
-            builder.setServiceUuid(ParcelUuid.fromString(serviceUuid));
+        for(int i = 0; i < this.serviceUuids.size(); i++){
+            builder.setServiceUuid(ParcelUuid.fromString(this.serviceUuids.getString(i)));
         }
         scanFilters.add(builder.build());
 
