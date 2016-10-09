@@ -19,6 +19,8 @@ See the [noble](https://github.com/sandeepmistry/noble/) api for usage
 var noble = ('react-native-ble');
 ```
 
+Use `noble.enable()` in order to raise a dialog that requests user permission to turn on Bluetooth.
+
 For more advanced usage, like in the eddystone_beacon_scanner, include noble directly or utilize a package that does so:
 ```
 var noble = ('noble');

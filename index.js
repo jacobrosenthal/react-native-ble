@@ -1,3 +1,8 @@
-var noble = require('noble/with-bindings');
+var Noble = require('noble/lib/noble');
 var bindings = require('./bindings');
-module.exports = new noble(bindings);
+
+Noble.prototype.enable = function () {
+    this._bindings.enable();
+}
+
+module.exports = new Noble(bindings);

@@ -163,6 +163,9 @@ nobleBindings.disconnect = function(deviceUuid) {
   this.RNBLE.disconnect(toAppleUuid(deviceUuid));
 };
 
+nobleBindings.enable = function() {
+};
+
 nobleBindings.updateRssi = function(deviceUuid) {
   this.RNBLE.updateRssi(toAppleUuid(deviceUuid));
 };

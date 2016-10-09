@@ -117,6 +117,10 @@ nobleBindings.stopScanning = function() {
   this.emit('scanStop');
 };
 
+nobleBindings.enable = function() {
+    RNBLE.enable();
+};
+
 nobleBindings.discoverServices = function(deviceUuid, uuids) {
   RNBLE.discoverServices(deviceUuid, toAppleUuids(uuids));
 };

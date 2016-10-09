@@ -31,6 +31,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
+import android.content.Intent;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -146,6 +148,14 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         if(bluetoothLeScanner != null && scanCallback != null){
             bluetoothLeScanner.stopScan(scanCallback);
             scanCallback = null;            
+        }
+    }
+
+    @ReactMethod
+    public void enable() {
+        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
+            Intent intentEnable = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            getCurrentActivity().startActivity(intentEnable);
         }
     }
 
