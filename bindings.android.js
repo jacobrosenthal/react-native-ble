@@ -141,6 +141,9 @@ nobleBindings.write = function(deviceUuid, serviceUuid, characteristicUuid, data
   RNBLE.write(deviceUuid, toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), data.toString("base64"), withoutResponse);
 };
 
+nobleBindings.notify = function(deviceUuid, serviceUuid, characteristicUuid, notify) {
+  RNBLE.notify(deviceUuid, toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), notify);
+};
 
 function toAppleUuid(uuid) {
  return uuid.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, "$1-$2-$3-$4-$5").toUpperCase();

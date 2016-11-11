@@ -364,6 +364,28 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     }
 
     @ReactMethod
+    public void notify(String peripheralUuid, String serviceUuid, String characteristicUuid, Boolean notify){
+        for(BluetoothGattService service : this.discoveredServices){
+            String uuid = service.getUuid().toString();
+            //find requested service
+            if(uuid != null && uuid.equalsIgnoreCase(serviceUuid)){
+                List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                //find requested characteristic
+                for(BluetoothGattCharacteristic characteristic : characteristics){
+                    String cUuid = characteristic.getUuid().toString();
+                    if(cUuid != null && cUuid.equalsIgnoreCase(characteristicUuid)){
+                        if(bluetoothGatt != null) {
+                            bluetoothGatt.setCharacteristicNotification(characteristic, notify);
+                        }
+                        break;
+                    }
+                }
+                break;  
+            }
+        }
+    }
+
+    @ReactMethod
     public void read(String peripheralUuid, String serviceUuid, String characteristicUuid){
         for(BluetoothGattService service : this.discoveredServices){
             String uuid = service.getUuid().toString();
@@ -539,6 +561,25 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             WritableMap params = Arguments.createMap();
             params.putString("peripheralUuid", remoteAddress);
             rnbleModule.sendEvent("ble.connect", params);
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            byte[] characteristicValue = characteristic.getValue();
+            if(characteristicValue != null) {
+                WritableMap params = Arguments.createMap();
+
+                BluetoothDevice remoteDevice = gatt.getDevice();
+                String remoteAddress = remoteDevice.getAddress();
+
+                params.putString("peripheralUuid", remoteAddress);
+
+                params.putString("serviceUuid", toNobleUuid(characteristic.getService().getUuid().toString()));
+                params.putString("characteristicUuid", toNobleUuid(characteristic.getUuid().toString()));
+                params.putString("data", Arrays.toString(characteristicValue));
+                params.putBoolean("isNotification", true);
+                rnbleModule.sendEvent("ble.data", params);
+            }
         }
 
         @Override
