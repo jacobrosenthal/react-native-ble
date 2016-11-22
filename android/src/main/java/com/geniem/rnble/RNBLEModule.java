@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.UUID;
 import android.util.Base64;
 
 class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -363,6 +364,8 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         this.sendEvent("ble.descriptorsDiscover", params);
     }
 
+    final static UUID UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
     @ReactMethod
     public void notify(String peripheralUuid, String serviceUuid, String characteristicUuid, Boolean notify){
         for(BluetoothGattService service : this.discoveredServices){
@@ -375,7 +378,20 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                     String cUuid = characteristic.getUuid().toString();
                     if(cUuid != null && cUuid.equalsIgnoreCase(characteristicUuid)){
                         if(bluetoothGatt != null) {
-                            bluetoothGatt.setCharacteristicNotification(characteristic, notify);
+                            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID_CLIENT_CHARACTERISTIC_CONFIG);
+                            if(descriptor != null) {
+                                descriptor.setValue(notify ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                                boolean result = bluetoothGatt.writeDescriptor(descriptor);
+                                if(result) {
+                                    bluetoothGatt.setCharacteristicNotification(characteristic, notify);
+                                    WritableMap params = Arguments.createMap();
+                                    params.putString("peripheralUuid", peripheralUuid);
+                                    params.putString("serviceUuid", toNobleUuid(serviceUuid));
+                                    params.putString("characteristicUuid", toNobleUuid(characteristicUuid));
+                                    params.putBoolean("state", notify);
+                                    this.sendEvent("ble.notify", params);
+                                }
+                            }
                         }
                         break;
                     }
