@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.UUID;
 import android.util.Base64;
 
 class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -363,6 +364,43 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         this.sendEvent("ble.descriptorsDiscover", params);
     }
 
+    final static UUID UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
+    @ReactMethod
+    public void notify(String peripheralUuid, String serviceUuid, String characteristicUuid, Boolean notify){
+        for(BluetoothGattService service : this.discoveredServices){
+            String uuid = service.getUuid().toString();
+            //find requested service
+            if(uuid != null && uuid.equalsIgnoreCase(serviceUuid)){
+                List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                //find requested characteristic
+                for(BluetoothGattCharacteristic characteristic : characteristics){
+                    String cUuid = characteristic.getUuid().toString();
+                    if(cUuid != null && cUuid.equalsIgnoreCase(characteristicUuid)){
+                        if(bluetoothGatt != null) {
+                            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID_CLIENT_CHARACTERISTIC_CONFIG);
+                            if(descriptor != null) {
+                                descriptor.setValue(notify ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                                boolean result = bluetoothGatt.writeDescriptor(descriptor);
+                                if(result) {
+                                    bluetoothGatt.setCharacteristicNotification(characteristic, notify);
+                                    WritableMap params = Arguments.createMap();
+                                    params.putString("peripheralUuid", peripheralUuid);
+                                    params.putString("serviceUuid", toNobleUuid(serviceUuid));
+                                    params.putString("characteristicUuid", toNobleUuid(characteristicUuid));
+                                    params.putBoolean("state", notify);
+                                    this.sendEvent("ble.notify", params);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                break;  
+            }
+        }
+    }
+
     @ReactMethod
     public void read(String peripheralUuid, String serviceUuid, String characteristicUuid){
         for(BluetoothGattService service : this.discoveredServices){
@@ -539,6 +577,25 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             WritableMap params = Arguments.createMap();
             params.putString("peripheralUuid", remoteAddress);
             rnbleModule.sendEvent("ble.connect", params);
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            byte[] characteristicValue = characteristic.getValue();
+            if(characteristicValue != null) {
+                WritableMap params = Arguments.createMap();
+
+                BluetoothDevice remoteDevice = gatt.getDevice();
+                String remoteAddress = remoteDevice.getAddress();
+
+                params.putString("peripheralUuid", remoteAddress);
+
+                params.putString("serviceUuid", toNobleUuid(characteristic.getService().getUuid().toString()));
+                params.putString("characteristicUuid", toNobleUuid(characteristic.getUuid().toString()));
+                params.putString("data", Arrays.toString(characteristicValue));
+                params.putBoolean("isNotification", true);
+                rnbleModule.sendEvent("ble.data", params);
+            }
         }
 
         @Override

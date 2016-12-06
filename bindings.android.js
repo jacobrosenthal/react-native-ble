@@ -21,7 +21,7 @@ var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.descriptorsDiscover', this.onDescriptorsDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.data', this.onData.bind(this));
   DeviceEventEmitter.addListener('ble.write', this.onWrite.bind(this));
-
+  DeviceEventEmitter.addListener('ble.notify', this.onNotify.bind(this));
 
 
 };
@@ -57,6 +57,9 @@ NobleBindings.prototype.onDescriptorsDiscover = function({ peripheralUuid, servi
   this.emit('descriptorsDiscover', peripheralUuid, serviceUuid, characteristicUuid, descriptors);
 };
 
+NobleBindings.prototype.onNotify = function({ peripheralUuid, serviceUuid, characteristicUuid, notifyState }) {
+  this.emit('notify', peripheralUuid, serviceUuid, characteristicUuid, notifyState);
+};
 
 NobleBindings.prototype.onData = function({ peripheralUuid, serviceUuid, characteristicUuid, data, isNotification }) {
   let processedData = new Buffer(JSON.parse(data), 'base64');
@@ -141,6 +144,9 @@ nobleBindings.write = function(deviceUuid, serviceUuid, characteristicUuid, data
   RNBLE.write(deviceUuid, toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), data.toString("base64"), withoutResponse);
 };
 
+nobleBindings.notify = function(deviceUuid, serviceUuid, characteristicUuid, notify) {
+  RNBLE.notify(deviceUuid, toAppleUuid(serviceUuid), toAppleUuid(characteristicUuid), notify);
+};
 
 function toAppleUuid(uuid) {
  return uuid.replace(/(\S{8})(\S{4})(\S{4})(\S{4})(\S{12})/, "$1-$2-$3-$4-$5").toUpperCase();
