@@ -18,7 +18,23 @@ RCT_EXPORT_MODULE()
 
 @synthesize bridge = _bridge;
 
++ (RNBLE *)sharedManager
+{
+  static RNBLE *sharedManager;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedManager = [[self alloc] init];
+  });
+
+  return sharedManager;
+}
+
 #pragma mark Initialization
+
++ (RNBLE *)new {
+
+  return [RNBLE sharedManager];
+}
 
 - (instancetype)init
 {
