@@ -26,13 +26,14 @@ RCT_EXPORT_MODULE()
     sharedManager = [[self alloc] init];
   });
 
+  [sharedManager dropAllConnections];
+
   return sharedManager;
 }
 
 #pragma mark Initialization
 
 + (RNBLE *)new {
-
   return [RNBLE sharedManager];
 }
 
@@ -46,6 +47,12 @@ RCT_EXPORT_MODULE()
     peripherals = [NSMutableDictionary new];
   }
   return self;
+}
+
+- (void) dropAllConnections {
+  for (CBPeripheral *peripheral in [peripherals objectEnumerator]) {
+    [centralManager cancelPeripheralConnection:peripheral];
+  }
 }
 
 RCT_EXPORT_METHOD(startScanning:(CBUUIDArray *)uuids allowDuplicates:(BOOL)allowDuplicates)
