@@ -1,9 +1,9 @@
 #import "RNBLE.h"
-#import "RCTEventDispatcher.h"
-#import "RCTLog.h"
-#import "RCTConvert.h"
 #import "RCTCONVERT+CBUUID.h"
-#import "RCTUtils.h"
+#import <React/RCTEventDispatcher.h>
+#import <React/RCTLog.h>
+#import <React/RCTConvert.h>
+#import <React/RCTUtils.h>
 
 @interface RNBLE () <CBCentralManagerDelegate, CBPeripheralDelegate> {
   CBCentralManager *centralManager;
