@@ -277,6 +277,13 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                             }
                         }
                     }                    
+                } else {
+                  Iterator<BluetoothGattCharacteristic> iterator = characteristics.iterator();
+
+                  while(iterator.hasNext()){
+                    BluetoothGattCharacteristic characteristic = iterator.next();
+                    filteredCharacteristics.add(characteristic);
+                  }
                 }
 
                 //process characteristics 
