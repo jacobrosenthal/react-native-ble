@@ -2,7 +2,7 @@
 
 Central role ble for react native. Technically a shim for the excellent [noble](https://github.com/sandeepmistry/noble/) 
 
-#install
+# install
 ```
 npm i --save react-native-ble
 ```
@@ -13,7 +13,7 @@ rnpm link
 ```
 For android also see https://facebook.github.io/react-native/docs/native-modules-android.html#register-the-module in the paragraph starting "The package needs to be provided..." for the required edits to getPackages() in MainApplication.java.
 
-#use
+# use
 See the [noble](https://github.com/sandeepmistry/noble/) api for usage
 ```
 var noble = ('react-native-ble');
