@@ -28,6 +28,9 @@ SOFTWARE.
 package com.geniem.rnble;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.os.Handler;
 import android.util.Log;
 
@@ -93,7 +96,6 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         reactContext.addLifecycleEventListener(this);
     }
 
-
     @Override
     public void initialize() {
         super.initialize();
@@ -102,7 +104,27 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         if(bluetoothAdapter != null){
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         }
+
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        context.registerReceiver(bleStateReceiver, filter);
     }
+
+    private final BroadcastReceiver bleStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                        BluetoothAdapter.ERROR);
+                if (state == BluetoothAdapter.STATE_OFF || state == BluetoothAdapter.STATE_ON) {
+                    WritableMap params = Arguments.createMap();
+                    params.putString("state",stateToString(bluetoothAdapter.getState()));
+                    sendEvent("ble.stateChange", params);
+                }
+            }
+        }
+    };
 
     /**
      * @return the name of this module. This will be the name used to {@code require()} this module
