@@ -6,8 +6,11 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react": "15.3.2",
-    "react-native": "^0.33.0",
+    "react": "15.5.4",
+    "react-native": "^0.43.3",
     "react-native-ble": "^1.0.7"
+  },
+  "devDependencies": {
+    "react": "^16.0.0-alpha.6"
   }
 }

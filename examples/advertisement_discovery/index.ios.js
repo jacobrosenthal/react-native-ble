@@ -26,7 +26,7 @@ class advertisement_discovery extends Component {
         </Text>
         <Text style={styles.instructions}>
           Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
+          Cmd+D or shake for dnpm ev menu
         </Text>
       </View>
     );
