@@ -1,0 +1,10 @@
+framework module BLEManager {
+  umbrella header "BLEManager.h"
+
+  export *
+  module * { export * }
+}
+
+module BLEManager.Swift {
+    header "BLEManager-Swift.h"
+}

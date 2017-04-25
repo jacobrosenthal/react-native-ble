@@ -6,7 +6,7 @@
 //  Copyright © 2017 Facebook. All rights reserved.
 //
 
-#import "RNBLE.m"
+#import "RNBLE.h"
 @import BLEManager;
 
 @interface BLEManagerModule () <BLEManagerDelegate>
@@ -41,7 +41,7 @@ RCT_EXPORT_METHOD(createManager) {
 }
 
 RCT_EXPORT_METHOD(destroyManager) {
-    [_manager invalidate];
+    [_manager destroy];
     _manager = nil;
 }
 
@@ -83,7 +83,7 @@ RCT_EXPORT_METHOD(discoverServices:(NSString*)deviceIdentifier
 
 
 RCT_EXPORT_METHOD(discoverIncludedServices: (NSString*)deviceIdentifier
-                  serviceIdentifier:(NSString*)serviceIdentifier
+                  serviceUUID:(NSString*)serviceUUID
                   serviceUUIDs:(NSArray*)serviceUUIDs) {
     
     [_manager discoverIncludedServices:deviceIdentifier
@@ -96,7 +96,7 @@ RCT_EXPORT_METHOD(discoverCharacteristics: (NSString*)deviceIdentifier
                   characteristicUUIDs:(NSArray*)characteristicUUIDs) {
     
     [_manager discoverCharacteristics:deviceIdentifier
-                    serviceIdentifier:serviceIdentifier
+                    serviceUUID:serviceUUID
                     characteristicUUIDs:characteristicUUIDs];
 }
 
@@ -109,7 +109,7 @@ RCT_EXPORT_METHOD(discoverDescriptors: (NSString*)deviceIdentifier
                     characteristicUUID:characteristicUUID];
 }
 
-// Mark: Characteristics operations ------------------------------------------------------------------------------------
+// Mark: Characteristic & Descriptor Read / Write / Notify
 
 RCT_EXPORT_METHOD(read:(NSString*)deviceIdentifier
                   serviceUUID:(NSString*)serviceUUID
@@ -124,12 +124,12 @@ RCT_EXPORT_METHOD(write:(NSString*)deviceIdentifier
                   serviceUUID:(NSString*)serviceUUID
                   characteristicUUID:(NSString*)characteristicUUID
                   data:(NSString*)data
-                  withoutResponse:(BOOL)response) {
+                  withoutResponse:(BOOL)withoutResponse) {
     
     [_manager write:deviceIdentifier
                     serviceUUID:serviceUUID
                     characteristicUUID:characteristicUUID
-                    data:data,
+                    data:data
                     withoutResponse:withoutResponse];
 }
 

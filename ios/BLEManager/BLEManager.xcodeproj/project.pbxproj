@@ -10,10 +10,9 @@
 		02D4686E1EA6840700F4A38E /* BLEManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02D468641EA6840700F4A38E /* BLEManager.framework */; };
 		02D468971EA6858C00F4A38E /* tests in Resources */ = {isa = PBXBuildFile; fileRef = 02D468931EA6858C00F4A38E /* tests */; };
 		02D468A91EA6897400F4A38E /* BLEEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D468A61EA6897400F4A38E /* BLEEvent.swift */; };
-		02D468AA1EA6897400F4A38E /* BLEManagerModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D468A71EA6897400F4A38E /* BLEManagerModule.swift */; };
+		02D468AA1EA6897400F4A38E /* BLEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D468A71EA6897400F4A38E /* BLEManager.swift */; };
 		02D468AB1EA6897400F4A38E /* CentralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D468A81EA6897400F4A38E /* CentralManager.swift */; };
 		02D468AE1EA6898500F4A38E /* BLEManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D468AC1EA6898500F4A38E /* BLEManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		02D468AF1EA6898500F4A38E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 02D468AD1EA6898500F4A38E /* Info.plist */; };
 		02D468B31EA6937C00F4A38E /* CBExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D468B21EA6937C00F4A38E /* CBExtensions.swift */; };
 		02D468B51EA6978300F4A38E /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D468B41EA6978300F4A38E /* Service.swift */; };
 		02D468B71EA6989C00F4A38E /* BLEAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D468B61EA6989C00F4A38E /* BLEAttribute.swift */; };
@@ -35,7 +34,7 @@
 		02D4686D1EA6840700F4A38E /* BLEManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BLEManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		02D468931EA6858C00F4A38E /* tests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tests; sourceTree = "<group>"; };
 		02D468A61EA6897400F4A38E /* BLEEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BLEEvent.swift; sourceTree = "<group>"; };
-		02D468A71EA6897400F4A38E /* BLEManagerModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BLEManagerModule.swift; sourceTree = "<group>"; };
+		02D468A71EA6897400F4A38E /* BLEManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BLEManager.swift; sourceTree = "<group>"; };
 		02D468A81EA6897400F4A38E /* CentralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralManager.swift; sourceTree = "<group>"; };
 		02D468AC1EA6898500F4A38E /* BLEManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLEManager.h; sourceTree = "<group>"; };
 		02D468AD1EA6898500F4A38E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -88,7 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				02D468A61EA6897400F4A38E /* BLEEvent.swift */,
-				02D468A71EA6897400F4A38E /* BLEManagerModule.swift */,
+				02D468A71EA6897400F4A38E /* BLEManager.swift */,
 				02D468A81EA6897400F4A38E /* CentralManager.swift */,
 				02D468B21EA6937C00F4A38E /* CBExtensions.swift */,
 				02D468B41EA6978300F4A38E /* Service.swift */,
@@ -191,7 +190,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02D468AF1EA6898500F4A38E /* Info.plist in Resources */,
 				02D468971EA6858C00F4A38E /* tests in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -212,7 +210,7 @@
 			files = (
 				02D468A91EA6897400F4A38E /* BLEEvent.swift in Sources */,
 				02D468B91EA6A1F600F4A38E /* Peripheral.swift in Sources */,
-				02D468AA1EA6897400F4A38E /* BLEManagerModule.swift in Sources */,
+				02D468AA1EA6897400F4A38E /* BLEManager.swift in Sources */,
 				02D468B51EA6978300F4A38E /* Service.swift in Sources */,
 				02D468AB1EA6897400F4A38E /* CentralManager.swift in Sources */,
 				02D468B71EA6989C00F4A38E /* BLEAttribute.swift in Sources */,
@@ -241,7 +239,9 @@
 		02D468761EA6840700F4A38E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -260,10 +260,14 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -280,13 +284,23 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openble.BLEManager;
+				PRODUCT_NAME = BLEManager;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+				SYMROOT = "$(SRCROOT)/build";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -295,7 +309,9 @@
 		02D468771EA6840700F4A38E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -314,10 +330,14 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -328,12 +348,22 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openble.BLEManager;
+				PRODUCT_NAME = BLEManager;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
+				SYMROOT = "$(SRCROOT)/build";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "arm64 armv7 armv7s";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -342,6 +372,7 @@
 		02D468791EA6840700F4A38E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
@@ -351,18 +382,21 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/**";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.openble.BLEManager;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
+				SYMROOT = "$(SRCROOT)/build";
 			};
 			name = Debug;
 		};
 		02D4687A1EA6840700F4A38E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
@@ -372,11 +406,13 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/**";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.openble.BLEManager;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 3.0;
+				SYMROOT = "$(SRCROOT)/build";
 			};
 			name = Release;
 		};

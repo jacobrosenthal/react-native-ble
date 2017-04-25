@@ -62,26 +62,26 @@ class CentralManager: NSObject, CBCentralManagerDelegate {
     @objc
     func centralManagerDidUpdateState(_ central: CBCentralManager){
         var payload = ["state": " "]
-        switch (central.state) {
-        case CBManagerState.poweredOff:
-            payload["state"] = "poweredOff"
-            break
-        case CBManagerState.unauthorized:
-            payload["state"] = "unauthorized"
-            break
-        case CBManagerState.unknown:
-            payload["state"] = "unknown"
-            break
-        case CBManagerState.poweredOn:
-            payload["state"] = "poweredOn"
-            break
-        case CBManagerState.resetting:
-            payload["state"] = "resetting"
-            break
-        case CBManagerState.unsupported:
-            payload["state"] = "unsupported"
-            break
-        }
+//        switch (central.state) {
+//        case CBManagerState.poweredOff:
+//            payload["state"] = "poweredOff"
+//            break
+//        case CBManagerState.unauthorized:
+//            payload["state"] = "unauthorized"
+//            break
+//        case CBManagerState.unknown:
+//            payload["state"] = "unknown"
+//            break
+//        case CBManagerState.poweredOn:
+//            payload["state"] = "poweredOn"
+//            break
+//        case CBManagerState.resetting:
+//            payload["state"] = "resetting"
+//            break
+//        case CBManagerState.unsupported:
+//            payload["state"] = "unsupported"
+//            break
+//        }
         
         dispatchEvent(BLEEvent.STATE_CHANGE.description, value: payload)
     }

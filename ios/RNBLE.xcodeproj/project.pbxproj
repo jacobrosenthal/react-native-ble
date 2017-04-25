@@ -7,26 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		02D468491EA54F8600F4A38E /* RNBLE.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D468481EA54F8600F4A38E /* RNBLE.m */; };
-		02D468991EA687CB00F4A38E /* BLEManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02D4688D1EA6851900F4A38E /* BLEManager.framework */; };
+		0293E1D41EAFFCEF00593544 /* RNBLE.m in Sources */ = {isa = PBXBuildFile; fileRef = 0293E1D31EAFFCEF00593544 /* RNBLE.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		02D4688C1EA6851900F4A38E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 02D468871EA6851800F4A38E /* BLEManager.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 02D468641EA6840700F4A38E;
-			remoteInfo = BLEManager;
-		};
-		02D4688E1EA6851900F4A38E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 02D468871EA6851800F4A38E /* BLEManager.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 02D4686D1EA6840700F4A38E;
-			remoteInfo = BLEManagerTests;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		58B511D91A9E6C8500147676 /* CopyFiles */ = {
@@ -41,11 +23,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		02D468481EA54F8600F4A38E /* RNBLE.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNBLE.m; sourceTree = "<group>"; };
-		02D468871EA6851800F4A38E /* BLEManager.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = BLEManager.xcodeproj; path = BLEManager/BLEManager.xcodeproj; sourceTree = "<group>"; };
-		134814201AA4EA6300B7C361 /* libRNBLE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNBLE.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		13BE3DEC1AC21097009241FE /* RNBLE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNBLE.h; sourceTree = "<group>"; };
-		13BE3DED1AC21097009241FE /* old_RNBLE.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = old_RNBLE.m; sourceTree = "<group>"; };
+		0293E1D21EAFFCEF00593544 /* RNBLE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNBLE.h; sourceTree = "<group>"; };
+		0293E1D31EAFFCEF00593544 /* RNBLE.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNBLE.m; sourceTree = "<group>"; };
+		134814201AA4EA6300B7C361 /* libRNBle.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNBle.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,34 +33,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02D468991EA687CB00F4A38E /* BLEManager.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		02D4684C1EA6806200F4A38E /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				02D468871EA6851800F4A38E /* BLEManager.xcodeproj */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		02D468881EA6851800F4A38E /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				02D4688D1EA6851900F4A38E /* BLEManager.framework */,
-				02D4688F1EA6851900F4A38E /* BLEManagerTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		134814211AA4EA7D00B7C361 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				134814201AA4EA6300B7C361 /* libRNBLE.a */,
+				134814201AA4EA6300B7C361 /* libRNBle.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -88,20 +50,18 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				13BE3DEC1AC21097009241FE /* RNBLE.h */,
-				02D468481EA54F8600F4A38E /* RNBLE.m */,
-				13BE3DED1AC21097009241FE /* old_RNBLE.m */,
+				0293E1D21EAFFCEF00593544 /* RNBLE.h */,
+				0293E1D31EAFFCEF00593544 /* RNBLE.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
-				02D4684C1EA6806200F4A38E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		58B511DA1A9E6C8500147676 /* RNBLE */ = {
+		58B511DA1A9E6C8500147676 /* RNBle */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNBLE" */;
+			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNBle" */;
 			buildPhases = (
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
@@ -111,9 +71,9 @@
 			);
 			dependencies = (
 			);
-			name = RNBLE;
+			name = RNBle;
 			productName = RCTDataManager;
-			productReference = 134814201AA4EA6300B7C361 /* libRNBLE.a */;
+			productReference = 134814201AA4EA6300B7C361 /* libRNBle.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -131,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNBLE" */;
+			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNBle" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -141,42 +101,19 @@
 			mainGroup = 58B511D21A9E6C8500147676;
 			productRefGroup = 58B511D21A9E6C8500147676;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 02D468881EA6851800F4A38E /* Products */;
-					ProjectRef = 02D468871EA6851800F4A38E /* BLEManager.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
-				58B511DA1A9E6C8500147676 /* RNBLE */,
+				58B511DA1A9E6C8500147676 /* RNBle */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		02D4688D1EA6851900F4A38E /* BLEManager.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = BLEManager.framework;
-			remoteRef = 02D4688C1EA6851900F4A38E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		02D4688F1EA6851900F4A38E /* BLEManagerTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = BLEManagerTests.xctest;
-			remoteRef = 02D4688E1EA6851900F4A38E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		58B511D71A9E6C8500147676 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02D468491EA54F8600F4A38E /* RNBLE.m in Sources */,
+				0293E1D41EAFFCEF00593544 /* RNBLE.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +153,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/ReactCommon/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -250,6 +192,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/ReactCommon/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
@@ -261,15 +208,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../react-native/React";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/ReactCommon/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = RNBLE;
+				PRODUCT_NAME = RNBle;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = RNBLE.h;
+				SWIFT_OBJC_BRIDGING_HEADER = "RNBle-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -279,15 +230,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				DEFINES_MODULE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../react-native/React";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/ReactCommon/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = RNBLE;
+				PRODUCT_NAME = RNBle;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = RNBLE.h;
+				SWIFT_OBJC_BRIDGING_HEADER = "RNBle-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
@@ -295,7 +250,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNBLE" */ = {
+		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNBle" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511ED1A9E6C8500147676 /* Debug */,
@@ -304,7 +259,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNBLE" */ = {
+		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNBle" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511F01A9E6C8500147676 /* Debug */,

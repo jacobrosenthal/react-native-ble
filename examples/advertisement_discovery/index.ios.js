@@ -19,7 +19,7 @@ class advertisement_discovery extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native!
+          Welcome to Advertisement Scanning
         </Text>
         <Text style={styles.instructions}>
           To get started, edit index.ios.js
@@ -33,11 +33,13 @@ class advertisement_discovery extends Component {
   }
 
   componentWillMount() {
+    console.log(noble);
     noble.on('stateChange', this._onStateChange);
     noble.on('discover', this._onDiscover);
   }
 
   _onStateChange(state) {
+    console.log(state);
     if (state === 'poweredOn') {
       noble.startScanning();
     } else {
@@ -93,5 +95,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
 
 AppRegistry.registerComponent('advertisement_discovery', () => advertisement_discovery);

@@ -17,14 +17,20 @@ public class BLEManager : NSObject {
         super.init()
     }
     
+    open func destroy(){
+        
+    }
+    
     // Mark: Connections
-    open func connect(deviceIdentifier: String, options: [String:AnyObject]?) {
+    @objc
+    open func connect(_ deviceIdentifier: String, options: [String:AnyObject]?) {
         
         // Connect to peripheral indicated by identifier
         manager.connectPeripheral(peripheralUUID: UUID(uuidString: deviceIdentifier)!)
     }
     
-    open func disconnect(deviceIdentifier: String){
+    @objc
+    open func disconnect(_ deviceIdentifier: String){
         
         // Disconnect from peripheral indicated by identifier
         manager.disconnectPeripheral(peripheralUUID: CBUUID(string: deviceIdentifier))
@@ -66,6 +72,43 @@ public class BLEManager : NSObject {
     }
 
     
+    // Mark: Discovery
+    open func discoverServices(_ deviceIdentifier: String, serviceUUIDs: [String]?) {
+        
+    }
+    
+    open func discoverIncludedServices(_ deviceIdentifier: String, serviceUUID: String, serviceUUIDs: [String]?) {
+        
+    }
+    
+    open func discoverCharacteristics(_ deviceIdentifier: String, serviceUUID: String, characteristicUUIDs: [String]?) {
+        
+    }
+    
+    open func discoverDescriptors(_ deviceIdentifier: String, serviceUUID: String, characteristicUUID: String) {
+        
+    }
+    
+    // Mark: Read & Write
+    open func read(_ deviceIdentifier: String, serviceUUID: String, characteristicUUID: String) {
+        
+    }
+    
+    open func write(_ deviceIdentifier: String, serviceUUID: String, characteristicUUID: String, data: String, withoutResponse: Bool) {
+        
+    }
+    
+    open func notify(_ deviceIdentifier: String, serviceUUID: String, characteristicUUID: String, notify: Bool){
+        
+    }
+    
+    open func readValue(_ deviceIdentifier: String, serviceUUID: String, characteristicUUID: String, descriptorUUID: String) {
+        
+    }
+    
+    open func writeValue(_ deviceIdentifier: String, serviceUUID: String, characteristicUUID: String, descriptorUUID: String, data: String) {
+        
+    }
     
     // MARK: Private interface -----------------------------------------------------------------------------------------
     fileprivate func dispatchEvent(_ event: String, value: Any) {
