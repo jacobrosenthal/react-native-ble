@@ -15,19 +15,34 @@ import {
 var noble = require('react-native-ble');
 
 class advertisement_discovery extends Component {
+  constructor(){
+    super();
+    this.state = {
+      devices: [],
+    };
+  }
+
   render() {
+    const { devices } = this.state;
+
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native!
+          Welcome to Advertisement Scanning
         </Text>
         <Text style={styles.instructions}>
-          To get started, edit index.ios.js
+          Devices Scanned [{devices.length}]
         </Text>
         <Text style={styles.instructions}>
           Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
+          Cmd+D or shake for npm dev menu
         </Text>
+
+        <View style={{ marginTop: 25 }}>
+          {devices.length ?
+            devices.map((device, key) => <View key={key} style={{ borderColor: 'black', borderWidth: 1 }} ><Text onPress={this._handleDeviceClick.bind(this, device)}>Connect to {device.uuid}</Text></View>) : null
+          }
+        </View>
       </View>
     );
   }
@@ -37,15 +52,22 @@ class advertisement_discovery extends Component {
     noble.on('discover', this._onDiscover);
   }
 
-  _onStateChange(state) {
+  _handleDeviceClick = (device) =>{
+    device.connect((error) => {
+      console.log(error);
+      console.log('made it');
+    })
+  }
+
+  _onStateChange = (state) => {
     if (state === 'poweredOn') {
-      noble.startScanning();
+      noble.startScanning([], true);
     } else {
       noble.stopScanning();
     }
   }
 
-  _onDiscover(peripheral) {
+  _onDiscover = (peripheral) => {
     console.log('peripheral discovered (' + peripheral.id +
                 ' with address <' + peripheral.address +  ', ' + peripheral.addressType + '>,' +
                 ' connectable ' + peripheral.connectable + ',' +
@@ -72,6 +94,9 @@ class advertisement_discovery extends Component {
     }
 
     console.log();
+    this.setState({
+      devices: [...this.state.devices, peripheral],
+    });
   }
 }
 
@@ -93,5 +118,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
 
 AppRegistry.registerComponent('advertisement_discovery', () => advertisement_discovery);
