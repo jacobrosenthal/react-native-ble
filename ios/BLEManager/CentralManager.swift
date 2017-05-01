@@ -9,7 +9,6 @@
 import Foundation
 import CoreBluetooth
 
-@objc
 class CentralManager: NSObject, CBCentralManagerDelegate {
     fileprivate var _peripherals: [Peripheral] = []
     fileprivate var _manager: CBCentralManager!
@@ -17,20 +16,18 @@ class CentralManager: NSObject, CBCentralManagerDelegate {
     
     public init(withQueue queue: DispatchQueue, dispatchDelegate: BLEManagerDelegate) {
         super.init()
-        
         _dispatch = dispatchDelegate
         _manager = CBCentralManager(delegate: self, queue: queue)
     }
     
     // MARK: Discovery
-    @objc
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber){
+    public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber){
         if _peripherals.contains(where: { $0.identifier == peripheral.identifier }) {
             return
         }
         
         // Store the peripheral for later.
-        let periph = Peripheral(peripheral: peripheral)
+        let periph = Peripheral(peripheral: peripheral, delegate: _dispatch)
         _peripherals.append(periph)
         
         
@@ -38,18 +35,15 @@ class CentralManager: NSObject, CBCentralManagerDelegate {
     }
     
     // MARK: Connections
-    @objc
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral){
+    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral){
         dispatchEvent(BLEEvent.CONNECT.description, value: [ "peripheralUuid": peripheral.identifier.uuidString as AnyObject])
     }
-    
-    @objc
-    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?){
+
+    public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?){
         dispatchEvent(BLEEvent.DISCONNECT.description, value: [ "peripheralUuid": peripheral.identifier.uuidString as AnyObject])
     }
-    
-    @objc
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?){
+
+    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?){
         let payload = [
             "peripheralUuid": peripheral.identifier.uuidString as AnyObject,
             "error": error?.localizedDescription as AnyObject
@@ -59,35 +53,57 @@ class CentralManager: NSObject, CBCentralManagerDelegate {
     }
     
     // MARK: State
-    @objc
-    func centralManagerDidUpdateState(_ central: CBCentralManager){
+    public func centralManagerDidUpdateState(_ central: CBCentralManager){
         var payload = ["state": " "]
-//        switch (central.state) {
-//        case CBManagerState.poweredOff:
-//            payload["state"] = "poweredOff"
-//            break
-//        case CBManagerState.unauthorized:
-//            payload["state"] = "unauthorized"
-//            break
-//        case CBManagerState.unknown:
-//            payload["state"] = "unknown"
-//            break
-//        case CBManagerState.poweredOn:
-//            payload["state"] = "poweredOn"
-//            break
-//        case CBManagerState.resetting:
-//            payload["state"] = "resetting"
-//            break
-//        case CBManagerState.unsupported:
-//            payload["state"] = "unsupported"
-//            break
-//        }
-        
+        if #available(iOS 10.0, *) {
+            switch (central.state) {
+            case CBManagerState.poweredOff:
+                payload["state"] = "poweredOff"
+                break
+            case CBManagerState.unauthorized:
+                payload["state"] = "unauthorized"
+                break
+            case CBManagerState.unknown:
+                payload["state"] = "unknown"
+                break
+            case CBManagerState.poweredOn:
+                payload["state"] = "poweredOn"
+                break
+            case CBManagerState.resetting:
+                payload["state"] = "resetting"
+                break
+            case CBManagerState.unsupported:
+                payload["state"] = "unsupported"
+                break
+            }
+        } else{
+            let state = CBCentralManagerState(rawValue: central.state.rawValue)
+            switch (state!){
+            case CBCentralManagerState.poweredOff:
+                payload["state"] = "poweredOff"
+                break
+            case CBCentralManagerState.unauthorized:
+                payload["state"] = "unauthorized"
+                break
+            case CBCentralManagerState.unknown:
+                payload["state"] = "unknown"
+                break
+            case CBCentralManagerState.poweredOn:
+                payload["state"] = "poweredOn"
+                break
+            case CBCentralManagerState.resetting:
+                payload["state"] = "resetting"
+                break
+            case CBCentralManagerState.unsupported:
+                payload["state"] = "unsupported"
+                break
+            }
+        }
+        print(payload)
         dispatchEvent(BLEEvent.STATE_CHANGE.description, value: payload)
     }
     
-    @objc
-    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]){
+    public func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]){
         
     }
     

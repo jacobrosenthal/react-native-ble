@@ -1,0 +1,3 @@
+framework module BLEManager {
+  umbrella header "BLEManager-Swift.h"
+}

@@ -10,8 +10,10 @@ import Foundation
 import CoreBluetooth
 
 public class Service: BLEAttribute{
-    fileprivate var _peripheral: Peripheral!
-    fileprivate var _service: CBService!
+    public var _peripheral: Peripheral!
+    public var _service: CBService!
+    public var _characteristics: [Characteristic] = []
+    public var _includedServices: [Service] = []
 
     init(peripheral: Peripheral, service: CBService){
         super.init()
@@ -28,6 +30,14 @@ extension Service{
             "uuid": _service.uuid.uuidString as AnyObject,
             "id": attributeId as AnyObject
         ]
+    }
+    
+    public func findCharacteristic(uuidString: String) -> Characteristic?{
+        guard let idx = _characteristics.index(where: {$0._characteristic.uuid.uuidString == uuidString}) else {
+            return nil
+        }
+        
+        return _characteristics[idx]
     }
 }
 

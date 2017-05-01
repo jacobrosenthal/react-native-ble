@@ -2,6 +2,6 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-@interface BLEManagerModule : RCTEventEmitter <RCTBridgeModule>
+@interface RNBLE : RCTEventEmitter <RCTBridgeModule>
 
 @end

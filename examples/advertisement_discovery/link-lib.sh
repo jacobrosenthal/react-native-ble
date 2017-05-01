@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Delete old libs
+rm -rf ./ios/BLEManager.framework
+
 rsync -a --delete --progress ../../ ./node_modules/react-native-ble \
  --exclude examples \
  --exclude '.*' \

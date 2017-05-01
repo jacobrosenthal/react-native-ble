@@ -6,14 +6,14 @@
 //  Copyright © 2017 Facebook. All rights reserved.
 //
 
-#import "RNBLE.h"
+#import "RNBle.h"
 @import BLEManager;
 
-@interface BLEManagerModule () <BLEManagerDelegate>
+@interface RNBLE () <BLEManagerDelegate>
 @property(nonatomic) BLEManager* manager;
 @end
 
-@implementation BLEManagerModule
+@implementation RNBLE
 
 @synthesize methodQueue = _methodQueue;
 
@@ -36,6 +36,7 @@ RCT_EXPORT_MODULE(BLEManager);
 }
 
 RCT_EXPORT_METHOD(createManager) {
+    NSLog(@"CALLING CREATE MANAGER");
     _manager = [[BLEManager alloc] initWithQueue:self.methodQueue];
     _manager.delegate = self;
 }
@@ -64,7 +65,6 @@ RCT_EXPORT_METHOD(stopScanning) {
 // Mark: Connection management -----------------------------------------------------------------------------------------
 RCT_EXPORT_METHOD(connect:(NSString*)deviceIdentifier
                   options:(NSDictionary*)options) {
-    
     [_manager connect:deviceIdentifier
                       options:options];
 }
@@ -110,7 +110,6 @@ RCT_EXPORT_METHOD(discoverDescriptors: (NSString*)deviceIdentifier
 }
 
 // Mark: Characteristic & Descriptor Read / Write / Notify
-
 RCT_EXPORT_METHOD(read:(NSString*)deviceIdentifier
                   serviceUUID:(NSString*)serviceUUID
                   characteristicUUID:(NSString*)characteristicUUID) {
