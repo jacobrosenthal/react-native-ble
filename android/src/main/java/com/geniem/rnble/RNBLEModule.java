@@ -307,7 +307,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                     int propertyBitmask = c.getProperties();
 
                     if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_BROADCAST) != 0){
-                        properties.pushString("boradcast");
+                        properties.pushString("broadcast");
                     }
 
                     if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_READ) != 0){
@@ -327,7 +327,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                     }                                                
 
                     if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
-                        properties.pushString("indicaste");
+                        properties.pushString("indicate");
                     }
 
                     if((propertyBitmask & BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE) != 0){
