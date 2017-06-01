@@ -12,7 +12,7 @@ var Buffer = require('buffer').Buffer;
 
 var NobleBindings = function() {
   DeviceEventEmitter.addListener('ble.connect', this.onConnect.bind(this));
-  DeviceEventEmitter.addListener('ble.disconnect', this.onDisconnect.bind(this));  
+  DeviceEventEmitter.addListener('ble.disconnect', this.onDisconnect.bind(this));
   DeviceEventEmitter.addListener('ble.stateChange', this.onStateChange.bind(this));
   DeviceEventEmitter.addListener('ble.discover', this.onDiscover.bind(this));
   DeviceEventEmitter.addListener('ble.servicesDiscover', this.onServicesDiscover.bind(this));
@@ -46,9 +46,9 @@ NobleBindings.prototype.onIncludedServicesDiscover = function({ peripheralUuid, 
 
 NobleBindings.prototype.onCharacteristicsDiscover = function({ peripheralUuid, serviceUuid, characteristics }) {
   this.emit(
-    'characteristicsDiscover', 
-    peripheralUuid, 
-    serviceUuid, 
+    'characteristicsDiscover',
+    peripheralUuid,
+    serviceUuid,
     characteristics
   );
 };
@@ -73,7 +73,7 @@ NobleBindings.prototype.onStateChange = function(params) {
   this.emit('stateChange', params.state);
 };
 
-NobleBindings.prototype.onDiscover = function({ id, address, addressType, advertisement, connectable, rssi }) {  
+NobleBindings.prototype.onDiscover = function({ id, address, addressType, advertisement, connectable, rssi }) {
   if (advertisement.manufacturerData) {
     advertisement.manufacturerData = new Buffer(JSON.parse(advertisement.manufacturerData), 'base64');
   }
@@ -83,7 +83,7 @@ NobleBindings.prototype.onDiscover = function({ id, address, addressType, advert
       uuid,
       data: new Buffer(JSON.parse(data), 'base64'),
     }));
-  } 
+  }
 
   this.emit('discover', id, address, addressType, connectable, advertisement, rssi);
 };
@@ -110,7 +110,6 @@ nobleBindings.disconnect = function(deviceUuid) {
 
 nobleBindings.startScanning = function(serviceUuids, allowDuplicates) {
   var duplicates = allowDuplicates || false;
-  let serviceUuid = serviceUuids ? serviceUuids.pop() : null;
   RNBLE.startScanning(toAppleUuids(serviceUuids), duplicates);
   this.emit('scanStart');
 };
