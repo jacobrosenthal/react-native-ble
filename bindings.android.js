@@ -57,8 +57,8 @@ NobleBindings.prototype.onDescriptorsDiscover = function({ peripheralUuid, servi
   this.emit('descriptorsDiscover', peripheralUuid, serviceUuid, characteristicUuid, descriptors);
 };
 
-NobleBindings.prototype.onNotify = function({ peripheralUuid, serviceUuid, characteristicUuid, notifyState }) {
-  this.emit('notify', peripheralUuid, serviceUuid, characteristicUuid, notifyState);
+NobleBindings.prototype.onNotify = function({ peripheralUuid, serviceUuid, characteristicUuid, state }) {
+  this.emit('notify', peripheralUuid, serviceUuid, characteristicUuid, state);
 };
 
 NobleBindings.prototype.onData = function({ peripheralUuid, serviceUuid, characteristicUuid, data, isNotification }) {
