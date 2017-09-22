@@ -28,10 +28,10 @@ SOFTWARE.
 package com.geniem.rnble;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.util.Log;
 
 import android.bluetooth.BluetoothAdapter;
@@ -90,11 +90,15 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
+    HandlerThread handlerThread;
+    Handler mHandler;
+
     public RNBLEModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.context = reactContext;
         reactContext.addLifecycleEventListener(this);
     }
+
 
     @Override
     public void initialize() {
@@ -104,27 +108,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
         if(bluetoothAdapter != null){
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         }
-
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        context.registerReceiver(bleStateReceiver, filter);
     }
-
-    private final BroadcastReceiver bleStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                        BluetoothAdapter.ERROR);
-                if (state == BluetoothAdapter.STATE_OFF || state == BluetoothAdapter.STATE_ON) {
-                    WritableMap params = Arguments.createMap();
-                    params.putString("state",stateToString(bluetoothAdapter.getState()));
-                    sendEvent("ble.stateChange", params);
-                }
-            }
-        }
-    };
 
     /**
      * @return the name of this module. This will be the name used to {@code require()} this module
@@ -390,10 +374,33 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
 
     @ReactMethod
     public void notify(String peripheralUuid, String serviceUuid, String characteristicUuid, Boolean notify){
-        for(BluetoothGattService service : this.discoveredServices){
+
+        if(mHandler!=null){
+            Message message = mHandler.obtainMessage(2);
+            Bundle data = new Bundle();
+            data.putString("peripheralUuid",peripheralUuid);
+            data.putString("serviceUuid",serviceUuid);
+            data.putString("characteristicUuid",characteristicUuid);
+            data.putBoolean("notify",notify);
+            message.setData(data);
+            message.sendToTarget();
+        } else{
+            WritableMap params = Arguments.createMap();
+            params.putString("peripheralUuid", peripheralUuid);
+            params.putString("serviceUuid", toNobleUuid(serviceUuid));
+            params.putString("characteristicUuid", toNobleUuid(characteristicUuid));
+            params.putBoolean("state", false);
+            this.sendEvent("ble.notify", params);
+        }
+
+        /*for(BluetoothGattService service : this.discoveredServices){
             String uuid = service.getUuid().toString();
             //find requested service
             if(uuid != null && uuid.equalsIgnoreCase(serviceUuid)){
+
+
+
+
                 List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
                 //find requested characteristic
                 for(BluetoothGattCharacteristic characteristic : characteristics){
@@ -403,6 +410,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID_CLIENT_CHARACTERISTIC_CONFIG);
                             if(descriptor != null) {
                                 descriptor.setValue(notify ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                                descriptor.setValue(notify ? BluetoothGattDescriptor.ENABLE_INDICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
                                 boolean result = bluetoothGatt.writeDescriptor(descriptor);
                                 if(result) {
                                     bluetoothGatt.setCharacteristicNotification(characteristic, notify);
@@ -420,7 +428,7 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                 }
                 break;  
             }
-        }
+        }*/
     }
 
     @ReactMethod
@@ -483,6 +491,28 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
     @Override
     public void onHostResume() {
         Log.d(TAG, "onHostResume");
+        handlerThread = new HandlerThread("SubscriptionThread");
+        handlerThread.start();
+
+        // Create a handler attached to the HandlerThread's Looper
+        mHandler = new Handler(handlerThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if(msg!=null){
+                    switch (msg.what){
+                        case 2:
+                            Bundle data = msg.getData();
+                            if(data!=null){
+                                String peripheralUuid =  data.getString("peripheralUuid","");
+                                String serviceUuid = data.getString("serviceUuid","");
+                                String characteristicUuid = data.getString("characteristicUuid","");
+                                boolean notify = data.getBoolean("notify",true);
+                                processNotify(peripheralUuid,serviceUuid,characteristicUuid,notify);
+                            }
+                    }
+                }
+            }
+        };
     }
 
     @Override
@@ -492,11 +522,18 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
             bluetoothLeScanner.stopScan(scanCallback);
             scanCallback = null;
         }
-        if (bluetoothGatt != null) {
+        /*if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
             bluetoothGatt.close();
             bluetoothGatt = null;
             connectionState = STATE_DISCONNECTED;
+        }*/
+        if(handlerThread!=null){
+            handlerThread.quit();
+            handlerThread = null;
+            if(mHandler!=null){
+                mHandler = null;
+            }
         }
     }
 
@@ -797,5 +834,94 @@ class RNBLEModule extends ReactContextBaseJavaModule implements LifecycleEventLi
                 rnbleModule.sendEvent("ble.discover", params);
             }
         }
-    } 
+    }
+
+
+    // Some devices reuse UUIDs across characteristics, so we can't use service.getCharacteristic(characteristicUUID)
+    // instead check the UUID and properties for each characteristic in the service until we find the best match
+    // This function prefers Notify over Indicate
+    private BluetoothGattCharacteristic findNotifyCharacteristic(BluetoothGattService service, String characteristicUUID) {
+        BluetoothGattCharacteristic characteristic = null;
+
+        try {
+            // Check for Notify first
+            List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+            for (BluetoothGattCharacteristic c : characteristics) {
+                if(c == null)
+                    continue;
+                String cUuid = c.getUuid().toString();
+                if (characteristicUUID.equalsIgnoreCase(cUuid)) {
+                    if(((c.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) !=0) ||
+                            ((c.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) !=0)
+                            )
+                    characteristic = c;
+                    break;
+                }
+            }
+
+            if (characteristic != null) return characteristic;
+
+            // As a last resort, try and find ANY characteristic with this UUID, even if it doesn't have the correct properties
+            if (characteristic == null) {
+                characteristic = service.getCharacteristic(UUID.fromString(characteristicUUID));
+            }
+
+            return characteristic;
+        }catch (Exception e) {
+            Log.e(TAG, "Errore su caratteristica " + characteristicUUID ,e);
+            return null;
+        }
+    }
+
+    private void processNotify(String peripheralUuid, String serviceUuid, String characteristicUuid, Boolean notify){
+        WritableMap params = Arguments.createMap();
+        params.putString("peripheralUuid", peripheralUuid);
+        params.putString("serviceUuid", toNobleUuid(serviceUuid));
+        params.putString("characteristicUuid", toNobleUuid(characteristicUuid));
+        try {
+            if (bluetoothGatt == null) {
+                throw new Exception("BluetoothGatt instance is null");
+            }
+            BluetoothGattService service = bluetoothGatt.getService(UUID.fromString(serviceUuid));
+            if (service == null) {
+                throw new Exception("Service not found");
+            }
+            BluetoothGattCharacteristic characteristic = findNotifyCharacteristic(service,characteristicUuid);
+            if(characteristic == null){
+                throw new Exception("Notify characteristics not found");
+            }
+
+            if(bluetoothGatt.setCharacteristicNotification(characteristic, notify)){
+                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID_CLIENT_CHARACTERISTIC_CONFIG);
+                if(descriptor == null) {
+                    throw new Exception("Descriptor 0x2902 not found");
+                }
+                boolean notifyFlag = false;
+                if(((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) !=0)){
+                    notifyFlag = true;
+                    descriptor.setValue(notify ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                } else{
+                    descriptor.setValue(notify ? BluetoothGattDescriptor.ENABLE_INDICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                }
+
+                boolean result = bluetoothGatt.writeDescriptor(descriptor);
+                if(result) {
+                    if(notifyFlag){
+                        Log.i(TAG,"Notification enabled for "+ characteristicUuid);
+                    } else{
+                        Log.i(TAG,"Indication enabled for "+ characteristicUuid);
+                    }
+                    params.putBoolean("state", notify);
+                }
+            } else{
+                throw new Exception("Can not enable/disable notification for characteristics "+characteristicUuid);
+            }
+
+        }catch (Exception e){
+            params.putBoolean("state", false);
+            Log.e(TAG,"NotifyError",e);
+        } finally {
+            this.sendEvent("ble.notify", params);
+        }
+    }
 }
